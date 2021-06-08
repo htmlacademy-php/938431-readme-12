@@ -13,7 +13,7 @@ $posts = [
     [
         'title' => 'Игра престолов',
         'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!',
         'user_name' => 'Владик',
         'avatar_url' => 'userpic.jpg'
     ],
@@ -39,7 +39,36 @@ $posts = [
         'avatar_url' => 'userpic.jpg'
     ],
 ];
+
+$excerpt_length = 300;
+
+function get_text_excerpt ($text, $length) {
+    $strings = explode(' ', $text);
+    $strings_count = count($strings);
+    $text_length = 0;
+    $index = 0;
+
+    while ($text_length < $length && $index < $strings_count) {
+        $text_length +=strlen($strings[$index]);
+        // Учтем пробелы между словами - добавим единицу
+        $text_length++;
+        $index++;
+    }
+
+    $new_strings = array_slice($strings, 0, $index - 1);
+    return implode(' ', $new_strings);
+}
+
+function get_text_template ($text_string, $count) {
+    if (strlen($text_string) <= $count) {
+        return '<p>' . $text_string . '</p>';
+    }
+
+    return '<p>' . get_text_excerpt($text_string, $count) . '...</p>
+    <a class="post-text__more-link" href="#">Читать далее</a>';
+};
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -253,8 +282,9 @@ $posts = [
                         <cite>Неизвестный Автор</cite>
                     </blockquote>
 
-                    <?php elseif ($post['type'] === 'post-text'): ?>
-                    <p><?= $post['content'] ?></p>
+                    <?php elseif ($post['type'] === 'post-text'):
+                        echo get_text_template($post['content'], $excerpt_length);
+                    ?>
 
                     <?php elseif ($post['type'] === 'post-photo'): ?>
                     <div class="post-photo__image-wrapper">
