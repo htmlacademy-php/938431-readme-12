@@ -40,8 +40,6 @@ $posts = [
     ],
 ];
 
-$excerpt_length = 300;
-
 function get_text_excerpt ($text, $length) {
     $strings = explode(' ', $text);
     $strings_count = count($strings);
@@ -59,7 +57,7 @@ function get_text_excerpt ($text, $length) {
     return implode(' ', $new_strings);
 }
 
-function get_text_template ($text_string, $count) {
+function get_text_template ($text_string, $count = 300) {
     if (strlen($text_string) <= $count) {
         return '<p>' . $text_string . '</p>';
     }
