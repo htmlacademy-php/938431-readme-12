@@ -262,3 +262,63 @@ function generate_random_date($index)
 
     return $dt;
 }
+
+// Мои функции
+
+/**
+ * Обрезает текст до заданной длины, не обрезая слов.
+ * Вариант 1. (с использованием массива)
+ * @param string $text Исходный текст
+ * @param integer $max_length Максимальная длина обрезанного текста
+ * @return string
+*/
+function cut_excerpt_1 ($text, $max_length) {
+    $words = explode(' ', $text);
+    $result_length = 0;
+
+    foreach ($words as $key => $word) {
+        $new_length = $result_length + mb_strlen($word);
+        $i = $key;
+       if ($new_length > $max_length) {
+           break;
+       } else {
+        $result_length = $new_length + 1;
+       }
+    }
+
+    $chosen_words = array_slice($words, 0, $i);
+    return implode(' ', $chosen_words);
+}
+
+/**
+ * Обрезает текст до заданной длины, не обрезая слов.
+ * Вариант 2. (не использует массивы, только функции для строк)
+ * @param string $text Исходный текст
+ * @param integer $max_length Максимальная длина обрезанного текста
+ * @return string
+*/
+function cut_excerpt_2 ($text, $max_length) {
+    $new_text = mb_substr($text, 0, $max_length + 1);
+    $position = mb_strrpos($new_text, ' ');
+    $new_text = mb_substr($new_text, 0, $position);
+    return $new_text;
+}
+
+/**
+ * Возвращает разметку с текстом.
+ * Если длина текста превышает заданную, обрезает его и добавляет многоточие и ссылку "Читать далее".
+
+ * @param string $text Исходный текст
+ * @param integer $max_length Максимальная длина обрезанного текста
+ * @return string
+*/
+function text_template ($text, $max_length = 300) {
+    if (mb_strlen($text) <= $max_length) {
+        $result = '<p>' . $text . '</p>';
+    } else {
+        $result = '<p>' . cut_excerpt_2($text, $max_length) . '...</p>
+    <a class="post-text__more-link" href="#">Читать далее</a>';
+    }
+
+    return $result;
+};
