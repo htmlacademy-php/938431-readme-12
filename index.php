@@ -1,4 +1,6 @@
 <?php
+require_once('helpers.php');
+
 $is_auth = rand(0, 1);
 
 $user_name = 'Юлия'; // укажите здесь ваше имя
@@ -13,7 +15,7 @@ $posts = [
     [
         'title' => 'Игра престолов',
         'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!',
         'user_name' => 'Владик',
         'avatar_url' => 'userpic.jpg'
     ],
@@ -39,7 +41,9 @@ $posts = [
         'avatar_url' => 'userpic.jpg'
     ],
 ];
+
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -253,8 +257,9 @@ $posts = [
                         <cite>Неизвестный Автор</cite>
                     </blockquote>
 
-                    <?php elseif ($post['type'] === 'post-text'): ?>
-                    <p><?= $post['content'] ?></p>
+                    <?php elseif ($post['type'] === 'post-text'):
+                        echo text_template($post['content']);
+                    ?>
 
                     <?php elseif ($post['type'] === 'post-photo'): ?>
                     <div class="post-photo__image-wrapper">
