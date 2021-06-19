@@ -287,7 +287,7 @@ function cut_excerpt_1 ($text, $max_length) {
     }
 
     $chosen_words = array_slice($words, 0, $i);
-    return implode(' ', $chosen_words);
+    return strip_tags(implode(' ', $chosen_words));
 }
 
 /**
@@ -301,7 +301,7 @@ function cut_excerpt_2 ($text, $max_length) {
     $new_text = mb_substr($text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
     $new_text = mb_substr($new_text, 0, $position);
-    return $new_text;
+    return strip_tags($new_text);
 }
 
 /**
