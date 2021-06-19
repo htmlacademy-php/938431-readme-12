@@ -279,15 +279,15 @@ function cut_excerpt_1 ($text, $max_length) {
     foreach ($words as $key => $word) {
         $new_length = $result_length + mb_strlen($word);
         $i = $key;
-       if ($new_length > $max_length) {
-           break;
-       } else {
-        $result_length = $new_length + 1;
-       }
+        if ($new_length > $max_length) {
+            break;
+        } else {
+            $result_length = $new_length + 1;
+        }
     }
 
     $chosen_words = array_slice($words, 0, $i);
-    return strip_tags(implode(' ', $chosen_words));
+    return implode(' ', $chosen_words);
 }
 
 /**
@@ -301,12 +301,12 @@ function cut_excerpt_2 ($text, $max_length) {
     $new_text = mb_substr($text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
     $new_text = mb_substr($new_text, 0, $position);
-    return strip_tags($new_text);
+    return $new_text;
 }
 
 /**
- * Возвращает разметку с текстом.
- * Если длина текста превышает заданную, обрезает его и добавляет многоточие и ссылку "Читать далее".
+ * Возвращает разметку с отфильтрованным текстом.
+ * Если длина текста превышает заданную, обрезает его, фильтрует и добавляет многоточие и ссылку "Читать далее".
 
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
@@ -314,9 +314,9 @@ function cut_excerpt_2 ($text, $max_length) {
 */
 function text_template ($text, $max_length = 300) {
     if (mb_strlen($text) <= $max_length) {
-        $result = '<p>' . $text . '</p>';
+        $result = '<p>' . htmlspecialchars($text) . '</p>';
     } else {
-        $result = '<p>' . cut_excerpt_2($text, $max_length) . '...</p>
+        $result = '<p>' . htmlspecialchars(cut_excerpt_2($text, $max_length)) . '...</p>
     <a class="post-text__more-link" href="#">Читать далее</a>';
     }
 
