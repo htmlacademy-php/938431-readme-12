@@ -15,7 +15,7 @@ $posts = [
     [
         'title' => 'Игра престолов',
         'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!<script>alert(\'Boom!\');</script> Не могу дождаться начала финального сезона своего любимого сериала!',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!<script>alert(\'Boom!\');</script> Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!',
         'user_name' => 'Владик',
         'avatar_url' => 'userpic.jpg'
     ],
@@ -44,7 +44,9 @@ $posts = [
 
 $title = 'readme: популярное';
 
-$content = include_template('main.php', ['posts' => $posts]);
+$posts_with_date = add_dates($posts);
+
+$content = include_template('main.php', ['posts' => $posts_with_date]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);

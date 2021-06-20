@@ -322,3 +322,97 @@ function text_template ($text, $max_length = 300) {
 
     return $result;
 };
+
+/**
+ * Добавляет всем элементам массива новое поле с ключом "date" и значением - случайной датой
+
+ * @param array $elements - Исходный массив
+*/
+function add_dates ($elements) {
+    $elements_with_date = [];
+    foreach ($elements as $i => $element) {
+        $element['date'] = generate_random_date($i);
+        $elements_with_date[$i] = $element;
+    }
+    return $elements_with_date;
+}
+
+/**
+ * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
+ * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
+*/
+function format_date($date) {
+    $date = date_create($date);
+    return date_format($date, 'd-m-Y H:i');
+}
+
+/**
+ * Возвращает интервал времени между текущей датой и заданной
+ * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
+*/
+function create_date_interval($date) {
+    $target_date = date_create('now');
+    $origin_date = date_create($date);
+    return date_diff($origin_date, $target_date);
+}
+
+/**
+ * Увеличивает первый параметр на единицу, если второй параметр отличен от false|0
+ * @param int $base Число, которое увеличивается при выполнении условия
+ * @param int $fraction Число, в зависимости от значения которого, увеличивается первый параметр
+*/
+function round_to_ceil($base, $fraction) {
+    return $fraction ? $base++ : $base;
+}
+
+/**
+ * Возвращает строку вида "5 минут назад" на основании переданного временного интервала
+ * @param object $interval Экземпляр DateInterval
+ * @return string
+*/
+function generate_inerval_text($interval) {
+    $passed_seconds = $interval -> s;
+    $passed_minutes = $interval -> i;
+    $passed_hours = $interval -> h;
+    $passed_days = $interval -> d;
+    $passed_months = $interval -> m;
+    $passed_years = $interval -> y;
+
+    switch (true) {
+        case ($passed_years > 0):
+            $result = round_to_ceil($passed_years, $passed_months);
+            $result .= get_noun_plural_form($result, ' год', ' года', ' лет');
+            break;
+
+        case ($passed_months > 0):
+            $result = round_to_ceil($passed_months, $passed_days);
+            $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
+            break;
+
+        case ($passed_days > 0):
+            $result = round_to_ceil($passed_days, $passed_hours);
+            $result .= get_noun_plural_form($result, ' день', ' дня', ' дней');
+            break;
+
+        case ($passed_hours > 0):
+            $result = round_to_ceil($passed_hours, $passed_minutes);
+            $result .= get_noun_plural_form($result, ' час', ' часа', ' часов');
+            break;
+
+        default:
+            $result = round_to_ceil($passed_minutes, $passed_seconds);
+            $result .= get_noun_plural_form($result, ' минута', ' минуты', ' минут');
+            break;
+    }
+    return $result .= ' назад';
+};
+
+/**
+ * Возвращает строку вида "5 минут назад" на основании переданной даты в прошлом
+ * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
+ * @return string
+*/
+function generate_passed_time_text($date) {
+    $interval = create_date_interval($date);
+    return generate_inerval_text($interval);
+}
