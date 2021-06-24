@@ -272,22 +272,22 @@ function generate_random_date($index)
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function cut_excerpt_1 ($text, $max_length) {
+function cut_excerpt_1($text, $max_length) {
     $words = explode(' ', $text);
     $result_length = 0;
 
     foreach ($words as $key => $word) {
         $new_length = $result_length + mb_strlen($word);
         $i = $key;
-       if ($new_length > $max_length) {
-           break;
-       } else {
-        $result_length = $new_length + 1;
-       }
+        if ($new_length > $max_length) {
+            break;
+        } else {
+            $result_length = $new_length + 1;
+        }
     }
 
     $chosen_words = array_slice($words, 0, $i);
-    return strip_tags(implode(' ', $chosen_words));
+    return implode(' ', $chosen_words);
 }
 
 /**
@@ -297,28 +297,129 @@ function cut_excerpt_1 ($text, $max_length) {
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function cut_excerpt_2 ($text, $max_length) {
+function cut_excerpt_2($text, $max_length) {
     $new_text = mb_substr($text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
     $new_text = mb_substr($new_text, 0, $position);
-    return strip_tags($new_text);
+    return $new_text;
 }
 
 /**
- * Возвращает разметку с текстом.
- * Если длина текста превышает заданную, обрезает его и добавляет многоточие и ссылку "Читать далее".
+ * Возвращает разметку с отфильтрованным текстом.
+ * Если длина текста превышает заданную, обрезает его, фильтрует и добавляет многоточие и ссылку "Читать далее".
 
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function text_template ($text, $max_length = 300) {
+function text_template($text, $max_length = 300) {
     if (mb_strlen($text) <= $max_length) {
-        $result = '<p>' . $text . '</p>';
+        $result = '<p>' . htmlspecialchars($text) . '</p>';
     } else {
-        $result = '<p>' . cut_excerpt_2($text, $max_length) . '...</p>
+        $result = '<p>' . htmlspecialchars(cut_excerpt_2($text, $max_length)) . '...</p>
     <a class="post-text__more-link" href="#">Читать далее</a>';
     }
 
     return $result;
 };
+
+/**
+ * Добавляет всем элементам массива новое поле с ключом "date" и значением - случайной датой
+
+ * @param array $elements - Исходный массив
+*/
+function add_dates($elements) {
+    foreach ($elements as $key => $element) {
+        $element['post_date'] = generate_random_date($key);
+        $elements[$key] = $element;
+    }
+    return $elements;
+}
+
+/**
+ * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
+ * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
+*/
+function format_date($full_date) {
+    $parts = explode(' ', $full_date);
+    list($d, $t) = $parts;
+    $date_parts = explode('-', $d);
+    $date_parts = array_reverse($date_parts);
+    return implode('-', $date_parts) . ' ' . substr($t, 0, 5);
+}
+
+/**
+ * Возвращает количество секунд, прошедших между текущей датой и заданной
+ * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
+*/
+function calc_passed_time($date) {
+    $target_tmst = strtotime('now');
+    $origin_tmst = strtotime($date);
+    return $target_tmst - $origin_tmst;
+}
+
+/**
+ * Возвращает округленный вверх результат деления нацело первого аргумента на второй.
+ * Округление происходит при условии, что результат деления остатка на третий аргумент >= 1
+
+ * @param int $number Делимое число
+ * @param int $base Основной делитель
+ * @param int $prev Малый делитель для определения надо ли округлять вверх полученный результат
+*/
+function div_by_mod_up($number, $base, $prev) {
+    $result = intdiv($number, $base);
+        if (intdiv(($number % $base), $prev)) {
+            $result++;
+        }
+    return $result;
+}
+/**
+ * Возвращает строку вида "5 минут назад" на основании переданного временного интервала в секундах
+ * Период округляется в большую сторону при условии, что количество предыдущих временных периодов в остатке > 0.
+ * Пример: если временной интервал равен 1 час 1 минута 45 секунд - результат будет "2 часа назад"
+ * Пример: если временной интервал равен 1 час 0 минут 45 секунд - результат будет "1 час назад"
+ * @param int $interval Временной интервал в секундах
+ * @return string Временной интервал в человекочитаемом виде
+*/
+function generate_interval_text($interval) {
+    $mnt = 60;
+    $hour = 3600;
+    $day = 86400;
+    $week = 604800;
+    $five_weeks = 3024000;
+    $month = 2628000;
+
+    if ($interval < $hour) {
+        $result = ceil($interval / $mnt);
+        $result .= get_noun_plural_form($result, ' минута', ' минуты', ' минут');
+
+    } else if ($interval < $day) {
+        $result = div_by_mod_up($interval, $hour, $mnt);
+        $result .= get_noun_plural_form($result, ' час', ' часа', ' часов');
+
+    } else if ($interval < $week) {
+        $result = div_by_mod_up($interval, $day, $hour);
+        $result .= get_noun_plural_form($result, ' день', ' дня', ' дней');
+
+    } else if ($interval < $five_weeks) {
+        $result = div_by_mod_up($interval, $week, $day);
+
+        $result .= get_noun_plural_form($result, ' неделя', ' недели', ' недель');
+
+    } else {
+        $result = div_by_mod_up($interval, $month, $week);
+        $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
+    }
+
+    return $result .= ' назад';
+};
+
+/**
+ * Возвращает строку вида "5 минут назад" на основании переданной даты в прошлом
+ * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
+ * @return string
+*/
+function generate_passed_time_text($date) {
+    $interval = calc_passed_time($date);
+    return generate_interval_text($interval);
+}

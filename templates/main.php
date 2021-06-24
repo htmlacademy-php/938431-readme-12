@@ -150,7 +150,7 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['user_name']); ?></b>
-                                <time class="post__time" datetime="">дата</time>
+                                <time class="post__time" datetime="<?= $post['post_date'] ?>" title="<?= format_date($post['post_date']) ?>"><?= generate_passed_time_text($post['post_date']) ?></time>
                             </div>
                         </a>
                     </div>
