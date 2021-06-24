@@ -272,7 +272,7 @@ function generate_random_date($index)
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function cut_excerpt_1 ($text, $max_length) {
+function cut_excerpt_1($text, $max_length) {
     $words = explode(' ', $text);
     $result_length = 0;
 
@@ -297,7 +297,7 @@ function cut_excerpt_1 ($text, $max_length) {
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function cut_excerpt_2 ($text, $max_length) {
+function cut_excerpt_2($text, $max_length) {
     $new_text = mb_substr($text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
     $new_text = mb_substr($new_text, 0, $position);
@@ -312,7 +312,7 @@ function cut_excerpt_2 ($text, $max_length) {
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function text_template ($text, $max_length = 300) {
+function text_template($text, $max_length = 300) {
     if (mb_strlen($text) <= $max_length) {
         $result = '<p>' . htmlspecialchars($text) . '</p>';
     } else {
@@ -328,82 +328,89 @@ function text_template ($text, $max_length = 300) {
 
  * @param array $elements - Исходный массив
 */
-function add_dates ($elements) {
-    $elements_with_date = [];
-    foreach ($elements as $i => $element) {
-        $element['date'] = generate_random_date($i);
-        $elements_with_date[$i] = $element;
+function add_dates($elements) {
+    foreach ($elements as $key => $element) {
+        $element['post_date'] = generate_random_date($key);
+        $elements[$key] = $element;
     }
-    return $elements_with_date;
+    return $elements;
 }
 
 /**
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
 */
-function format_date($date) {
-    $date = date_create($date);
-    return date_format($date, 'd-m-Y H:i');
+function format_date($full_date) {
+    $parts = explode(' ', $full_date);
+    list($d, $t) = $parts;
+    $date_parts = explode('-', $d);
+    $date_parts = array_reverse($date_parts);
+    return implode('-', $date_parts) . ' ' . substr($t, 0, 5);
 }
 
 /**
- * Возвращает интервал времени между текущей датой и заданной
+ * Возвращает количество секунд, прошедших между текущей датой и заданной
  * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
 */
-function create_date_interval($date) {
-    $target_date = date_create('now');
-    $origin_date = date_create($date);
-    return date_diff($origin_date, $target_date);
+function calc_passed_time($date) {
+    $target_tmst = strtotime('now');
+    $origin_tmst = strtotime($date);
+    return $target_tmst - $origin_tmst;
 }
 
 /**
- * Увеличивает первый параметр на единицу, если второй параметр отличен от false|0
- * @param int $base Число, которое увеличивается при выполнении условия
- * @param int $fraction Число, в зависимости от значения которого, увеличивается первый параметр
+ * Возвращает округленный вверх результат деления нацело первого аргумента на второй.
+ * Округление происходит при условии, что результат деления остатка на третий аргумент >= 1
+
+ * @param int $number Делимое число
+ * @param int $base Основной делитель
+ * @param int $prev Малый делитель для определения надо ли округлять вверх полученный результат
 */
-function round_to_ceil($base, $fraction) {
-    return $fraction ? $base++ : $base;
+function div_by_mod_up($number, $base, $prev) {
+    $result = intdiv($number, $base);
+        if (intdiv(($number % $base), $prev)) {
+            $result++;
+        }
+    return $result;
 }
-
 /**
- * Возвращает строку вида "5 минут назад" на основании переданного временного интервала
- * @param object $interval Экземпляр DateInterval
- * @return string
+ * Возвращает строку вида "5 минут назад" на основании переданного временного интервала в секундах
+ * Период округляется в большую сторону при условии, что количество предыдущих временных периодов в остатке > 0.
+ * Пример: если временной интервал равен 1 час 1 минута 45 секунд - результат будет "2 часа назад"
+ * Пример: если временной интервал равен 1 час 0 минут 45 секунд - результат будет "1 час назад"
+ * @param int $interval Временной интервал в секундах
+ * @return string Временной интервал в человекочитаемом виде
 */
-function generate_inerval_text($interval) {
-    $passed_seconds = $interval -> s;
-    $passed_minutes = $interval -> i;
-    $passed_hours = $interval -> h;
-    $passed_days = $interval -> d;
-    $passed_months = $interval -> m;
-    $passed_years = $interval -> y;
+function generate_interval_text($interval) {
+    $mnt = 60;
+    $hour = 3600;
+    $day = 86400;
+    $week = 604800;
+    $five_weeks = 3024000;
+    $month = 2628000;
 
-    switch (true) {
-        case ($passed_years > 0):
-            $result = round_to_ceil($passed_years, $passed_months);
-            $result .= get_noun_plural_form($result, ' год', ' года', ' лет');
-            break;
+    if ($interval < $hour) {
+        $result = ceil($interval / $mnt);
+        $result .= get_noun_plural_form($result, ' минута', ' минуты', ' минут');
 
-        case ($passed_months > 0):
-            $result = round_to_ceil($passed_months, $passed_days);
-            $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
-            break;
+    } else if ($interval < $day) {
+        $result = div_by_mod_up($interval, $hour, $mnt);
+        $result .= get_noun_plural_form($result, ' час', ' часа', ' часов');
 
-        case ($passed_days > 0):
-            $result = round_to_ceil($passed_days, $passed_hours);
-            $result .= get_noun_plural_form($result, ' день', ' дня', ' дней');
-            break;
+    } else if ($interval < $week) {
+        $result = div_by_mod_up($interval, $day, $hour);
+        $result .= get_noun_plural_form($result, ' день', ' дня', ' дней');
 
-        case ($passed_hours > 0):
-            $result = round_to_ceil($passed_hours, $passed_minutes);
-            $result .= get_noun_plural_form($result, ' час', ' часа', ' часов');
-            break;
+    } else if ($interval < $five_weeks) {
+        $result = div_by_mod_up($interval, $week, $day);
 
-        default:
-            $result = round_to_ceil($passed_minutes, $passed_seconds);
-            $result .= get_noun_plural_form($result, ' минута', ' минуты', ' минут');
-            break;
+        $result .= get_noun_plural_form($result, ' неделя', ' недели', ' недель');
+
+    } else {
+        $result = div_by_mod_up($interval, $month, $week);
+        $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
     }
+
     return $result .= ' назад';
 };
 
@@ -413,6 +420,6 @@ function generate_inerval_text($interval) {
  * @return string
 */
 function generate_passed_time_text($date) {
-    $interval = create_date_interval($date);
-    return generate_inerval_text($interval);
+    $interval = calc_passed_time($date);
+    return generate_interval_text($interval);
 }
