@@ -298,7 +298,8 @@ function cut_excerpt_1($text, $max_length) {
  * @return string
 */
 function cut_excerpt_2($text, $max_length) {
-    $new_text = mb_substr($text, 0, $max_length + 1);
+    $new_text = trim($text);
+    $new_text = mb_substr($new_text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
     $new_text = mb_substr($new_text, 0, $position);
     return $new_text;
@@ -375,7 +376,7 @@ function increment_by_condition($number, $cond) {
  * @return string Временной интервал в человекочитаемом виде
 */
 function generate_interval_text($interval) {
-    $week = 7;
+    $week = 7; // 7 суток
     $passed_seconds = $interval -> s;
     $passed_minutes = $interval -> i;
     $passed_hours = $interval -> h;
