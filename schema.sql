@@ -19,8 +19,9 @@ CREATE TABLE IF NOT EXISTS user (
 -- Таблица post_type. Данные о возможных типах постов
 CREATE TABLE IF NOT EXISTS post_type (
   id SMALLINT AUTO_INCREMENT PRIMARY KEY,
-  t_title VARCHAR(50),
-  UNIQUE uk_title (t_title)
+  t_title VARCHAR(100),
+  t_class VARCHAR(50),
+  UNIQUE uk_class (t_class)
 ) COMMENT 'Возможные типы постов';
 
 -- Таблица hashtag. Данные о хэштегах существующих на сайте.
@@ -78,6 +79,7 @@ CREATE TABLE IF NOT EXISTS subscription (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
   subscriber_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
+  UNIQUE uk_subscription (user_id, subscriber_id) COMMENT 'Уникальный индекс поля подписки',
   INDEX idx_user_id (user_id) COMMENT 'Индекс поля user_id',
   INDEX idx_sub_id (subscriber_id) COMMENT 'Индекс поля subscriber_id',
   FOREIGN KEY fk_send_id (user_id) REFERENCES user (id),

@@ -1,11 +1,11 @@
 -- Заполняем таблицу post_type (Тип контента постов)
-INSERT INTO post_type (t_title)
+INSERT INTO post_type (t_title, t_class)
 VALUES
-  ('link'),
-  ('photo'),
-  ('quote'),
-  ('text'),
-  ('video');
+  ('Ссылка', 'link'), #1
+  ('Картинка', 'photo'), #2
+  ('Цитата', 'quote'), #3
+  ('Текст', 'text'), #4
+  ('Видео', 'video'); #5
 
 -- Заполняем таблицу user (Пользователи)
 INSERT INTO user (email, u_password, u_name, u_avatar)
@@ -39,28 +39,28 @@ VALUES
 ('Слишком жарко, и северная природа гораздо красивее', 4, 4),
 ('Согласен, хорошие курсы. Сам учился там', 4, 5);
 
--- Получаем список постов с сортировкой по популярности с именами авторов и типом контента
-SELECT p_title, u_name, t_title, watch_count FROM post
-INNER JOIN user
-  ON user_id = user.id
-INNER JOIN post_type
-  ON type_id = post_type.id
-ORDER BY watch_count DESC;
+-- -- Получаем список постов с сортировкой по популярности с именами авторов и типом контента
+-- SELECT p_title, u_name, t_class, watch_count FROM post
+-- INNER JOIN user
+--   ON user_id = user.id
+-- INNER JOIN post_type
+--   ON type_id = post_type.id
+-- ORDER BY watch_count DESC;
 
--- Получаем список постов пользователя с id=1
-SELECT * FROM post
-WHERE user_id = 1;
+-- -- Получаем список постов пользователя с id=1
+-- SELECT * FROM post
+-- WHERE user_id = 1;
 
--- Получаем список комментариев для поста с id=2
-SELECT c_content, u_name, comment.dt_add FROM comment
-INNER JOIN user
-  ON user_id = user.id
-WHERE post_id = 2;
+-- -- Получаем список комментариев для поста с id=2
+-- SELECT c_content, u_name, comment.dt_add FROM comment
+-- INNER JOIN user
+--   ON user_id = user.id
+-- WHERE post_id = 2;
 
--- Добавляем like. Пользователь с id=4 ставит like посту с id=3
-INSERT INTO post_like
-VALUES (NULL, 4, 3);
+-- -- Добавляем like. Пользователь с id=4 ставит like посту с id=3
+-- INSERT INTO post_like (user_id, post_id)
+-- VALUES (4, 3);
 
--- Пользователь с id=5 подписывается на пользователя с id=2
-INSERT INTO subscription
-VALUES (NULL, 2, 5);
+-- -- Пользователь с id=5 подписывается на пользователя с id=2
+-- INSERT INTO subscription (user_id, subscriber_id)
+-- VALUES (2, 5);
