@@ -331,8 +331,7 @@ function text_template($text, $max_length = 300) {
 */
 function add_dates($elements) {
     foreach ($elements as $key => $element) {
-        $element['post_date'] = generate_random_date($key);
-        $elements[$key] = $element;
+        $elements[$key]['post_date'] = generate_random_date($key);
     }
     return $elements;
 }
@@ -343,6 +342,7 @@ function add_dates($elements) {
 */
 function format_date($date) {
     $date = date_create($date);
+
     return date_format($date, 'd-m-Y H:i');
 }
 
