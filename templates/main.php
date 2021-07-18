@@ -41,46 +41,16 @@
                             <span>Все</span>
                         </a>
                     </li>
+                    <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--photo button" href="#">
+                        <a class="filters__button filters__button--<?=$type ?> button" href="#">
                             <span class="visually-hidden">Фото</span>
-                            <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="#icon-filter-photo"></use>
+                            <svg class="filters__icon" width="24" height="21">
+                                <use xlink:href="#icon-filter-<?=$type ?>"></use>
                             </svg>
                         </a>
                     </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--video button" href="#">
-                            <span class="visually-hidden">Видео</span>
-                            <svg class="filters__icon" width="24" height="16">
-                                <use xlink:href="#icon-filter-video"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--text button" href="#">
-                            <span class="visually-hidden">Текст</span>
-                            <svg class="filters__icon" width="20" height="21">
-                                <use xlink:href="#icon-filter-text"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--quote button" href="#">
-                            <span class="visually-hidden">Цитата</span>
-                            <svg class="filters__icon" width="21" height="20">
-                                <use xlink:href="#icon-filter-quote"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--link button" href="#">
-                            <span class="visually-hidden">Ссылка</span>
-                            <svg class="filters__icon" width="21" height="18">
-                                <use xlink:href="#icon-filter-link"></use>
-                            </svg>
-                        </a>
-                    </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
         </div>
@@ -150,7 +120,7 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['user_name']); ?></b>
-                                <time class="post__time" datetime="<?= $post['post_date'] ?>" title="<?= format_date($post['post_date']) ?>"><?= generate_passed_time_text($post['post_date']) ?></time>
+                                <time class="post__time" datetime="<?= $post['date_add'] ?>" title="<?= format_date($post['date_add']) ?>"><?= generate_passed_time_text($post['date_add']) ?></time>
                             </div>
                         </a>
                     </div>
