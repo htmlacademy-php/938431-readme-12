@@ -331,7 +331,7 @@ function text_template($text, $max_length = 300) {
 */
 function add_dates($elements) {
     foreach ($elements as $key => $element) {
-        $elements[$key]['post_date'] = generate_random_date($key);
+        $elements[$key]['date_add'] = generate_random_date($key);
     }
     return $elements;
 }
@@ -418,3 +418,18 @@ function generate_passed_time_text($date) {
     $interval = calc_time_interval($date);
     return generate_interval_text($interval);
 }
+
+/**
+ * Адаптер для структуры данных Пост, полученной из MySQL
+ */
+function adapt_raw_post($post) {
+    $content = $post['p_url'] ? $post['p_url'] : $post['p_text'];
+    return [
+        'title' => $post['p_title'],
+        'type' => 'post-' . $post['t_class'],
+        'content' => $content,
+        'user_name' => $post['u_name'],
+        'avatar_url' => $post['u_avatar'],
+        'date_add' => $post['dt_add']
+    ];
+};
