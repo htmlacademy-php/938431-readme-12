@@ -1,15 +1,6 @@
 <?php
 require_once('helpers.php');
 
-// Размеры иконок для фильтров по типу постов
-$icon_sizes = [
-    'photo' => ['width' => 22, 'height' => 18],
-    'video' => ['width' => 24, 'height' => 16],
-    'text' => ['width' => 20, 'height' => 21],
-    'quote' => ['width' => 21, 'height' => 20],
-    'link' => ['width' => 21, 'height' => 18]
-];
-
 $is_auth = rand(0, 1);
 
 $user_name = 'Юлия'; // укажите здесь ваше имя
@@ -25,7 +16,7 @@ if (!$con) {
 mysqli_set_charset($con, 'utf8');
 
 // Создаем запрос на получение типов постов
-$sql = "SELECT t_class
+$sql = "SELECT t_class, width, height
 FROM post_type
 ORDER BY id ASC";
 
@@ -38,7 +29,7 @@ if (!$result) {
 }
 
 $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-$types = array_column($rows, 't_class');
+$types = adapt_post_types($rows);
 
 // Создаем запрос на получение постов с их авторами, отсортированных по популярности
 $sql = "SELECT
@@ -70,7 +61,7 @@ $posts = array_map('adapt_raw_post', $rows);
 
 $title = 'readme: популярное';
 
-$content = include_template('main.php', ['posts' => $posts, 'types' => $types,'sizes' => $icon_sizes]);
+$content = include_template('main.php', ['posts' => $posts, 'types' => $types]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);
