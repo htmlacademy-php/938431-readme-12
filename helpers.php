@@ -433,3 +433,18 @@ function adapt_raw_post($post) {
         'date_add' => $post['dt_add']
     ];
 };
+
+/**
+ * Адаптер для массива данных вида тип поста
+ * @param array $rows Массив элементов вида ['t_class' => 'photo', 'width' => '20', 'height' => '16']
+ * @return array $types Массив элементов вида ['photo' => ['width' => '20', 'height' => '16']]
+ */
+
+ function adapt_post_types($rows) {
+     $types = [];
+    foreach ($rows as $row) {
+        $type = array_shift($row);
+        $types[$type] = $row;
+}
+    return $types;
+ }

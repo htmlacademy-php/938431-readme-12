@@ -41,13 +41,13 @@
                             <span>Все</span>
                         </a>
                     </li>
-                    <?php foreach ($types as $type): ?>
+                    <?php foreach ($types as $key => $sizes): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type ?> button" href="#">
+                        <a class="filters__button filters__button--<?=$key ?> button" href="#">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon"
-                              width="<?=$sizes[$type]['width'] ?>" height="<?=$sizes[$type]['height'] ?>">
-                                <use xlink:href="#icon-filter-<?=$type ?>"></use>
+                              width="<?=$sizes['width'] ?>" height="<?=$sizes['height'] ?>">
+                                <use xlink:href="#icon-filter-<?=$key ?>"></use>
                             </svg>
                         </a>
                     </li>
