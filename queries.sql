@@ -1,11 +1,11 @@
--- Заполняем таблицу post_type (Тип контента постов)
-INSERT INTO post_type (t_title, t_class)
+-- Заполняем таблицу post_type (Тип контента постов с размерами соответствующих иконок)
+INSERT INTO post_type (t_title, t_class, width, height)
 VALUES
-  ('Картинка', 'photo'), #1
-  ('Видео', 'video'), #2
-  ('Текст', 'text'), #3
-  ('Цитата', 'quote'), #4
-  ('Ссылка', 'link'); #5
+  ('Картинка', 'photo', 22, 18), #1
+  ('Видео', 'video', 24, 16), #2
+  ('Текст', 'text', 20, 21), #3
+  ('Цитата', 'quote', 21, 20), #4
+  ('Ссылка', 'link', 21, 18); #5
 
 -- Заполняем таблицу user (Пользователи)
 INSERT INTO user (email, u_password, u_name, u_avatar)

@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS post_type (
   id SMALLINT AUTO_INCREMENT PRIMARY KEY,
   t_title VARCHAR(100),
   t_class VARCHAR(50),
+  width SMALLINT DEFAULT 21 COMMENT 'Ширина svg иконки в пикселях',
+  height SMALLINT DEFAULT 18 COMMENT 'Высота svg иконки в пикселях',
   UNIQUE uk_class (t_class)
 ) COMMENT 'Возможные типы постов';
 
