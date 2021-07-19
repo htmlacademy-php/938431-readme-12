@@ -28,8 +28,7 @@ if (!$result) {
     exit;
 }
 
-$rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-$types = adapt_post_types($rows);
+$types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Создаем запрос на получение постов с их авторами, отсортированных по популярности
 $sql = "SELECT
