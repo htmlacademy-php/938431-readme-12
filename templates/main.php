@@ -45,7 +45,8 @@
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--<?=$type ?> button" href="#">
                             <span class="visually-hidden">Фото</span>
-                            <svg class="filters__icon" width="24" height="21">
+                            <svg class="filters__icon"
+                              width="<?=$sizes[$type]['width'] ?>" height="<?=$sizes[$type]['height'] ?>">
                                 <use xlink:href="#icon-filter-<?=$type ?>"></use>
                             </svg>
                         </a>
