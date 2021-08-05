@@ -425,6 +425,7 @@ function generate_passed_time_text($date) {
 function adapt_raw_post($post) {
     $content = $post['p_url'] ? $post['p_url'] : $post['p_text'];
     return [
+        'id' => $post['id'],
         'title' => $post['p_title'],
         'type' => 'post-' . $post['t_class'],
         'content' => $content,
@@ -432,4 +433,24 @@ function adapt_raw_post($post) {
         'avatar_url' => $post['u_avatar'],
         'date_add' => $post['dt_add']
     ];
+};
+
+
+/**
+ * Возвращает адресную строку для текущего скрипта с переданным параметром запроса
+ * @param string $key Ключ параметра запроса
+ * @param string|integer $value Значение параметра запроса
+ * @return string url-адрес с обновленными параметрами запроса
+ */
+function update_query_params($scriptname, $key, $value) {
+    $params = $_GET;
+
+    if (!$value) {
+        unset($params[$key]);
+    } else {
+        $params[$key] = $value;
+    }
+    $query = http_build_query($params);
+    $url = "/" . $scriptname . "?" . $query;
+    return $url;
 };

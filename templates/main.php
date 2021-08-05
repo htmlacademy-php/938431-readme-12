@@ -37,13 +37,17 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="#">
+                        <a class="filters__button filters__button--ellipse filters__button--all
+                        <?=($filter === 0)
+                        ? ' filters__button--active' : ''?>" href="/">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type['t_class'] ?> button" href="#">
+                        <!-- TODO: Адрес с параметром запроса - тип фильтра -->
+                        <a class="filters__button filters__button--<?=$type['t_class']?> <?=($filter === $type['id']) ? 'filters__button--active' : ''?>
+                         button" href="<?=$type['url']?>">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon"
                               width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
@@ -59,28 +63,35 @@
             <?php foreach ($posts as $post): ?>
             <article class="popular__post post <?= $post['type'] ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($post['title']); ?></h2>
+                    <a href="<?="/post.php?=" . $post['id']?>">
+                        <h2><?= htmlspecialchars($post['title']); ?></h2>
+                    </a>
                 </header>
                 <div class="post__main">
+                    <!-- Разные типы постов -->
                     <?php switch($post['type']):
                     case 'post-quote': ?>
+                    <!-- Цитата -->
                     <blockquote>
                         <p><?= htmlspecialchars($post['content']); ?></p>
                         <cite>Неизвестный Автор</cite>
                     </blockquote>
                     <?php break; ?>
                     <? case 'post-text':
+                    // Текст
                         echo text_template($post['content']);
                         break;
                     ?>
 
                     <?php case 'post-photo': ?>
+                        <!-- Фото -->
                     <div class="post-photo__image-wrapper">
                         <img src="img/<?= $post['content'] ?>" alt="Фото от пользователя" width="360" height="240">
                     </div>
                     <?php break; ?>
 
                     <?php case 'post-link': ?>
+                        <!-- Ссылка -->
                     <div class="post-link__wrapper">
                         <a class="post-link__external" href="http://<?= $post['content'] ?>" title="Перейти по ссылке">
                             <div class="post-link__info-wrapper">
@@ -97,6 +108,7 @@
                     <?php break; ?>
 
                     <?php case 'post-video': ?>
+                        <!-- Видео -->
                     <div class="post-video__block">
                         <div class="post-video__preview">
                             <?=embed_youtube_cover(/* вставьте ссылку на видео */); ?>
