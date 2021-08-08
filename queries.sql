@@ -24,7 +24,7 @@ VALUES
   ('Игра престолов', NULL, 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!', 4, 1, 3),
   ('Наконец, обработал фотки!', 'rock-medium.jpg', NULL, 25, 3, 1),
   ('Моя мечта', 'coast-medium.jpg', NULL, 15, 2, 1),
-  ('Лучшие курсы', 'www.htmlacademy.ru', NULL, 3, 1, 5);
+  ('Делюсь ссылкой', 'www.htmlacademy.ru', 'Лучшие курсы', 3, 1, 5);
 
 -- Заполняем таблицу comment (Комментарии)
 INSERT INTO comment (c_content, user_id, post_id)
@@ -64,3 +64,15 @@ VALUES (4, 3);
 -- Пользователь с id=5 подписывается на пользователя с id=2
 INSERT INTO subscription (user_id, subscriber_id)
 VALUES (2, 5);
+
+-- Получить количество лайков у поста
+SELECT  COUNT(*) AS likes_count
+FROM post_like
+WHERE post_id = 3
+GROUP BY post_id;
+
+-- Получить количество подписчиков пользователя с id=2
+SELECT COUNT(*) AS subscribers_count
+FROM subscription
+WHERE user_id = 2
+GROUP BY user_id;
