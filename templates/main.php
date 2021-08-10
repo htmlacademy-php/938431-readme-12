@@ -133,7 +133,7 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
-                                <time class="post__time" datetime="<?= $post['p_date'];?>" title="<?= format_date($post['p_date']);?>"><?= generate_passed_time_text($post['p_date']);?></time>
+                                <time class="post__time" datetime="<?= $post['p_date'];?>" title="<?= format_date($post['p_date']);?>"><?= generate_passed_time_text($post['p_date']);?> назад</time>
                             </div>
                         </a>
                     </div>
