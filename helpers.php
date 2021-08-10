@@ -406,7 +406,7 @@ function generate_interval_text($interval) {
         $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
     }
 
-    return $result .= ' назад';
+    return $result;
 };
 
 /**
@@ -420,20 +420,27 @@ function generate_passed_time_text($date) {
 }
 
 /**
- * Адаптер для структуры данных Пост, полученной из MySQL
+ * Отправляет запрос и возвращает результат
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli Объект результата
  */
-function adapt_raw_post($post) {
-    $content = $post['p_url'] ? $post['p_url'] : $post['p_text'];
-    return [
-        'id' => $post['id'],
-        'title' => $post['p_title'],
-        'type' => 'post-' . $post['t_class'],
-        'content' => $content,
-        'user_name' => $post['u_name'],
-        'avatar_url' => $post['u_avatar'],
-        'date_add' => $post['dt_add']
-    ];
-};
+function fetch_sql_response($link, $sql, $data) {
+   $stmt = db_get_prepare_stmt($link, $sql, $data);
+    mysqli_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    if (!$result) {
+        $error = mysqli_error($con);
+        print('Ошибка MySql: ' . $error);
+        exit;
+    }
+    return $result;
+}
+
 
 
 /**
@@ -454,3 +461,5 @@ function update_query_params($scriptname, $key, $value) {
     $url = "/" . $scriptname . "?" . $query;
     return $url;
 };
+
+
