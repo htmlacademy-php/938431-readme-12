@@ -45,7 +45,6 @@
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <!-- TODO: Адрес с параметром запроса - тип фильтра -->
                         <a class="filters__button filters__button--<?=$type['p_type']?> <?=($filter === $type['id']) ? 'filters__button--active' : ''?>
                          button" href="<?=$type['url']?>">
                             <span class="visually-hidden">Фото</span>

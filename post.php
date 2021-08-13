@@ -51,6 +51,31 @@ INNER JOIN post_type
   ON type_id = post_type.id
 WHERE post.id = ?;";
 
+// Создаем запрос на получение кол-ва лайков у поста
+$sql_likes = "SELECT post_id, COUNT(*) AS l_count
+FROM post_like
+WHERE post_id = ?
+GROUP BY post_id;";
+
+// Создаем запрос на получение кол-ва комментариев у поста
+$sql_com_count = "SELECT post_id, COUNT(*) AS c_count
+FROM comment
+WHERE post_id = ?
+GROUP BY post_id;";
+
+// Запрос на получение комментариев к посту
+$sql_comments = "SELECT
+comment.dt_add AS c_date,
+c_content,
+u_name,
+u_avatar
+FROM comment
+INNER JOIN user
+ON user.id = comment.user_id
+WHERE post_id = ?
+ORDER BY c_date DESC
+LIMIT 5;";
+
 // Создаем запрос на получение данных о пользователе
 $sql_user = "SELECT
 user.id,
@@ -75,9 +100,19 @@ GROUP BY user.id;";
 $data_post = [];
 $data_post[] = $post_id;
 $result = fetch_sql_response($con, $sql_post, $data_post);
-
-// Получаем результат
 $post = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение количества лайков у поста
+$result = fetch_sql_response($con, $sql_likes, $data_post);
+$likes = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение количества комментариев у поста
+$result = fetch_sql_response($con, $sql_com_count, $data_post);
+$comment = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение комментариев поста
+$result = fetch_sql_response($con, $sql_comments, $data_post);
+$comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Создаем подготовленное выражение и отправляем запрос на получение данных о пользователе
 $user_id = $post['user_id'];
@@ -86,7 +121,14 @@ $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
 $user = mysqli_fetch_assoc($result);
 $post_content = choose_template($post);
-$content = include_template('details.php', ['post' => $post, 'post_content' => $post_content, 'user' => $user]);
+$content = include_template('details.php', [
+    'comment_count' => $comment['c_count'],
+    'comments' => $comments,
+    'likes_count' => $likes['l_count'],
+    'post' => $post,
+    'post_content' => $post_content,
+    'user' => $user
+]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);

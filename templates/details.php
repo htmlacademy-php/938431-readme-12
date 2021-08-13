@@ -15,14 +15,14 @@
                 <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
                   <use xlink:href="#icon-heart-active"></use>
                 </svg>
-                <span>250</span>
+                <span><?=$likes_count;?></span>
                 <span class="visually-hidden">количество лайков</span>
               </a>
               <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
                 <svg class="post__indicator-icon" width="19" height="17">
                   <use xlink:href="#icon-comment"></use>
                 </svg>
-                <span>25</span>
+                <span><?=$comment_count;?></span>
                 <span class="visually-hidden">количество комментариев</span>
               </a>
               <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
@@ -61,46 +61,30 @@
             </form>
             <div class="comments__list-wrapper">
               <ul class="comments__list">
+                <?php foreach ($comments as $comment): ?>
                 <li class="comments__item user">
                   <div class="comments__avatar">
                     <a class="user__avatar-link" href="#">
-                      <img class="comments__picture" src="img/userpic-larisa.jpg" alt="Аватар пользователя">
+                      <img class="comments__picture" src="img/<?=$comment['u_avatar'] ;?>" alt="Аватар пользователя">
                     </a>
                   </div>
                   <div class="comments__info">
                     <div class="comments__name-wrapper">
                       <a class="comments__user-name" href="#">
-                        <span>Лариса Роговая</span>
+                        <span><?= htmlspecialchars($comment['u_name']); ?></span>
                       </a>
-                      <time class="comments__time" datetime="2019-03-20">1 ч назад</time>
+                      <time class="comments__time" datetime="<?= $comment['c_date'];?>"><?= generate_passed_time_text($comment['c_date']);?> назад</time>
                     </div>
                     <p class="comments__text">
-                      Красота!!!1!
+                      <?= htmlspecialchars($comment['c_content']); ?>
                     </p>
                   </div>
                 </li>
-                <li class="comments__item user">
-                  <div class="comments__avatar">
-                    <a class="user__avatar-link" href="#">
-                      <img class="comments__picture" src="img/userpic-larisa.jpg" alt="Аватар пользователя">
-                    </a>
-                  </div>
-                  <div class="comments__info">
-                    <div class="comments__name-wrapper">
-                      <a class="comments__user-name" href="#">
-                        <span>Лариса Роговая</span>
-                      </a>
-                      <time class="comments__time" datetime="2019-03-18">2 дня назад</time>
-                    </div>
-                    <p class="comments__text">
-                      Озеро Байкал – огромное древнее озеро в горах Сибири к северу от монгольской границы. Байкал считается самым глубоким озером в мире. Он окружен сетью пешеходных маршрутов, называемых Большой байкальской тропой. Деревня Листвянка, расположенная на западном берегу озера, – популярная отправная точка для летних экскурсий. Зимой здесь можно кататься на коньках и собачьих упряжках.
-                    </p>
-                  </div>
-                </li>
+                <?php endforeach; ?>
               </ul>
               <a class="comments__more-link" href="#">
                 <span>Показать все комментарии</span>
-                <sup class="comments__amount">45</sup>
+                <sup class="comments__amount"><?=$comment_count;?></sup>
               </a>
             </div>
           </div>

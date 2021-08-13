@@ -4,7 +4,7 @@
       <p>
         <?=$text;?>
       </p>
-      <cite><?=$author;?></cite>
+      <cite><?=$author ?? 'Неизвестный автор';?></cite>
     </blockquote>
   </div>
 </div>

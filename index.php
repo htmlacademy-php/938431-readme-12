@@ -38,13 +38,21 @@ foreach ($types as &$type) {
 };
 unset($type);
 
-// Получаем текущий фильтр из массива $_GET
-$filter = $_GET['filter'] ?? 0;
+// Получаем текущий фильтр и сортировку из массива $_GET
+$filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_NUMBER_INT);
+$sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
 
 // Создаем ограничение для SQL запроса
 $where_condition = '';
 if ($filter) {
     $where_condition = " WHERE type_id = " .$filter;
+};
+
+$order_by_condition = " ORDER BY watch_count DESC;";
+if ($sort === 'likes') {
+    $order_by_condition = " ORDER BY likes_count DESC;";
+} elseif ($sort === 'date') {
+    $order_by_condition = " ORDER BY p_date DESC;";
 };
 
 // Создаем запрос на получение постов с их авторами,
@@ -86,7 +94,7 @@ LEFT JOIN
     ) AS post_count
 ON post_count.post_id = post.id";
 $sql .= $where_condition;
-$sql .= " ORDER BY watch_count DESC;";
+$sql .= $order_by_condition;
 
 
 // Получаем результат
