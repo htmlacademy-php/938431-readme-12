@@ -5,6 +5,11 @@ $is_auth = rand(0, 1);
 
 $user_name = 'Юлия'; // укажите здесь ваше имя
 $scriptname = pathinfo(__FILE__, PATHINFO_BASENAME);
+$sort_types = [
+    'popular' => 'Популярность',
+    'likes' => 'Лайки',
+    'date' => 'Дата'
+];
 
 // Устанавливаем соединение с базой readme
 $con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
@@ -40,7 +45,7 @@ unset($type);
 
 // Получаем текущий фильтр и сортировку из массива $_GET
 $filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_NUMBER_INT);
-$sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
+$sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'popular';
 
 // Создаем ограничение для SQL запроса
 $where_condition = '';
@@ -50,7 +55,7 @@ if ($filter) {
 
 $order_by_condition = " ORDER BY watch_count DESC;";
 if ($sort === 'likes') {
-    $order_by_condition = " ORDER BY likes_count DESC;";
+    $order_by_condition = " ORDER BY like_count DESC;";
 } elseif ($sort === 'date') {
     $order_by_condition = " ORDER BY p_date DESC;";
 };
@@ -110,7 +115,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 $title = 'readme: популярное';
 
-$content = include_template('main.php', ['posts' => $posts, 'types' => $types, 'filter' => $filter]);
+$content = include_template('main.php', ['posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);

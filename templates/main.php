@@ -7,30 +7,16 @@
             <div class="popular__sorting sorting">
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
+                    <?php foreach ($sort_types as $key => $value): ?>
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link sorting__link--active" href="#">
-                            <span>Популярность</span>
+                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="<?=update_query_params('index.php', 'sort' , $key); ?>">
+                            <span><?=$value;?></span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
                             </svg>
                         </a>
                     </li>
-                    <li class="sorting__item">
-                        <a class="sorting__link" href="#">
-                            <span>Лайки</span>
-                            <svg class="sorting__icon" width="10" height="12">
-                                <use xlink:href="#icon-sort"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="sorting__item">
-                        <a class="sorting__link" href="#">
-                            <span>Дата</span>
-                            <svg class="sorting__icon" width="10" height="12">
-                                <use xlink:href="#icon-sort"></use>
-                            </svg>
-                        </a>
-                    </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
             <div class="popular__filters filters">
@@ -38,8 +24,7 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <?=($filter === 0)
-                        ? ' filters__button--active' : ''?>" href="/">
+                        <?=$filter ?? ' filters__button--active';?>" href="<?=update_query_params('index.php', 'filter' , 0); ?>">
                             <span>Все</span>
                         </a>
                     </li>
