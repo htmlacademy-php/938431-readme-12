@@ -441,6 +441,34 @@ function fetch_sql_response($link, $sql, $data) {
     return $result;
 }
 
+/**
+ * Выбирает html шаблон в зависимости от полученного типа поста
+ * @param $post array Массив с данными о посте
+ * @return string Итоговый HTML
+ */
+
+function choose_post_template($post) {
+    $result = $post['p_type'];
+    switch ($post['p_type']) {
+        case 'link':
+            $result = include_template('details-link.php', ['title' => $post['p_text'], 'url' => $post['p_url']]);
+            break;
+        case 'photo';
+            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
+            break;
+        case 'quote';
+            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author'] ?? 'Неизвестный автор']);
+            break;
+        case 'text';
+            $result = include_template('details-text.php', ['text' => $post['p_text']]);
+            break;
+        case 'video';
+            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
+            break;
+    };
+
+    return $result;
+};
 
 
 /**

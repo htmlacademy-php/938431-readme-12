@@ -15,14 +15,14 @@
                 <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
                   <use xlink:href="#icon-heart-active"></use>
                 </svg>
-                <span><?=$likes_count;?></span>
+                <span><?=$post['like_count'] ?? 0;?></span>
                 <span class="visually-hidden">количество лайков</span>
               </a>
               <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
                 <svg class="post__indicator-icon" width="19" height="17">
                   <use xlink:href="#icon-comment"></use>
                 </svg>
-                <span><?=$comment_count;?></span>
+                <span><?=$post['comment_count'] ?? 0;?></span>
                 <span class="visually-hidden">количество комментариев</span>
               </a>
               <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
@@ -33,7 +33,7 @@
                 <span class="visually-hidden">количество репостов</span>
               </a>
             </div>
-            <span class="post__view"><?=$post['watch_count']; ?> просмотров</span>
+            <span class="post__view"><?=$post['watch_count'] ?? 0; ?> просмотров</span>
           </div>
           <ul class="post__tags">
             <li><a href="#">#nature</a></li>
@@ -84,7 +84,7 @@
               </ul>
               <a class="comments__more-link" href="#">
                 <span>Показать все комментарии</span>
-                <sup class="comments__amount"><?=$comment_count;?></sup>
+                <sup class="comments__amount"><?=$post['comment_count'] ?? 0;?></sup>
               </a>
             </div>
           </div>
@@ -98,7 +98,7 @@
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
               <a class="post-details__name user__name" href="#">
-                <span><?=$user['u_name'];?></span>
+                <span><?=htmlspecialchars($user['u_name']);?></span>
               </a>
               <time class="post-details__time user__time" datetime="<?=$user['dt_add'];?>"><?= generate_passed_time_text($user['dt_add']);?> на сайте</time>
             </div>

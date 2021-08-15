@@ -1,37 +1,15 @@
 <?php
 require_once('helpers.php');
 
-function choose_template($post) {
-    $result = $post['p_type'];
-    switch ($post['p_type']) {
-        case 'link':
-            $result = include_template('details-link.php', ['title' => $post['p_text'], 'url' => $post['p_url']]);
-            break;
-        case 'photo';
-            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
-            break;
-        case 'quote';
-            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
-            break;
-        case 'text';
-            $result = include_template('details-text.php', ['text' => $post['p_text']]);
-            break;
-        case 'video';
-            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
-            break;
-    };
-
-    return $result;
-};
-
 $is_auth = rand(0, 1);
 $user_name = 'Юлия'; // укажите здесь ваше имя
 $title = 'readme: публикация';
 
-$post_id = $_GET['id'] ?? null;
-// if (!$post_id) {
-//     exit;
-// }
+$post_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+if (!$post_id) {
+    http_response_code(404);
+    exit;
+}
 
 // Устанавливаем соединение с базой readme
 $con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
@@ -45,23 +23,32 @@ if (!$con) {
 mysqli_set_charset($con, 'utf8');
 
 // Создаем запрос на получение поста с заданным id
-$sql_post = "SELECT post.*, t_class as p_type
+$sql_post = "SELECT
+post.*,
+t_class as p_type,
+comment_count,
+like_count
 FROM post
 INNER JOIN post_type
-  ON type_id = post_type.id
+ON type_id = post_type.id
+LEFT JOIN
+    (
+        SELECT
+        comment.post_id,
+        COUNT(comment.id) AS comment_count,
+        like_count
+        FROM comment
+        LEFT JOIN
+            (
+                SELECT post_id, COUNT(id) AS like_count
+                FROM post_like
+                GROUP BY post_id
+            ) AS post_likes
+        ON post_likes.post_id = comment.post_id
+        GROUP BY comment.post_id
+    ) AS post_count
+ON post_count.post_id = post.id
 WHERE post.id = ?;";
-
-// Создаем запрос на получение кол-ва лайков у поста
-$sql_likes = "SELECT post_id, COUNT(*) AS l_count
-FROM post_like
-WHERE post_id = ?
-GROUP BY post_id;";
-
-// Создаем запрос на получение кол-ва комментариев у поста
-$sql_com_count = "SELECT post_id, COUNT(*) AS c_count
-FROM comment
-WHERE post_id = ?
-GROUP BY post_id;";
 
 // Запрос на получение комментариев к посту
 $sql_comments = "SELECT
@@ -102,13 +89,10 @@ $data_post[] = $post_id;
 $result = fetch_sql_response($con, $sql_post, $data_post);
 $post = mysqli_fetch_assoc($result);
 
-// Создаем подготовленное выражение и отправляем запрос на получение количества лайков у поста
-$result = fetch_sql_response($con, $sql_likes, $data_post);
-$likes = mysqli_fetch_assoc($result);
-
-// Создаем подготовленное выражение и отправляем запрос на получение количества комментариев у поста
-$result = fetch_sql_response($con, $sql_com_count, $data_post);
-$comment = mysqli_fetch_assoc($result);
+if (!$post) {
+    http_response_code(404);
+    exit;
+}
 
 // Создаем подготовленное выражение и отправляем запрос на получение комментариев поста
 $result = fetch_sql_response($con, $sql_comments, $data_post);
@@ -120,11 +104,9 @@ $data_user = [];
 $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
 $user = mysqli_fetch_assoc($result);
-$post_content = choose_template($post);
+$post_content = choose_post_template($post);
 $content = include_template('details.php', [
-    'comment_count' => $comment['c_count'],
     'comments' => $comments,
-    'likes_count' => $likes['l_count'],
     'post' => $post,
     'post_content' => $post_content,
     'user' => $user
