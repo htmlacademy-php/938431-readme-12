@@ -10,21 +10,21 @@ VALUES
 -- Заполняем таблицу user (Пользователи)
 INSERT INTO user (email, u_password, u_name, u_avatar)
 VALUES
-  ('vladik@gmail.com', 'oiuy45', 'Владик', 'userpic.jpg'),
-  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'userpic-larisa-small.jpg'),
-  ('victor@gmail.com', 'Xsfj23', 'Виктор', 'userpic-mark.jpg'),
-  ('peter@gmail.com', 'xcv6ek', 'Петр', 'userpic-petro.jpg'),
-  ('tanya@gmail.com', 'bnuy40', 'Таня', 'userpic-tanya.jpg'),
-  ('elvira@gmail.com', 'Eqdkf5%', 'Эльвира', 'userpic-elvira.jpg');
+  ('vladik@gmail.com', 'oiuy45', 'Владик', 'userpic.jpg'), #1
+  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'userpic-larisa-small.jpg'), #2
+  ('victor@gmail.com', 'Xsfj23', 'Виктор', 'userpic-mark.jpg'), #3
+  ('peter@gmail.com', 'xcv6ek', 'Петр', 'userpic-petro.jpg'), #4
+  ('tanya@gmail.com', 'bnuy40', 'Таня', 'userpic-tanya.jpg'), #5
+  ('elvira@gmail.com', 'Eqdkf5%', 'Эльвира', 'userpic-elvira.jpg'); #6
 
 -- Заполняем таблицу post (Посты)
 INSERT INTO post (p_title, p_url, p_text, watch_count, user_id, type_id)
 VALUES
-  ('Цитата', NULL, 'Мы в жизни любим только раз, а после ищем лишь похожих', 10, 2, 4),
-  ('Игра престолов', NULL, 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!', 4, 1, 3),
-  ('Наконец, обработал фотки!', 'rock-medium.jpg', NULL, 25, 3, 1),
-  ('Моя мечта', 'coast-medium.jpg', NULL, 15, 2, 1),
-  ('Делюсь ссылкой', 'www.htmlacademy.ru', 'Лучшие курсы', 3, 1, 5);
+  ('Цитата', NULL, 'Мы в жизни любим только раз, а после ищем лишь похожих', 10, 2, 4), #1
+  ('Игра престолов', NULL, 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!', 4, 1, 3), #2
+  ('Наконец, обработал фотки!', 'rock-medium.jpg', NULL, 25, 3, 1), #3
+  ('Моя мечта', 'coast-medium.jpg', NULL, 15, 2, 1), #4
+  ('Делюсь ссылкой', 'www.htmlacademy.ru', 'Лучшие курсы', 3, 1, 5); #5
 
 -- Заполняем таблицу comment (Комментарии)
 INSERT INTO comment (c_content, user_id, post_id)
@@ -59,7 +59,7 @@ WHERE post_id = 2;
 
 -- Добавляем like. Пользователь с id=4 ставит like посту с id=3
 INSERT INTO post_like (user_id, post_id)
-VALUES (4, 3);
+VALUES (4, 3), (1, 3), (5, 3), (2, 5), (4, 1), (3, 1);
 
 -- Пользователь с id=5 подписывается на пользователя с id=2
 INSERT INTO subscription (user_id, subscriber_id)
