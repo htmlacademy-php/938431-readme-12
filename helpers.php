@@ -420,6 +420,26 @@ function generate_passed_time_text($date) {
 }
 
 /**
+ * Устанавливает соединение с базой readme, устанавливает кодировку и Ресурс соединения
+ * @return mysqli Ресурс соединения
+ */
+function set_connection() {
+    // Устанавливаем соединение
+    $con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
+
+    if (!$con) {
+        print('Ошибка подключения: ' . mysqli_connect_error());
+        exit;
+    };
+
+    // Устанавливаем кодировку
+    mysqli_set_charset($con, 'utf8');
+
+    return $con;
+}
+
+
+/**
  * Отправляет запрос и возвращает результат
  * @param $link mysqli Ресурс соединения
  * @param $sql string SQL запрос с плейсхолдерами вместо значений
@@ -477,17 +497,16 @@ function choose_post_template($post) {
  * @param string|integer $value Значение параметра запроса
  * @return string url-адрес с обновленными параметрами запроса
  */
-function update_query_params($scriptname, $key, $value) {
+function update_query_params($key, $value) {
     $params = $_GET;
 
-    if (!$value) {
-        unset($params[$key]);
-    } else {
+    if ($value) {
         $params[$key] = $value;
+    } else {
+        unset($params[$key]);
     }
     $query = http_build_query($params);
-    $url = "/" . $scriptname . "?" . $query;
+    $url = "?" . $query;
     return $url;
 };
-
 

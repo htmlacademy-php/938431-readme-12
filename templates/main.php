@@ -9,7 +9,7 @@
                 <ul class="popular__sorting-list sorting__list">
                     <?php foreach ($sort_types as $key => $value): ?>
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="<?=update_query_params('index.php', 'sort' , $key); ?>">
+                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="<?=update_query_params('sort' , $key); ?>">
                             <span><?=$value;?></span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -24,13 +24,13 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <?=$filter ?? ' filters__button--active';?>" href="<?=update_query_params('index.php', 'filter' , 0); ?>">
+                        <? if (!$filter) echo ' filters__button--active';?>" href="<?=update_query_params('filter' , 0); ?>">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type['p_type']?> <?=($filter === $type['id']) ? 'filters__button--active' : ''?>
+                        <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter === $type['id']) echo 'filters__button--active' ?>
                          button" href="<?=$type['url']?>">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon"

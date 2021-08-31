@@ -12,15 +12,7 @@ if (!$post_id) {
 }
 
 // Устанавливаем соединение с базой readme
-$con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
-
-if (!$con) {
-    print('Ошибка подключения: ' . mysqli_connect_error());
-    exit;
-};
-
-// Устанавливаем кодировку
-mysqli_set_charset($con, 'utf8');
+$con = set_connection();
 
 // Создаем запрос на получение поста с заданным id
 $sql_post = "SELECT
@@ -116,4 +108,3 @@ $layout = include_template('layout.php', ['page_content' => $content, 'page_titl
 print($layout);
 print('sql_user: ' . $sql_user);
 var_dump($user);
-

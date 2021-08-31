@@ -4,23 +4,15 @@ require_once('helpers.php');
 $is_auth = rand(0, 1);
 
 $user_name = 'Юлия'; // укажите здесь ваше имя
-$scriptname = pathinfo(__FILE__, PATHINFO_BASENAME);
 $sort_types = [
     'popular' => 'Популярность',
     'likes' => 'Лайки',
     'date' => 'Дата'
 ];
 
+
 // Устанавливаем соединение с базой readme
-$con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
-
-if (!$con) {
-    print('Ошибка подключения: ' . mysqli_connect_error());
-    exit;
-};
-
-// Устанавливаем кодировку
-mysqli_set_charset($con, 'utf8');
+$con = set_connection();
 
 // Создаем запрос на получение типов постов
 $sql = "SELECT id, t_class AS p_type, width, height
@@ -38,8 +30,8 @@ if (!$result) {
 $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Добавляем каждому типу поста ключ "url" для атрибута href ссылки
-foreach ($types as &$type) {
-    $type['url'] = update_query_params($scriptname, 'filter', $type['id']);
+foreach ($types AS &$type) {
+    $type['url'] = update_query_params('filter', $type['id']);
 };
 unset($type);
 
@@ -53,29 +45,29 @@ if ($filter) {
     $where_condition = " WHERE type_id = " .$filter;
 };
 
-$order_by_condition = " ORDER BY watch_count DESC;";
+$order_param = 'watch_count';
 if ($sort === 'likes') {
-    $order_by_condition = " ORDER BY like_count DESC;";
+    $order_param = 'like_count';
 } elseif ($sort === 'date') {
-    $order_by_condition = " ORDER BY p_date DESC;";
-};
+    $order_param = 'p_date';
+}
 
 // Создаем запрос на получение постов с их авторами,
 // количеством лайков и комментариев, отсортированных по популярности
 $sql = "SELECT
-post.id,
-p_title,
-post.dt_add as p_date,
-p_url,
-p_text,
-u_name,
-u_avatar,
-user.dt_add as u_dt_add,
-t_class as p_type,
-type_id,
-watch_count,
-comment_count,
-like_count
+    post.id,
+    p_title,
+    post.dt_add AS p_date,
+    p_url,
+    p_text,
+    u_name,
+    u_avatar,
+    user.dt_add AS u_dt_add,
+    t_class AS p_type,
+    type_id,
+    watch_count,
+    comment_count,
+    like_count
 FROM post
 INNER JOIN user
 ON user_id = user.id
@@ -97,10 +89,9 @@ LEFT JOIN
         ON post_likes.post_id = comment.post_id
         GROUP BY comment.post_id
     ) AS post_count
-ON post_count.post_id = post.id";
-$sql .= $where_condition;
-$sql .= $order_by_condition;
-
+ON post_count.post_id = post.id"
+. $where_condition
+. " ORDER BY " . $order_param . " DESC;";
 
 // Получаем результат
 $result = mysqli_query($con, $sql);
