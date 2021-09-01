@@ -33,8 +33,10 @@ foreach ($types AS &$type) {
 };
 unset($type);
 
+$title_field = include_template('field-title.php');
+$tags_field = include_template('field-tags.php');
 
-$content = include_template('adding-post.php', ['types' => $types, 'active_type' => $active_type]);
+$content = include_template('adding-post.php', ['types' => $types, 'active_type' => $active_type, 'title_field' => $title_field, 'tags_field' => $tags_field]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);
