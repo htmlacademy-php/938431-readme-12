@@ -14,40 +14,31 @@ if (!$post_id) {
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
-// Создаем запрос на получение поста с заданным id
+// Создаем запрос на получение поста с заданным id и его типа
 $sql_post = "SELECT
-post.*,
-t_class as p_type,
-comment_count,
-like_count
+    post.*,
+    t_class AS p_type
 FROM post
 INNER JOIN post_type
 ON type_id = post_type.id
-LEFT JOIN
-    (
-        SELECT
-        comment.post_id,
-        COUNT(comment.id) AS comment_count,
-        like_count
-        FROM comment
-        LEFT JOIN
-            (
-                SELECT post_id, COUNT(id) AS like_count
-                FROM post_like
-                GROUP BY post_id
-            ) AS post_likes
-        ON post_likes.post_id = comment.post_id
-        GROUP BY comment.post_id
-    ) AS post_count
-ON post_count.post_id = post.id
 WHERE post.id = ?;";
+
+// Запрос на получение количества комментариев к посту
+$sql_comment_cnt = "SELECT COUNT(id) AS comment_count
+FROM comment
+WHERE post_id = ?;";
+
+// Запрос на получение количества лайков к посту
+$sql_like_cnt = "SELECT COUNT(id) AS like_count
+FROM post_like
+WHERE post_id = ?;";
 
 // Запрос на получение комментариев к посту
 $sql_comments = "SELECT
-comment.dt_add AS c_date,
-c_content,
-u_name,
-u_avatar
+    comment.dt_add AS c_date,
+    c_content,
+    u_name,
+    u_avatar
 FROM comment
 INNER JOIN user
 ON user.id = comment.user_id
@@ -57,23 +48,22 @@ LIMIT 5;";
 
 // Создаем запрос на получение данных о пользователе
 $sql_user = "SELECT
-user.id,
-dt_add,
-u_name,
-u_avatar,
-COUNT(s.id) as subs_count,
-posts_count
+    user.id,
+    dt_add,
+    u_name,
+    u_avatar
 FROM user
-LEFT JOIN subscription AS s
-ON s.user_id = user.id
-LEFT JOIN
-    (
-        SELECT user_id, COUNT(*) as posts_count FROM post
-        GROUP BY user_id
-    ) AS posts
-ON posts.user_id = user.id
-WHERE user.id = ?
-GROUP BY user.id;";
+WHERE user.id = ?;";
+
+// Запрос на получение количества подписчиков пользователя
+$sql_subs_cnt = "SELECT COUNT(id) AS subs_count
+FROM subscription
+WHERE user_id = ?;";
+
+// Запрос на получение количества постов пользователя
+$sql_post_cnt = "SELECT COUNT(id) AS posts_count
+FROM post
+WHERE user_id = ?;";
 
 // Создаем подготовленное выражение и отправляем запрос на получение поста
 $data_post = [];
@@ -86,6 +76,17 @@ if (!$post) {
     exit;
 }
 
+// Создаем подготовленное выражение и отправляем запрос на получение количества комментариев к посту
+$result = fetch_sql_response($con, $sql_comment_cnt, $data_post);
+$c_cnt = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение количества лайков у поста
+$result = fetch_sql_response($con, $sql_like_cnt, $data_post);
+$l_cnt = mysqli_fetch_assoc($result);
+
+// Объединяем полученные данные о посте в один массив
+$post = array_merge($post, $c_cnt, $l_cnt);
+
 // Создаем подготовленное выражение и отправляем запрос на получение комментариев поста
 $result = fetch_sql_response($con, $sql_comments, $data_post);
 $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -96,6 +97,18 @@ $data_user = [];
 $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
 $user = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение количества подписчиков пользователя
+$result = fetch_sql_response($con, $sql_subs_cnt, $data_user);
+$s_cnt = mysqli_fetch_assoc($result);
+
+// Создаем подготовленное выражение и отправляем запрос на получение количества постов пользователя
+$result = fetch_sql_response($con, $sql_post_cnt, $data_user);
+$p_cnt = mysqli_fetch_assoc($result);
+
+// Объединяем полученные данные о пользователе в один массив
+$user = array_merge($user, $s_cnt, $p_cnt);
+
 $post_content = choose_post_template($post);
 $content = include_template('details.php', [
     'comments' => $comments,
@@ -106,5 +119,3 @@ $content = include_template('details.php', [
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);
-print('sql_user: ' . $sql_user);
-var_dump($user);

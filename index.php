@@ -10,7 +10,6 @@ $sort_types = [
     'date' => 'Дата'
 ];
 
-
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
