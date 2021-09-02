@@ -406,7 +406,7 @@ function generate_interval_text($interval) {
         $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
     }
 
-    return $result .= ' назад';
+    return $result;
 };
 
 /**
@@ -420,16 +420,93 @@ function generate_passed_time_text($date) {
 }
 
 /**
- * Адаптер для структуры данных Пост, полученной из MySQL
+ * Устанавливает соединение с базой readme, устанавливает кодировку и Ресурс соединения
+ * @return mysqli Ресурс соединения
  */
-function adapt_raw_post($post) {
-    $content = $post['p_url'] ? $post['p_url'] : $post['p_text'];
-    return [
-        'title' => $post['p_title'],
-        'type' => 'post-' . $post['t_class'],
-        'content' => $content,
-        'user_name' => $post['u_name'],
-        'avatar_url' => $post['u_avatar'],
-        'date_add' => $post['dt_add']
-    ];
+function set_connection() {
+    // Устанавливаем соединение
+    $con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
+
+    if (!$con) {
+        print('Ошибка подключения: ' . mysqli_connect_error());
+        exit;
+    };
+
+    // Устанавливаем кодировку
+    mysqli_set_charset($con, 'utf8');
+
+    return $con;
+}
+
+
+/**
+ * Отправляет запрос и возвращает результат
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli Объект результата
+ */
+function fetch_sql_response($link, $sql, $data) {
+   $stmt = db_get_prepare_stmt($link, $sql, $data);
+    mysqli_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+
+    if (!$result) {
+        $error = mysqli_error($con);
+        print('Ошибка MySql: ' . $error);
+        exit;
+    }
+    return $result;
+}
+
+/**
+ * Выбирает html шаблон в зависимости от полученного типа поста
+ * @param $post array Массив с данными о посте
+ * @return string Итоговый HTML
+ */
+
+function choose_post_template($post) {
+    $result = $post['p_type'];
+    switch ($post['p_type']) {
+        case 'link':
+            $result = include_template('details-link.php', ['title' => $post['p_text'], 'url' => $post['p_url']]);
+            break;
+        case 'photo';
+            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
+            break;
+        case 'quote';
+            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author'] ?? 'Неизвестный автор']);
+            break;
+        case 'text';
+            $result = include_template('details-text.php', ['text' => $post['p_text']]);
+            break;
+        case 'video';
+            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
+            break;
+    };
+
+    return $result;
 };
+
+
+/**
+ * Возвращает адресную строку для текущего скрипта с переданным параметром запроса
+ * @param string $key Ключ параметра запроса
+ * @param string|integer $value Значение параметра запроса
+ * @return string url-адрес с обновленными параметрами запроса
+ */
+function update_query_params($key, $value) {
+    $params = $_GET;
+
+    if ($value) {
+        $params[$key] = $value;
+    } else {
+        unset($params[$key]);
+    }
+    $query = http_build_query($params);
+    $url = "?" . $query;
+    return $url;
+};
+
