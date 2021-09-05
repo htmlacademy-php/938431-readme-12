@@ -57,8 +57,8 @@
                     case 'quote': ?>
                     <!-- Цитата -->
                     <blockquote>
-                        <p><?= htmlspecialchars($post['p_text']); ?></p>
-                        <cite>Неизвестный Автор</cite>
+                        <p><?= htmlspecialchars($post['quote_text']); ?></p>
+                        <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                     </blockquote>
                     <?php break; ?>
                     <? case 'text':
@@ -70,23 +70,23 @@
                     <?php case 'photo': ?>
                         <!-- Фото -->
                     <div class="post-photo__image-wrapper">
-                        <img src="img/<?= $post['p_url'] ?>" alt="Фото от пользователя" width="360" height="240">
+                        <img src="img/<?= $post['url_img'] ?>" alt="Фото от пользователя" width="360" height="240">
                     </div>
                     <?php break; ?>
 
                     <?php case 'link': ?>
                         <!-- Ссылка -->
                     <div class="post-link__wrapper">
-                        <a class="post-link__external" href="http://<?= $post['p_url'] ?>" title="Перейти по ссылке">
+                        <a class="post-link__external" href="http://<?= $post['url_site'] ?>" title="Перейти по ссылке">
                             <div class="post-link__info-wrapper">
                                 <div class="post-link__icon-wrapper">
                                     <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
                                 </div>
                                 <div class="post-link__info">
-                                    <h3><?= htmlspecialchars($post['p_text']); ?></h3>
+                                    <h3><?= htmlspecialchars($post['p_title']); ?></h3>
                                 </div>
                             </div>
-                            <span><?= htmlspecialchars($post['p_url']); ?></span>
+                            <span><?= htmlspecialchars($post['url_site']); ?></span>
                         </a>
                     </div>
                     <?php break; ?>
@@ -95,8 +95,7 @@
                         <!-- Видео -->
                     <div class="post-video__block">
                         <div class="post-video__preview">
-                            <?=embed_youtube_cover($post['p_url']); ?>
-                            <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
+                            <?=embed_youtube_cover($post['url_video']); ?>
                         </div>
                         <a href="post-details.html" class="post-video__play-big button">
                             <svg class="post-video__play-big-icon" width="14" height="14">
