@@ -4,6 +4,19 @@ require_once('helpers.php');
 $title = 'readme: добавление публикации';
 $is_auth = rand(0, 1);
 $user_name = 'Юлия'; // укажите здесь ваше имя
+
+$label = [
+    'photo-url' => 'Ссылка из интернета',
+    'post-link' => 'Ссылка',
+    'post-text' => 'Текст поста',
+    'quote-author' => 'Автор',
+    'quote-text' => 'Текст цитаты',
+    'tags' => 'Теги',
+    'title' => 'Заголовок',
+    'userpic-file-photo' => 'Загрузка фото',
+    'video-url' => 'Ссылка youtube'
+];
+
 $form_options = [
     'link' => [
         'required' => ['title', 'post-link'],
@@ -11,7 +24,7 @@ $form_options = [
     ],
     'photo' => [
         'required' => ['title'],
-        'filters' => ['title' => FILTER_DEFAULT]
+        'filters' => ['title' => FILTER_DEFAULT, 'photo-url' =>  FILTER_DEFAULT]
     ],
     'quote' => [
         'required' => ['title', 'quote-text', 'quote-author'],
@@ -41,7 +54,7 @@ $rules = [
 
 $empty_data = [
     'title' => NULL,
-    'photo_url' => NULL,
+    'photo-url' => NULL,
     'post-link' => NULL,
     'video-url' => NULL,
     'post-text' => NULL,
@@ -89,28 +102,48 @@ foreach ($types AS &$type) {
 };
 unset($type);
 
-
-$title_field = include_template('field-title.php');
-$tags_field = include_template('field-tags.php');
-
-$content = include_template('adding-post.php', ['types' => $types, 'active_type' => $active_type, 'title_field' => $title_field, 'tags_field' => $tags_field]);
-
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $active_type = filter_input(INPUT_POST, 'post-type');
+    $active_type = get_post_value('post-type');
     $options = $form_options[$active_type];
     $required = $options['required'];
     $p_filters = $options['filters'];
-    $errors = [];
     $post = filter_input_array(INPUT_POST, $p_filters, true);
 
     foreach ($post as $key => $value) {
-        if (isset($rules[$key])) {
+        if (in_array($key, $required) and empty($value)) {
+            $errors[$key] = 'Это поле должно быть заполнено.';
+        } elseif (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);
         }
-        if (in_array($key, $required) and empty($value)) {
-            $errors[$key] = 'Это поле должно быть заполнено.';
+        if ($key == 'photo-url' and empty($errors[$key])) {
+            // Если загружен файл, проверяем его и сохраняем в папку uploads
+            if (!empty($_FILES['userpic-file-photo']['name'])) {
+                $file_photo = $_FILES['userpic-file-photo'];
+                $error = validate_file($file_photo['tmp_name'], $file_photo['size']);
+                if ($error) {
+                    $errors['userpic-file-photo'] = $error;
+                } else {
+                    $file_type = get_file_type($file_photo);
+                    $filename = uniqid() . get_file_ext($file_type);
+                    $path = 'uploads/' . $filename;
+                    move_uploaded_file($file_photo['tmp_name'], $path);
+                    $post['photo-url'] = $path;
+                }
+            } else {
+                // Если есть интернет-ссылка, скачиваем файл, проверяем его и сохраняем в папку uploads
+                $tmp_path = save_file_to_uploads($value);
+                $errors[$key] = validate_file($tmp_path, filesize($tmp_path));
+                if (empty($errors[$key])) {
+                    $file_type = get_file_type($tmp_path);
+                    $file_ext = get_file_ext($file_type);
+                    $path = $tmp_path . $file_ext;
+                    rename($tmp_path, $path);
+                    $post['photo-url'] = $path;
+                }
+            }
         }
         $errors = array_diff($errors, array(''));
     }
@@ -136,6 +169,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+$title_field = include_template('field-title.php', ['label' => $label['title'], 'error' => isset($errors['title']) ? $errors['title'] : '']);
+
+$tags_field = include_template('field-tags.php', ['label' => $label['tags'], 'error' => isset($errors['tags']) ? $errors['tags'] : '']);
+
+$content = include_template('adding-post.php', [
+    'types' => $types,
+    'active_type' => $active_type,
+    'title_field' => $title_field,
+    'tags_field' => $tags_field,
+    'label' => $label,
+    'errors' => $errors
+]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);
+var_dump($_FILES);
+var_dump($errors);
