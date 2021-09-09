@@ -124,8 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $post = filter_input_array(INPUT_POST, $p_filters, true);
 
     foreach ($post as $key => $value) {
-        if (in_array($key, $required) and empty($value)) {
-            $errors[$key] = 'Это поле должно быть заполнено.';
+        if (in_array($key, $required)) {
+            $errors[$key] = validate_filled($value);
         }
         if (isset($rules[$key]) and !empty($value)) {
             $rule = $rules[$key];
@@ -133,6 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if ($key == 'photo-url' and empty($errors[$key])) {
             // Если загружен файл, проверяем его и сохраняем в папку uploads
+            // У меня массив $_FILES['userpic-file-photo'] всегда пустой почему-то
             if (!empty($_FILES['userpic-file-photo']['name'])) {
                 $file_photo = $_FILES['userpic-file-photo'];
                 $error = validate_file($file_photo['tmp_name'], $file_photo['size']);
