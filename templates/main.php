@@ -70,7 +70,7 @@
                     <?php case 'photo': ?>
                         <!-- Фото -->
                     <div class="post-photo__image-wrapper">
-                        <img src="img/<?= $post['url_img'] ?>" alt="Фото от пользователя" width="360" height="240">
+                        <img src="<?= $post['url_img'] ?>" alt="Фото от пользователя" width="360" height="240">
                     </div>
                     <?php break; ?>
 

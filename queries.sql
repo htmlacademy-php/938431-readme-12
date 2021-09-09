@@ -32,8 +32,8 @@ INSERT INTO post (
 VALUES
   ('Цитата', NULL, NULL, NULL, NULL, 'Неизвестный автор', 'Мы в жизни любим только раз, а после ищем лишь похожих', 10, 2, 4), #1
   ('Игра престолов', NULL, NULL, NULL, 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!', NULL, NULL, 4, 1, 3), #2
-  ('Наконец, обработал фотки!', 'rock-medium.jpg', NULL, NULL, NULL, NULL, NULL, 25, 3, 1), #3
-  ('Моя мечта', 'coast-medium.jpg', NULL, NULL, NULL, NULL, NULL, 15, 2, 1), #4
+  ('Наконец, обработал фотки!', 'img/rock-medium.jpg', NULL, NULL, NULL, NULL, NULL, 25, 3, 1), #3
+  ('Моя мечта', 'img/coast-medium.jpg', NULL, NULL, NULL, NULL, NULL, 15, 2, 1), #4
   ('Лучшие курсы', NULL, 'www.htmlacademy.ru', NULL, NULL, NULL, NULL, 3, 1, 5), #5
   ('Мачу Пикчу. Древние строения', NULL, NULL, 'https://youtu.be/RsVq66yJ8HI', NULL, NULL, NULL, 5, 1, 2); #6
 
