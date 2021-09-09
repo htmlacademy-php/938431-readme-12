@@ -36,12 +36,9 @@
             <span class="post__view"><?=$post['watch_count'] ?? 0; ?> просмотров</span>
           </div>
           <ul class="post__tags">
-            <li><a href="#">#nature</a></li>
-            <li><a href="#">#globe</a></li>
-            <li><a href="#">#photooftheday</a></li>
-            <li><a href="#">#canon</a></li>
-            <li><a href="#">#landscape</a></li>
-            <li><a href="#">#щикарныйвид</a></li>
+            <?php foreach ($hashtags as $hash): ?>
+            <li><a href="#">#<?=$hash['title']; ?></a></li>
+            <?php endforeach; ?>
           </ul>
           <div class="comments">
             <form class="comments__form form" action="#" method="post">
