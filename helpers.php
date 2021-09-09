@@ -508,23 +508,6 @@ function update_query_params($key, $value) {
 };
 
 /**
- * Разбивает строку на слова, символы '#' и ',' удаляются
- * @param string $hash_str Исходная строка
- * @return array Массив слов
- */
-function split_hashtag_str($hash_str) {
-    $words = explode( " ", $hash_str);
-
-    foreach ($words as &$word) {
-        $word = str_replace( array('#', ','), '', $word);
-    }
-    unset($word);
-
-    $words = array_diff($words, array(''));
-    return $words;
-}
-
-/**
  * Возвращает значение поля формы
  * @param string $name Имя поля формы
  * @return string|null Значение поля
@@ -550,10 +533,14 @@ function validate_filled($value) {
  * @return string|null $message Текст сообщения об ошибке
  */
 function validate_hashtag($value) {
-        $words = split_hashtag_str($value);
-        if (count($words) === 0) {
-            $message = "Введите хотя бы один непустой тег";
+    $message = null;
+    $words = explode( " ", $value);
+    foreach ($words as $value) {
+        if (!preg_match("/^#\w+$/ui", $value)) {
+            $message = "Теги должны начинаться с #, состоять из одного слова из букв, цифр и символа подчеркивания, разделяться пробелами";
+            break;
         }
+    }
     return $message;
 }
 
