@@ -469,19 +469,19 @@ function choose_post_template($post) {
     $result = $post['p_type'];
     switch ($post['p_type']) {
         case 'link':
-            $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['url_site']]);
+            $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
             break;
         case 'photo';
-            $result = include_template('details-photo.php', ['img_url' => $post['url_img']]);
+            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
             break;
         case 'quote';
-            $result = include_template('details-quote.php', ['text' => $post['quote_text'], 'author' => $post['quote_author']]);
+            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
             break;
         case 'text';
             $result = include_template('details-text.php', ['text' => $post['p_text']]);
             break;
         case 'video';
-            $result = include_template('details-video.php', ['youtube_url' => $post['url_video']]);
+            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
             break;
     };
 
@@ -649,3 +649,37 @@ function validate_video_url($value) {
     return $message;
 }
 
+/**
+ * Переименовывает первый найденный ключ, если он совпадает с одним из значений переданого массива
+ * @param array $old_keys Массив имен ключей, которые надо заменить
+ * @param string $new_key Новое имя ключа
+ * @return array Массив с переименованным ключом
+ */
+function rename_key($old_keys, $new_key, $arr) {
+    $keys = array_keys($arr);
+    $values = array_values($arr);
+    foreach ($old_keys as $value) {
+        $key_ind = array_search($value, $keys);
+        if ($key_ind) {
+            $keys[$key_ind] = $new_key;
+            $arr = array_combine($keys, $values);
+            break;
+        }
+    }
+    return $arr;
+}
+
+/**
+ * Отображает массив
+ *
+ * @param $var
+ */
+function array_view($var) {
+?>
+
+	<div style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
+		<pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var,true)?></pre>
+	</div>
+
+<?php
+}
