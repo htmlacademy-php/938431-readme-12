@@ -5,87 +5,6 @@ $title = 'readme: добавление публикации';
 $is_auth = rand(0, 1);
 $user_name = 'Юлия'; // укажите здесь ваше имя
 
-$label = [
-    'photo-url' => 'Ссылка из интернета',
-    'post-link' => 'Ссылка',
-    'post-text' => 'Текст поста',
-    'quote-author' => 'Автор',
-    'quote-text' => 'Текст цитаты',
-    'tags' => 'Теги',
-    'title' => 'Заголовок',
-    'userpic-file-photo' => 'Загрузка фото',
-    'video-url' => 'Ссылка youtube'
-];
-
-$form_options = [
-    'link' => [
-        'required' => ['title', 'post-link'],
-        'filters' => ['title' => FILTER_DEFAULT, 'post-link' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ],
-    'photo' => [
-        'required' => ['title'],
-        'filters' => ['title' => FILTER_DEFAULT, 'photo-url' =>  FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ],
-    'quote' => [
-        'required' => ['title', 'quote-text', 'quote-author'],
-        'filters' => ['title' => FILTER_DEFAULT, 'quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ],
-    'text' => [
-        'required' => ['title', 'post-text'],
-        'filters' => ['title' => FILTER_DEFAULT, 'post-text' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ],
-    'video' => [
-        'required' => ['title', 'video-url'],
-        'filters' => ['title' => FILTER_DEFAULT, 'video-url' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ]
-];
-
-$rules = [
-    'photo-url' => function($value) {
-        return validate_photo_url($value);
-    },
-    'post-link' => function($value) {
-        return validate_url($value);
-    },
-    'tags' => function($value) {
-        return validate_hashtag($value);
-    },
-    'video-url' => function($value) {
-        return validate_video_url($value);
-    }
-];
-
-$empty_data = [
-    'title' => NULL,
-    'photo-url' => NULL,
-    'post-link' => NULL,
-    'video-url' => NULL,
-    'post-text' => NULL,
-    'quote-author' => NULL,
-    'quote-text' => NULL
-];
-
-$sql_add_post = "INSERT INTO post (
-  p_title,
-  url_img,
-  url_site,
-  url_video,
-  p_text,
-  quote_author,
-  quote_text,
-  watch_count,
-  user_id,
-  type_id)
-VALUES (?, ?, ?, ?, ?, ?, ?, 0, 1, ?);";
-
-$sql_get_hashid = "SELECT id FROM hashtag
-WHERE title = ?;";
-
-$sql_add_hash = "INSERT INTO hashtag
-SET title = ?;";
-
-$sql_add_bond = "INSERT INTO post_hashtag
-SET post_id = ?, hash_id = ?;";
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -117,6 +36,50 @@ unset($type);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $opts = [
+        'required' => ['title'],
+        'filters' => ['title' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
+    ];
+
+    $form_options = [
+        'link' => [
+            'required' => array_merge($opts['required'], ['post-link']),
+            'filters' => array_merge($opts['filters'], ['post-link' => FILTER_DEFAULT])
+        ],
+        'photo' => [
+            'required' => $opts['required'],
+            'filters' => array_merge($opts['filters'], ['photo-url' =>  FILTER_DEFAULT])
+        ],
+        'quote' => [
+            'required' => array_merge($opts['required'], ['quote-text', 'quote-author']),
+            'filters' => array_merge($opts['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
+        ],
+        'text' => [
+            'required' => array_merge($opts['required'], ['post-text']),
+            'filters' => array_merge($opts['filters'], ['post-text' => FILTER_DEFAULT])
+        ],
+        'video' => [
+            'required' => array_merge($opts['required'], ['video-url']),
+            'filters' => array_merge($opts['filters'], ['video-url' => FILTER_DEFAULT])
+        ]
+    ];
+
+    $rules = [
+        'photo-url' => function($value) {
+            return validate_photo_url($value);
+        },
+        'post-link' => function($value) {
+            return validate_url($value);
+        },
+        'tags' => function($value) {
+            return validate_hashtag($value);
+        },
+        'video-url' => function($value) {
+            return validate_video_url($value);
+        }
+    ];
+
     $active_type = get_post_value('post-type');
     $options = $form_options[$active_type];
     $required = $options['required'];
@@ -169,20 +132,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 break;
             }
         }
+        $post['type_id'] = $type_id;
+
         // Сохраняем значение поля хэштеги в отдельную переменную, а из массива $post это поле удаляем
         $hash_str = $post['tags'];
         unset($post['tags']);
-        $post['type_id'] = $type_id;
+
+        // Переименовываем ключи 'post-text' и 'quote-text' => 'text'
+        // 'photo-url', 'video-url', 'post-link' => 'url'
+        $text_keys = ['post-text', 'quote-text'];
+        $url_keys = ['photo-url', 'video-url', 'post-link'];
+        $post = rename_key($text_keys, 'text', $post);
+        $post = rename_key($url_keys, 'url', $post);
+
+        $empty_data = [
+            'title' => NULL,
+            'url' => NULL,
+            'text' => NULL,
+            'quote-author' => NULL
+        ];
+
         $data_post = array_merge($empty_data, $post);
+
+        // Создаем запрос на запись нового поста
+        $sql_add_post = "INSERT INTO post (
+            p_title,
+            p_url,
+            p_text,
+            quote_author,
+            watch_count,
+            user_id,
+            type_id)
+        VALUES (?, ?, ?, ?, 0, 1, ?);";
 
         // Создаем подготовленное выражение и отправляем запрос на на запись нового поста
         $stmt = db_get_prepare_stmt($con, $sql_add_post, $data_post);
-        $result = mysqli_execute($stmt);
+        $result = mysqli_stmt_execute($stmt);
 
         // В случае успеха отправляем запросы на запись хэштегов к посту
         if ($result) {
             $post_id = mysqli_insert_id($con);
             $hashtags = explode(' ', str_replace('#', '', $hash_str));
+
+            // Запрос на получение id хэштега
+            $sql_get_hashid = "SELECT id FROM hashtag
+            WHERE title = ?;";
+
+            // Запрос на запись нового хэштега
+            $sql_add_hash = "INSERT INTO hashtag
+            SET title = ?;";
+
+            // Запрос на запись связи пост - хэштег
+            $sql_add_bond = "INSERT INTO post_hashtag
+            SET post_id = ?, hash_id = ?;";
+
             foreach ($hashtags as $hash) {
                 $data_hash = array($hash);
                 // Проверяем, есть ли такой хэштег в таблице
@@ -193,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } else {
                     // Если нет - создаем запрос на запись нового хэштега и получаем его id
                     $stmt = db_get_prepare_stmt($con, $sql_add_hash, $data_hash);
-                    $result = mysqli_execute($stmt);
+                    $result = mysqli_stmt_execute($stmt);
                     if ($result) {
                         $hash_id = mysqli_insert_id($con);
                     }
@@ -202,18 +205,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($hash_id) {
                     $data_hash = array($post_id, $hash_id);
                     $stmt = db_get_prepare_stmt($con, $sql_add_bond, $data_hash);
-                    mysqli_execute($stmt);
+                    mysqli_stmt_execute($stmt);
                 }
             }
         // Перенаправляем на страницу просмотра поста
             header("Location: post.php?id=" . $post_id);
+            exit;
         }
     }
 }
 
-$title_field = include_template('field-title.php', ['label' => $label['title'], 'error' => isset($errors['title']) ? $errors['title'] : '']);
+$label = [
+    'photo-url' => 'Ссылка из интернета',
+    'post-link' => 'Ссылка',
+    'post-text' => 'Текст поста',
+    'quote-author' => 'Автор',
+    'quote-text' => 'Текст цитаты',
+    'tags' => 'Теги',
+    'title' => 'Заголовок',
+    'userpic-file-photo' => 'Загрузка фото',
+    'video-url' => 'Ссылка youtube'
+];
 
-$tags_field = include_template('field-tags.php', ['label' => $label['tags'], 'error' => isset($errors['tags']) ? $errors['tags'] : '']);
+$title_field = include_template('field-title.php', [
+    'label' => $label['title'],
+    'error' => $errors['title'] ?? ''
+]);
+
+$tags_field = include_template('field-tags.php', [
+    'label' => $label['tags'],
+    'error' => $errors['tags'] ?? ''
+]);
 
 $content = include_template('adding-post.php', [
     'types' => $types,
@@ -233,5 +255,7 @@ $layout = include_template('layout.php', [
 print($layout);
 
 // Оставила пока вывод массива $_FILES
-var_dump($_FILES);
+array_view($data_post);
+echo '<br/>';
+echo "error: " . $_FILES['userpic-file-photo']['error'] . '<br/>';
 var_dump($errors);
