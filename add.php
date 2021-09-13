@@ -1,11 +1,6 @@
 <?php
 require_once('helpers.php');
 
-$title = 'readme: добавление публикации';
-$is_auth = rand(0, 1);
-$user_name = 'Юлия'; // укажите здесь ваше имя
-
-
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -96,14 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if ($key == 'photo-url' and empty($errors[$key])) {
             // Если загружен файл, проверяем его и сохраняем в папку uploads
-            // У меня массив $_FILES['userpic-file-photo'] всегда пустой почему-то
-            if (!empty($_FILES['userpic-file-photo']['name'])) {
-                $file_photo = $_FILES['userpic-file-photo'];
+            if (!empty($_FILES['file']['name'])) {
+                $file_photo = $_FILES['file'];
                 $error = validate_file($file_photo['tmp_name'], $file_photo['size']);
                 if ($error) {
-                    $errors['userpic-file-photo'] = $error;
+                    $errors['file'] = $error;
                 } else {
-                    $file_type = get_file_type($file_photo);
+                    $file_type = get_file_type($file_photo['tmp_name']);
                     $filename = uniqid() . get_file_ext($file_type);
                     $path = 'uploads/' . $filename;
                     move_uploaded_file($file_photo['tmp_name'], $path);
@@ -209,8 +203,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
         // Перенаправляем на страницу просмотра поста
-            header("Location: post.php?id=" . $post_id);
+            header("Location: http://readme/post.php?id=" . $post_id);
             exit;
+        } else {
+            $errors[] = "Ошибка на сервере. Не удалось сохранить ваш пост";
         }
     }
 }
@@ -223,7 +219,7 @@ $label = [
     'quote-text' => 'Текст цитаты',
     'tags' => 'Теги',
     'title' => 'Заголовок',
-    'userpic-file-photo' => 'Загрузка фото',
+    'file' => 'Загрузка фото',
     'video-url' => 'Ссылка youtube'
 ];
 
@@ -237,14 +233,24 @@ $tags_field = include_template('field-tags.php', [
     'error' => $errors['tags'] ?? ''
 ]);
 
+$invalid_block = include_template('invalid-block.php', [
+    'errors' => $errors,
+    'label' => $label
+]);
+
 $content = include_template('adding-post.php', [
     'types' => $types,
     'active_type' => $active_type,
     'title_field' => $title_field,
     'tags_field' => $tags_field,
     'label' => $label,
-    'errors' => $errors
+    'errors' => $errors,
+    'invalid_block' => $invalid_block
 ]);
+
+$title = 'readme: добавление публикации';
+$is_auth = rand(0, 1);
+$user_name = 'Юлия'; // укажите здесь ваше имя
 
 $layout = include_template('layout.php', [
     'page_content' => $content,
@@ -253,9 +259,3 @@ $layout = include_template('layout.php', [
     'is_auth' => $is_auth
 ]);
 print($layout);
-
-// Оставила пока вывод массива $_FILES
-array_view($data_post);
-echo '<br/>';
-echo "error: " . $_FILES['userpic-file-photo']['error'] . '<br/>';
-var_dump($errors);

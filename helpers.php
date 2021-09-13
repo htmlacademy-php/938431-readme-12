@@ -537,7 +537,7 @@ function validate_hashtag($value) {
     $words = explode( " ", $value);
     foreach ($words as $value) {
         if (!preg_match("/^#\w+$/ui", $value)) {
-            $message = "Теги должны начинаться с #, состоять из одного слова из букв, цифр и символа подчеркивания, разделяться пробелами";
+            $message = "Теги должны быть разделены пробелами и начинаться с #. Теги могут состоять из букв, цифр и символа подчеркивания.";
             break;
         }
     }
@@ -604,7 +604,7 @@ function validate_url($value) {
  */
 function validate_photo_url($value) {
     // Проверяем загружен ли файл
-    if (!empty($_FILES['userpic-file-photo']['name'])) {
+    if (!empty($_FILES['file']['name'])) {
         $message = null;
     } elseif (empty($value)) {
         $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
