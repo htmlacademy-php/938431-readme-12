@@ -24,7 +24,7 @@
             <div class="adding-post__tab-content">
               <section class="adding-post__photo tabs__content <? if ($active_type === 'photo') echo ' tabs__content--active' ?>">
                 <h2 class="visually-hidden">Форма добавления фото</h2>
-                <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data">
+                <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data" id="form-photo">
                   <div class="form__text-inputs-wrapper">
                     <div class="form__text-inputs">
                       <input type="hidden" name="post-type" id="post-type" value="photo">
@@ -36,25 +36,18 @@
                           <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                           <div class="form__error-text">
                             <h3 class="form__error-title"><?=$label['photo-url']; ?></h3>
-                            <p class="form__error-desc"><?=$errors['photo-url']; ?></p>
+                            <p class="form__error-desc"><?=$errors['photo-url'] ?? '' ?></p>
                           </div>
                         </div>
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <div class="form__invalid-block">
-                      <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                      <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $value): ?>
-                            <li class="form__invalid-item"><?=$label[$key]; ?>. <?=$value; ?></li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                    <?=$invalid_block ?>>
                   </div>
                   <div class="adding-post__input-file-container form__input-container form__input-container--file">
                     <div class="adding-post__input-file-wrapper form__input-file-wrapper">
-                      <div class="adding-post__file-zone adding-post__file-zone--photo form__file-zone dropzone">
-                        <input class="adding-post__input-file form__input-file" id="userpic-file-photo" type="file" name="userpic-file-photo" title=" ">
+                      <div class="adding-post__file-zone adding-post__file-zone--photo form__file-zone">
+                        <!-- <input class="adding-post__input-file form__input-file" id="file" type="file" name="file" title=" "> -->
                         <div class="form__file-zone-text">
                           <span>Перетащите фото сюда</span>
                         </div>
@@ -71,7 +64,7 @@
                     </div>
                   </div>
                   <div class="adding-post__buttons">
-                    <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
+                    <button class="adding-post__submit button button--main" type="submit" id="photo-submit">Опубликовать</button>
                     <a class="adding-post__close" href="#">Закрыть</a>
                   </div>
                 </form>
@@ -97,14 +90,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <div class="form__invalid-block">
-                      <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                      <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $value): ?>
-                        <li class="form__invalid-item"><?=$label[$key]; ?>. <?=$value; ?></li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                    <?=$invalid_block ?>
                   </div>
 
                   <div class="adding-post__buttons">
@@ -134,14 +120,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <div class="form__invalid-block">
-                      <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                      <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $value): ?>
-                        <li class="form__invalid-item"><?=$label[$key]; ?>. <?=$value; ?></li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                    <?=$invalid_block ?>
                   </div>
                   <div class="adding-post__buttons">
                     <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
@@ -181,14 +160,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <div class="form__invalid-block">
-                      <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                      <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $value): ?>
-                        <li class="form__invalid-item"><?=$label[$key]; ?>. <?=$value; ?></li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                    <?=$invalid_block ?>
                   </div>
                   <div class="adding-post__buttons">
                     <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
@@ -217,14 +189,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <div class="form__invalid-block">
-                      <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
-                      <ul class="form__invalid-list">
-                        <?php foreach ($errors as $key => $value): ?>
-                        <li class="form__invalid-item"><?=$label[$key]; ?>. <?=$value; ?></li>
-                        <?php endforeach; ?>
-                      </ul>
-                    </div>
+                    <?=$invalid_block ?>
                   </div>
                   <div class="adding-post__buttons">
                     <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
