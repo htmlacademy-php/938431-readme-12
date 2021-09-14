@@ -59,6 +59,7 @@ $sql = "SELECT
     post.dt_add AS p_date,
     p_url,
     p_text,
+    quote_author,
     u_name,
     u_avatar,
     user.dt_add AS u_dt_add,

@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS post (
   p_title VARCHAR(255) NOT NULL,
   p_url VARCHAR(255),
   p_text TEXT,
-  quote_athor VARCHAR(100),
+  quote_author VARCHAR(100),
   watch_count MEDIUMINT DEFAULT 0,
   user_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
   type_id SMALLINT NOT NULL COMMENT 'Связь с полем id таблицы post_type',

@@ -172,7 +172,7 @@ function check_youtube_url($url)
         return "Видео по такой ссылке не найдено. Проверьте ссылку на видео";
     }
 
-    return true;
+    return false;
 }
 
 /**
@@ -438,7 +438,6 @@ function set_connection() {
     return $con;
 }
 
-
 /**
  * Отправляет запрос и возвращает результат
  * @param $link mysqli Ресурс соединения
@@ -454,7 +453,7 @@ function fetch_sql_response($link, $sql, $data) {
     $result = mysqli_stmt_get_result($stmt);
 
     if (!$result) {
-        $error = mysqli_error($con);
+        $error = mysqli_error($link);
         print('Ошибка MySql: ' . $error);
         exit;
     }
@@ -466,18 +465,17 @@ function fetch_sql_response($link, $sql, $data) {
  * @param $post array Массив с данными о посте
  * @return string Итоговый HTML
  */
-
 function choose_post_template($post) {
     $result = $post['p_type'];
     switch ($post['p_type']) {
         case 'link':
-            $result = include_template('details-link.php', ['title' => $post['p_text'], 'url' => $post['p_url']]);
+            $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
             break;
         case 'photo';
             $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
             break;
         case 'quote';
-            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author'] ?? 'Неизвестный автор']);
+            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
             break;
         case 'text';
             $result = include_template('details-text.php', ['text' => $post['p_text']]);
@@ -489,7 +487,6 @@ function choose_post_template($post) {
 
     return $result;
 };
-
 
 /**
  * Возвращает адресную строку для текущего скрипта с переданным параметром запроса
@@ -510,3 +507,179 @@ function update_query_params($key, $value) {
     return $url;
 };
 
+/**
+ * Возвращает значение поля формы
+ * @param string $name Имя поля формы
+ * @return string|null Значение поля
+ */
+function get_post_value($name) {
+    return filter_input(INPUT_POST, $name) ?? '';
+}
+
+/**
+ * Функция - валидатор заполненности поля
+ * @param string $value Значение поля формы
+ * @return string|null Текст сообщения об ошибке
+ */
+function validate_filled($value) {
+    if (empty($value)) {
+        return "Это поле должно быть заполнено";
+    }
+}
+
+/**
+ * Функция - валидатор поля ввода хэштегов
+ * @param string $value Значение поля формы
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_hashtag($value) {
+    $message = null;
+    $words = explode( " ", $value);
+    foreach ($words as $value) {
+        if (!preg_match("/^#\w+$/ui", $value)) {
+            $message = "Теги должны быть разделены пробелами и начинаться с #. Теги могут состоять из букв, цифр и символа подчеркивания.";
+            break;
+        }
+    }
+    return $message;
+}
+
+/**
+ * Возвращает MIME-тип загруженного файла
+ * @param string $file_name путь к файлу
+ * @return string MIME-тип файла
+ */
+function get_file_type($file_name) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    return finfo_file($finfo, $file_name);
+}
+
+/**
+ * Возвращает раcширение файла
+ * @param array $file_type MIME-тип файла
+ * @return string Расширение файла (с точкой)
+ */
+function get_file_ext($file_type) {
+    $type_arr = explode('/', $file_type);
+    return  '.' . array_pop($type_arr);
+}
+
+define('MAX_FILE_SIZE', 2097152); // 2Мб в байтах
+
+/**
+ * Функция - валидатор загруженного файла
+ * @param string $file_path Путь к файлу
+ * @param string $file_size Размер файла
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_file($file_path, $file_size) {
+    $message = null;
+    $required_types = ['image/jpeg', 'image/png', 'image/gif'];
+    $file_type = get_file_type($file_path);
+    if (!in_array($file_type, $required_types)) {
+        $message = "Загрузите картинку в одном из форматов: gif, jpeg, png";
+    } elseif ($file_size > MAX_FILE_SIZE) {
+        $message = "Максимальный размер файла: 2Мб";
+    }
+    return $message;
+}
+
+
+/**
+ * Функция - валидатор ссылки из интернета
+ * @param string $value url-адрес
+ * @return string|null $message Текст сообщения об ошибке
+ */
+
+function validate_url($value) {
+    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+        return "Указан некорректный URL-адрес";
+    }
+}
+
+/**
+ * Функция - валидатор ссылки на изображение из интернета
+ * @param string $value url-адрес
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_photo_url($value) {
+    // Проверяем загружен ли файл
+    if (!empty($_FILES['file']['name'])) {
+        $message = null;
+    } elseif (empty($value)) {
+        $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
+    } else {
+        $message = validate_url($value);
+        if (!$message) {
+            $loaded_img = file_get_contents($value);
+            if (!$loaded_img) {
+                $message = "Не удалось загрузить файл по указанной ссылке";
+            }
+        }
+    }
+    return $message;
+}
+
+/**
+ * Загружает файл по ссылке из интернета и сохраняет в папку 'uploads/'
+ * @param string $file_url url-адрес
+ * @return string $path Путь к файлу на сервере
+ */
+function save_file_to_uploads($file_url) {
+    $uploaded_file = file_get_contents($file_url);
+    $filename = uniqid();
+    $path = 'uploads/' . $filename;
+    file_put_contents($path, $uploaded_file);
+    return $path;
+}
+
+/**
+ * Функция - валидатор ссылки на видео с YouTube
+ * @param string $value url-адрес
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_video_url($value) {
+    $message = validate_url($value);
+    if (!$message) {
+        $result = check_youtube_url($value);
+        if (gettype($result) == 'string') {
+            $message = $result;
+        }
+    }
+    return $message;
+}
+
+/**
+ * Переименовывает первый найденный ключ, если он совпадает с одним из значений переданого массива
+ * @param array $old_keys Массив имен ключей, которые надо заменить
+ * @param string $new_key Новое имя ключа
+ * @return array Массив с переименованным ключом
+ */
+function rename_key($old_keys, $new_key, $arr) {
+    $keys = array_keys($arr);
+    $values = array_values($arr);
+    foreach ($old_keys as $value) {
+        $key_ind = array_search($value, $keys);
+        if ($key_ind) {
+            $keys[$key_ind] = $new_key;
+            $arr = array_combine($keys, $values);
+            break;
+        }
+    }
+    return $arr;
+}
+
+/**
+ * Отображает массив
+ *
+ * @param $var
+ */
+function array_view($var) {
+?>
+
+	<div style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
+		<pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var,true)?></pre>
+	</div>
+
+<?php
+}

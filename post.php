@@ -23,6 +23,14 @@ INNER JOIN post_type
 ON type_id = post_type.id
 WHERE post.id = ?;";
 
+// Создаем запрос на получение хэштегов к посту с заданным id
+$sql_hash = "SELECT
+    title
+FROM hashtag
+INNER JOIN post_hashtag
+ON hashtag.id = hash_id
+AND post_id = ?;";
+
 // Запрос на получение количества комментариев к посту
 $sql_comment_cnt = "SELECT COUNT(id) AS comment_count
 FROM comment
@@ -76,6 +84,10 @@ if (!$post) {
     exit;
 }
 
+// Создаем подготовленное выражение и отправляем запрос на получение хэштегов к посту
+$result = fetch_sql_response($con, $sql_hash, $data_post);
+$hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
 // Создаем подготовленное выражение и отправляем запрос на получение количества комментариев к посту
 $result = fetch_sql_response($con, $sql_comment_cnt, $data_post);
 $c_cnt = mysqli_fetch_assoc($result);
@@ -112,6 +124,7 @@ $user = array_merge($user, $s_cnt, $p_cnt);
 $post_content = choose_post_template($post);
 $content = include_template('details.php', [
     'comments' => $comments,
+    'hashtags' => $hashtags,
     'post' => $post,
     'post_content' => $post_content,
     'user' => $user
