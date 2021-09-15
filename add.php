@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $rules = [
         'photo-url' => function($value) {
-            return validate_photo_url($value);
+            return validate_photo($value);
         },
         'post-link' => function($value) {
             return validate_url($value);

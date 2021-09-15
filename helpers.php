@@ -601,11 +601,11 @@ function validate_url($value) {
 }
 
 /**
- * Функция - валидатор ссылки на изображение из интернета
+ * Функция - валидатор загруженного файла или ссылки на изображение из интернета
  * @param string $value url-адрес
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_photo_url($value) {
+function validate_photo($value) {
     // Если загружен файл - проверяем его тип и размер
     if (!empty($_FILES['file']['name'])) {
         $file_photo = $_FILES['file'];
