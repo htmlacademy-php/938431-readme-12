@@ -85,40 +85,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (in_array($key, $required)) {
             $errors[$key] = validate_filled($value);
         }
-        if (isset($rules[$key]) and !empty($value)) {
+        if (isset($rules[$key])) {
             $rule = $rules[$key];
-            $errors[$key] = $rule($value);
-        }
-        if ($key == 'photo-url' and empty($errors[$key])) {
-            // Если загружен файл, проверяем его и сохраняем в папку uploads
-            if (!empty($_FILES['file']['name'])) {
-                $file_photo = $_FILES['file'];
-                $error = validate_file($file_photo['tmp_name'], $file_photo['size']);
-                if ($error) {
-                    $errors['file'] = $error;
-                } else {
-                    $file_type = get_file_type($file_photo['tmp_name']);
-                    $filename = uniqid() . get_file_ext($file_type);
-                    $path = 'uploads/' . $filename;
-                    move_uploaded_file($file_photo['tmp_name'], $path);
-                    $post['photo-url'] = $path;
-                }
-            } else {
-                // Если есть интернет-ссылка, скачиваем файл, проверяем его и сохраняем в папку uploads
-                $tmp_path = save_file_to_uploads($value);
-                $errors[$key] = validate_file($tmp_path, filesize($tmp_path));
-                if (empty($errors[$key])) {
-                    $file_type = get_file_type($tmp_path);
-                    $file_ext = get_file_ext($file_type);
-                    $path = $tmp_path . $file_ext;
-                    rename($tmp_path, $path);
-                    $post['photo-url'] = $path;
-                }
+            if (!empty($value) or $key == 'photo-url') {
+                $errors[$key] = $rule($value);
             }
         }
-        $errors = array_diff($errors, array(''));
     }
+    $errors = array_diff($errors, array(''));
     if (!$errors) {
+        if ($active_type == 'photo') {
+            // Если загружен файл и нет ошибок его сохраняем в папку uploads
+            if (!empty($_FILES['file']['name'])) {
+                $file_photo = $_FILES['file'];
+                $file_type = get_file_type($file_photo['tmp_name']);
+                $filename = uniqid() . get_file_ext($file_type);
+                $path = 'uploads/' . $filename;
+                move_uploaded_file($file_photo['tmp_name'], $path);
+                $post['photo-url'] = $path;
+            } else {
+            // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
+                $tmp_path = save_file_to_uploads($value);
+                $file_type = get_file_type($tmp_path);
+                $file_ext = get_file_ext($file_type);
+                $path = $tmp_path . $file_ext;
+                rename($tmp_path, $path);
+                $post['photo-url'] = $path;
+            }
+        }
         // Определяем id активного типа поста и добавляем его в массив $post
         foreach ($types as $value) {
             if ($value['t_class'] == $active_type) {

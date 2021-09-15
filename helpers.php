@@ -593,8 +593,11 @@ function validate_file($file_path, $file_size) {
 
 function validate_url($value) {
     if (!filter_var($value, FILTER_VALIDATE_URL)) {
-        return "Указан некорректный URL-адрес";
+        $message = "Указан некорректный URL-адрес";
+    } else {
+        $message = null;
     }
+    return $message;
 }
 
 /**
@@ -603,13 +606,17 @@ function validate_url($value) {
  * @return string|null $message Текст сообщения об ошибке
  */
 function validate_photo_url($value) {
-    // Проверяем загружен ли файл
+    // Если загружен файл - проверяем его тип и размер
     if (!empty($_FILES['file']['name'])) {
-        $message = null;
-    } elseif (empty($value)) {
+        $file_photo = $_FILES['file'];
+        $message = validate_file($file_photo['tmp_name'], $file_photo['size']);
+    } elseif (!$value) {
+        // Если нет файла и нет ссылки
         $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
     } else {
+        // Если нет файла, но есть ссылка, проверяем url
         $message = validate_url($value);
+        // Если url корректный, пробуем скачать файл по ссылке
         if (!$message) {
             $loaded_img = file_get_contents($value);
             if (!$loaded_img) {
