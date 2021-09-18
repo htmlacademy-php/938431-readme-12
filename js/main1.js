@@ -82,11 +82,13 @@
 
 (function() {
   var fileInputContainer = document.querySelector('.form__input-file-button--photo');
-  var fileInput = fileInputContainer.querySelector('#file');
-  var showFileName = function(name) {
-    fileInputContainer.querySelector('span').textContent = name;
-  }
-  if (fileInput) {
-    fileInput.addEventListener('change', (evt) => showFileName(evt.target.value));
+  if (fileInputContainer) {
+    var fileInput = fileInputContainer.querySelector('#file');
+    var showFileName = function(name) {
+      fileInputContainer.querySelector('span').textContent = name;
+    }
+    if (fileInput) {
+      fileInput.addEventListener('change', (evt) => showFileName(evt.target.value));
+    }
   }
 })();
