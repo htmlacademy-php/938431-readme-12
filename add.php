@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $rules = [
         'photo-url' => function($value) {
-            return validate_photo($value);
+            return validate_photo_url($value);
         },
         'post-link' => function($value) {
             return validate_url($value);
@@ -87,7 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if (isset($rules[$key])) {
             $rule = $rules[$key];
-            if (!empty($value) or $key == 'photo-url') {
+            if ($key == 'photo-url') {
+                $errors['file'] = validate_file($_FILES['file']);
+                $errors[$key] = $rule($value);
+            } elseif (!empty($value)) {
                 $errors[$key] = $rule($value);
             }
         }
@@ -98,15 +101,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Если загружен файл и нет ошибок его сохраняем в папку uploads
             if (!empty($_FILES['file']['name'])) {
                 $file_photo = $_FILES['file'];
-                $file_type = get_file_type($file_photo['tmp_name']);
-                $filename = uniqid() . get_file_ext($file_type);
-                $path = 'uploads/' . $filename;
-                move_uploaded_file($file_photo['tmp_name'], $path);
+                $path = replace_file_to_uploads($file_photo);
                 $post['photo-url'] = $path;
             } else {
             // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
                 $tmp_path = save_file_to_uploads($value);
-                $file_type = get_file_type($tmp_path);
+                $file_type = mime_content_type($tmp_path);
                 $file_ext = get_file_ext($file_type);
                 $path = $tmp_path . $file_ext;
                 rename($tmp_path, $path);
