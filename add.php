@@ -1,8 +1,12 @@
 <?php
 require_once('helpers.php');
+require_once('init.php');
 
-// Устанавливаем соединение с базой readme
-$con = set_connection();
+// Перенаправляем на главную страницу незалогиненных пользователей
+if (!isset($user)) {
+    header('Location: /index.php');
+    exit();
+}
 
 // Создаем запрос на получение типов постов
 $sql = "SELECT *
@@ -249,7 +253,6 @@ $user_name = 'Юлия'; // укажите здесь ваше имя
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => $title,
-    'user_name' => $user_name,
-    'is_auth' => $is_auth
+    'user' => $user
 ]);
 print($layout);

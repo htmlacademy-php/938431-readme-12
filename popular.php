@@ -1,17 +1,18 @@
 <?php
 require_once('helpers.php');
+require_once('init.php');
 
-$is_auth = rand(0, 1);
+// Перенаправляем на главную страницу незалогиненных пользователей
+if (!isset($user)) {
+    header('Location: /index.php');
+    exit();
+}
 
-$user_name = 'Юлия'; // укажите здесь ваше имя
 $sort_types = [
     'popular' => 'Популярность',
     'likes' => 'Лайки',
     'date' => 'Дата'
 ];
-
-// Устанавливаем соединение с базой readme
-$con = set_connection();
 
 // Создаем запрос на получение типов постов
 $sql = "SELECT id, t_class AS p_type, width, height
@@ -108,5 +109,5 @@ $title = 'readme: популярное';
 
 $content = include_template('popular.php', ['posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types]);
 
-$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
+$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
 print($layout);

@@ -1,8 +1,12 @@
 <?php
 require_once('helpers.php');
+require_once('init.php');
 
-// Устанавливаем соединение с базой readme
-$con = set_connection();
+// Залогиненных пользователей перенаправляем на страницу Моя лента
+if ($user) {
+    header('Location: /feed.php');
+    exit();
+}
 
 $errors = [];
 
@@ -93,8 +97,7 @@ $content = include_template('registration.php', [
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => 'readme: Регистрация на сайте',
-    'user_name' => '',
-    'is_auth' => false
+    'user' => null
 ]);
 
 print($layout);
