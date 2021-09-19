@@ -106,7 +106,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 $title = 'readme: популярное';
 
-$content = include_template('main.php', ['posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types]);
+$content = include_template('popular.php', ['posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
 print($layout);
