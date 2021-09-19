@@ -545,16 +545,6 @@ function validate_hashtag($value) {
 }
 
 /**
- * Возвращает MIME-тип загруженного файла
- * @param string $file_name путь к файлу
- * @return string MIME-тип файла
- */
-function get_file_type($file_name) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    return finfo_file($finfo, $file_name);
-}
-
-/**
  * Возвращает раcширение файла
  * @param array $file_type MIME-тип файла
  * @return string Расширение файла (с точкой)
@@ -568,22 +558,23 @@ define('MAX_FILE_SIZE', 2097152); // 2Мб в байтах
 
 /**
  * Функция - валидатор загруженного файла
- * @param string $file_path Путь к файлу
- * @param string $file_size Размер файла
+ * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_file($file_path, $file_size) {
+function validate_file($file) {
     $message = null;
-    $required_types = ['image/jpeg', 'image/png', 'image/gif'];
-    $file_type = get_file_type($file_path);
-    if (!in_array($file_type, $required_types)) {
-        $message = "Загрузите картинку в одном из форматов: gif, jpeg, png";
-    } elseif ($file_size > MAX_FILE_SIZE) {
-        $message = "Максимальный размер файла: 2Мб";
+    if (!empty($file['name'])) {
+        $file_path = $file['tmp_name'];
+        $required_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $file_type = mime_content_type($file_path);
+        if (!in_array($file_type, $required_types)) {
+            $message = "Загрузите картинку в одном из форматов: gif, jpeg, png";
+        } elseif ($file['size'] > MAX_FILE_SIZE) {
+            $message = "Максимальный размер файла: 2Мб";
+        }
     }
     return $message;
 }
-
 
 /**
  * Функция - валидатор ссылки из интернета
@@ -592,9 +583,11 @@ function validate_file($file_path, $file_size) {
  */
 
 function validate_url($value) {
+    $message = null;
     if (!filter_var($value, FILTER_VALIDATE_URL)) {
-        return "Указан некорректный URL-адрес";
+        $message = "Указан некорректный URL-адрес";
     }
+    return $message;
 }
 
 /**
@@ -603,17 +596,21 @@ function validate_url($value) {
  * @return string|null $message Текст сообщения об ошибке
  */
 function validate_photo_url($value) {
-    // Проверяем загружен ли файл
-    if (!empty($_FILES['file']['name'])) {
-        $message = null;
-    } elseif (empty($value)) {
-        $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
-    } else {
-        $message = validate_url($value);
-        if (!$message) {
-            $loaded_img = file_get_contents($value);
-            if (!$loaded_img) {
-                $message = "Не удалось загрузить файл по указанной ссылке";
+    $message = null;
+    // Если не загружен файл - проверяем наличие ссылки
+    if (empty($_FILES['file']['name'])) {
+        if (!$value) {
+            // Если нет файла и нет ссылки
+            $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
+        } else {
+            // Если нет файла, но есть ссылка, проверяем url
+            $message = validate_url($value);
+            // Если url корректный, пробуем скачать файл по ссылке
+            if (!$message) {
+                $loaded_img = file_get_contents($value);
+                if (!$loaded_img) {
+                    $message = "Не удалось загрузить файл по указанной ссылке";
+                }
             }
         }
     }
@@ -630,6 +627,19 @@ function save_file_to_uploads($file_url) {
     $filename = uniqid();
     $path = 'uploads/' . $filename;
     file_put_contents($path, $uploaded_file);
+    return $path;
+}
+
+/**
+ * Перемещает загруженный файл в папку 'uploads/'
+ * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
+ * @return string $path Путь к файлу на сервере
+ */
+function replace_file_to_uploads($file) {
+    $file_type = mime_content_type($file['tmp_name']);
+    $filename = uniqid() . get_file_ext($file_type);
+    $path = 'uploads/' . $filename;
+    move_uploaded_file($file['tmp_name'], $path);
     return $path;
 }
 
