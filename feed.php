@@ -1,7 +1,20 @@
 <?php
-require_once('helpers.php');
-require_once('init.php');
+session_start();
+$user = $_SESSION['user'] ?? null;
 
+// Перенаправляем на главную страницу анонимных пользователей
+if (!$user) {
+    header('Location: /index.php');
+    exit;
+}
+
+require_once('helpers.php');
+
+// Устанавливаем соединение с базой readme
+$con = set_connection();
+
+// Устанавливаем соединение с базой readme
+$con = set_connection();
 // Перенаправляем на главную страницу незалогиненных пользователей
 if (!isset($user)) {
     header('Location: /index.php');

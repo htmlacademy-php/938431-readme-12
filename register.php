@@ -1,12 +1,17 @@
 <?php
-require_once('helpers.php');
-require_once('init.php');
+session_start();
+$user = $_SESSION['user'] ?? null;
 
 // Залогиненных пользователей перенаправляем на страницу Моя лента
 if ($user) {
     header('Location: /feed.php');
-    exit();
+    exit;
 }
+
+require_once('helpers.php');
+
+// Устанавливаем соединение с базой readme
+$con = set_connection();
 
 $errors = [];
 
