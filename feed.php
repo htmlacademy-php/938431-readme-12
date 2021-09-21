@@ -24,6 +24,7 @@ if (!isset($user)) {
 $title = 'readme: моя лента';
 
 $content = include_template('feed.php', []);
+$title = 'readme: моя лента';
 
-$layout = include_template('layout.php', ['page_content' => $content, 'user' => $user]);
+$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
 print($layout);
