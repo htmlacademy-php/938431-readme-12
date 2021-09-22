@@ -1,4 +1,13 @@
 <?php
+session_start();
+$user = $_SESSION['user'] ?? null;
+
+// Залогиненных пользователей перенаправляем на страницу Моя лента
+if ($user) {
+    header('Location: /feed.php');
+    exit;
+}
+
 require_once('helpers.php');
 
 // Устанавливаем соединение с базой readme
@@ -13,20 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Проверяем заполненность обязательных полей
     foreach ($required as $field) {
         if (empty($form[$field])) {
-            $errors[$field] = validate_filled($form[$field]);
+            $errors[$field] = 'Это поле должно быть заполнено';
         }
     }
     // Проверяем, что в базе нет пользователя с введенным email
     if (empty($errors)) {
         $email = filter_var($form['email'], FILTER_VALIDATE_EMAIL);
-        if (!$email) {
-            $errors['email'] = 'Введен некорректный email';
-        } else {
+        if ($email) {
             $sql = "SELECT id FROM user WHERE email = '$email';";
             $result = mysqli_query($con, $sql);
             if (mysqli_num_rows($result) > 0) {
                 $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
             }
+        } else {
+            $errors['email'] = 'Введен некорректный email';
         }
     }
 
@@ -93,8 +102,7 @@ $content = include_template('registration.php', [
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => 'readme: Регистрация на сайте',
-    'user_name' => '',
-    'is_auth' => false
+    'user' => null
 ]);
 
 print($layout);

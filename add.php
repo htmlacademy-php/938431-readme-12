@@ -1,4 +1,13 @@
 <?php
+session_start();
+$user = $_SESSION['user'] ?? null;
+
+// Перенаправляем на главную страницу анонимных пользователей
+if (!$user) {
+    header('Location: /index.php');
+    exit;
+}
+
 require_once('helpers.php');
 
 // Устанавливаем соединение с базой readme
@@ -249,7 +258,6 @@ $user_name = 'Юлия'; // укажите здесь ваше имя
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => $title,
-    'user_name' => $user_name,
-    'is_auth' => $is_auth
+    'user' => $user
 ]);
 print($layout);

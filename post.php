@@ -1,18 +1,23 @@
 <?php
+session_start();
+$user = $_SESSION['user'] ?? null;
+
+// Перенаправляем на главную страницу анонимных пользователей
+if (!$user) {
+    header('Location: /index.php');
+    exit;
+}
+
 require_once('helpers.php');
 
-$is_auth = rand(0, 1);
-$user_name = 'Юлия'; // укажите здесь ваше имя
-$title = 'readme: публикация';
+// Устанавливаем соединение с базой readme
+$con = set_connection();
 
 $post_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$post_id) {
     http_response_code(404);
     exit;
 }
-
-// Устанавливаем соединение с базой readme
-$con = set_connection();
 
 // Создаем запрос на получение поста с заданным id и его типа
 $sql_post = "SELECT
@@ -108,7 +113,7 @@ $user_id = $post['user_id'];
 $data_user = [];
 $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
-$user = mysqli_fetch_assoc($result);
+$p_user = mysqli_fetch_assoc($result);
 
 // Создаем подготовленное выражение и отправляем запрос на получение количества подписчиков пользователя
 $result = fetch_sql_response($con, $sql_subs_cnt, $data_user);
@@ -119,7 +124,7 @@ $result = fetch_sql_response($con, $sql_post_cnt, $data_user);
 $p_cnt = mysqli_fetch_assoc($result);
 
 // Объединяем полученные данные о пользователе в один массив
-$user = array_merge($user, $s_cnt, $p_cnt);
+$p_user = array_merge($p_user, $s_cnt, $p_cnt);
 
 $post_content = choose_post_template($post);
 $content = include_template('details.php', [
@@ -127,8 +132,10 @@ $content = include_template('details.php', [
     'hashtags' => $hashtags,
     'post' => $post,
     'post_content' => $post_content,
-    'user' => $user
+    'user' => $p_user
 ]);
 
-$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user_name' => $user_name, 'is_auth' => $is_auth]);
+$title = 'readme: публикация';
+
+$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
 print($layout);
