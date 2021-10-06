@@ -66,6 +66,7 @@ $sql = "SELECT
     p_url,
     p_text,
     quote_author,
+    user_id,
     u_name,
     u_avatar,
     user.dt_add AS u_dt_add,

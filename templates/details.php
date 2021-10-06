@@ -90,7 +90,7 @@
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
               <a class="post-details__avatar-link user__avatar-link" href="#">
-                <img class="post-details__picture user__picture" src="img/<?=$user['u_avatar'];?>" alt="Аватар пользователя">
+                <img class="post-details__picture user__picture" src="<?=$user['u_avatar'];?>" width="60" height="60" alt="Аватар пользователя">
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
