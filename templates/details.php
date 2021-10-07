@@ -37,7 +37,7 @@
           </div>
           <ul class="post__tags">
             <?php foreach ($hashtags as $hash): ?>
-            <li><a href="#">#<?=$hash['title']; ?></a></li>
+            <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']; ?></a></li>
             <?php endforeach; ?>
           </ul>
           <div class="comments">
