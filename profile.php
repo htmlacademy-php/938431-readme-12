@@ -14,8 +14,8 @@ require_once('helpers.php');
 $con = set_connection();
 
 // Получаем id пользователя из параметра запроса
-$user_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-if (!$user_id) {
+$profile_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+if (!$profile_id) {
     http_response_code(404);
     exit;
 }
@@ -33,7 +33,7 @@ FROM user
 WHERE id = ?;";
 
 // Создаем подготовленное выражение и отправляем запрос
-$result = fetch_sql_response($con, $sql, [$user_id]);
+$result = fetch_sql_response($con, $sql, [$profile_id]);
 $user_profile = mysqli_fetch_assoc($result);
 
 if(!$user_profile) {
@@ -41,7 +41,18 @@ if(!$user_profile) {
     exit;
 }
 
-$content = include_template('profile.php', ['user' => $user_profile]);
+// Создаем запрос на получение данных о подписке текущего пользователя
+$sql = "SELECT id FROM subscription
+WHERE subscriber_id = ?
+AND user_id = ?;";
+
+$result = fetch_sql_response($con, $sql, [$user['id'], $profile_id]);
+$is_subscribed = mysqli_num_rows($result) !== 0;
+
+$content = include_template('profile.php', [
+    'user' => $user_profile,
+    'is_subscribed' => $is_subscribed
+]);
 $title = 'readme: профиль';
 
 $layout = include_template('layout.php', [

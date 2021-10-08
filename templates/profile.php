@@ -23,8 +23,10 @@
             </p>
         </div>
         <div class="profile__user-buttons user__buttons">
-            <button class="profile__user-button user__button user__button--subscription button button--main" type="button">Подписаться</button>
+            <button class="profile__user-button user__button user__button--subscription button button--main" type="button"><?=($is_subscribed) ? 'Отписаться' : 'Подписаться' ?></button>
+            <?php if ($is_subscribed): ?>
             <a class="profile__user-button user__button user__button--writing button button--green" href="#">Сообщение</a>
+            <?php endif; ?>
         </div>
         </div>
     </div>
