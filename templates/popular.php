@@ -109,7 +109,7 @@
                 </div>
                 <footer class="post__footer">
                     <div class="post__author">
-                        <a class="post__author-link" href="/profile.php?user=<?=$post['user_id']?>" title="Автор">
+                        <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
                                 <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" alt="Аватар пользователя">
