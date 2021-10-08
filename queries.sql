@@ -10,12 +10,12 @@ VALUES
 -- Заполняем таблицу user (Пользователи)
 INSERT INTO user (email, u_password, u_name, u_avatar)
 VALUES
-  ('vladik@gmail.com', 'oiuy45', 'Владик', 'userpic.jpg'), #1
-  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'userpic-larisa-small.jpg'), #2
-  ('victor@gmail.com', 'Xsfj23', 'Виктор', 'userpic-mark.jpg'), #3
-  ('peter@gmail.com', 'xcv6ek', 'Петр', 'userpic-petro.jpg'), #4
-  ('tanya@gmail.com', 'bnuy40', 'Таня', 'userpic-tanya.jpg'), #5
-  ('elvira@gmail.com', 'Eqdkf5%', 'Эльвира', 'userpic-elvira.jpg'); #6
+  ('vladik@gmail.com', 'oiuy45', 'Владик', 'img/userpic.jpg'), #1
+  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'img/userpic-larisa-small.jpg'), #2
+  ('victor@gmail.com', 'Xsfj23', 'Виктор', 'img/userpic-mark.jpg'), #3
+  ('peter@gmail.com', 'xcv6ek', 'Петр', 'img/userpic-petro.jpg'), #4
+  ('tanya@gmail.com', 'bnuy40', 'Таня', 'img/userpic-tanya.jpg'), #5
+  ('elvira@gmail.com', 'Eqdkf5%', 'Эльвира', 'img/userpic-elvira.jpg'); #6
 
 -- Заполняем таблицу post (Посты)
 INSERT INTO post (

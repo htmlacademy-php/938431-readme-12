@@ -517,6 +517,16 @@ function get_post_value($name) {
 }
 
 /**
+ * Возвращает значение поля поиска
+ * @param string $name Имя поля формы
+ * @return string|null Значение поля
+ */
+function get_search_value($name) {
+    $search = filter_input(INPUT_GET, $name) ?? '';
+    return trim($search);
+}
+
+/**
  * Функция - валидатор заполненности поля
  * @param string $value Значение поля формы
  * @return string|null Текст сообщения об ошибке

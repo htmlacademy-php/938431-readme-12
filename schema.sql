@@ -109,3 +109,7 @@ CREATE TABLE IF NOT EXISTS post_hashtag (
   FOREIGN KEY fk_post_id (post_id) REFERENCES post (id),
   FOREIGN KEY fk_hash_id (hash_id) REFERENCES hashtag (id)
 ) COMMENT 'Связи. Хэштеги, добавленные авторами постам';
+
+-- Создаем Индекс для полнотекстового поиска в таблице post
+CREATE FULLTEXT INDEX p_ft_search ON post(p_title, p_text);
+

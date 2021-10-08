@@ -37,7 +37,7 @@
           </div>
           <ul class="post__tags">
             <?php foreach ($hashtags as $hash): ?>
-            <li><a href="#">#<?=$hash['title']; ?></a></li>
+            <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']; ?></a></li>
             <?php endforeach; ?>
           </ul>
           <div class="comments">
@@ -90,7 +90,7 @@
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
               <a class="post-details__avatar-link user__avatar-link" href="#">
-                <img class="post-details__picture user__picture" src="img/<?=$user['u_avatar'];?>" alt="Аватар пользователя">
+                <img class="post-details__picture user__picture" src="<?=$user['u_avatar'];?>" width="60" height="60" alt="Аватар пользователя">
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
