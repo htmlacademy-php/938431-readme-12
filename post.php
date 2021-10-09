@@ -139,3 +139,11 @@ $title = 'readme: публикация';
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
 print($layout);
+
+// Увеличиваем счетчик просмотров поста
+$sql = 'UPDATE post SET watch_count = watch_count + 1
+WHERE id = ?;';
+
+$result = fetch_sql_response($con, $sql, [$post_id]);
+
+
