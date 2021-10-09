@@ -113,3 +113,11 @@ CREATE TABLE IF NOT EXISTS post_hashtag (
 -- Создаем Индекс для полнотекстового поиска в таблице post
 CREATE FULLTEXT INDEX p_ft_search ON post(p_title, p_text);
 
+-- Добавляем в таблицу постов три столбца: признак репоста и id автора оригинального поста, счетчик репостов
+ALTER TABLE post
+	ADD p_repost BOOLEAN DEFAULT FALSE
+		AFTER user_id
+  ADD orig_user_id INT
+    AFTER p_repost
+  ADD repost_count MEDIUMINT DEFAULT 0
+    AFTER watch_count;
