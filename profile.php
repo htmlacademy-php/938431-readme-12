@@ -82,7 +82,7 @@ switch($tab) {
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Для каждого поста получим набор хэштегов
+        // Для каждого поста получим набор хэштегов и данные автора оригинального поста в случае репоста
         foreach ($posts as &$post) {
             $sql_hash = "SELECT
                 title
@@ -94,6 +94,15 @@ switch($tab) {
             $result = fetch_sql_response($con, $sql_hash, [$post['id']]);
             $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
             $post['hashtags'] = $hashtags;
+            // В случае репоста делаем запрос на автора оригинального поста и добавляем поле "author" в массив $post
+            if ($post['p_repost']) {
+                $sql_orig = "SELECT * FROM user
+                WHERE user.id = ?;";
+                $author_id = $post['orig_user_id'];
+                $result = fetch_sql_response($con, $sql_orig, [$author_id]);
+                $author = mysqli_fetch_assoc($result);
+                $post['author'] = $author;
+            }
         }
 
         $params = ['posts' => $posts];
