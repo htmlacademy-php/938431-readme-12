@@ -47,11 +47,14 @@ if (!empty($post)) {
     $data_post[] = 1;
     $data_post[] = $post['user_id'];
     $data_post[] = $post['type_id'];
+    // Начинаем транзакцию
+    mysqli_begin_transaction($con);
+
     // Создаем подготовленное выражение и отправляем запрос на на запись нового поста
     $stmt = db_get_prepare_stmt($con, $sql_add_post, $data_post);
-    $result = mysqli_stmt_execute($stmt);
+    $res_post = mysqli_stmt_execute($stmt);
 
-    if ($result) {
+    if ($res_post) {
         // В случае успеха отправляем запросы на запись хэштегов к посту
         $repost_id = mysqli_insert_id($con);
 
@@ -60,6 +63,8 @@ if (!empty($post)) {
             WHERE post_id = ?;";
         $result = fetch_sql_response($con, $sql_hash, [$post_id]);
         $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $res_hash = true;
+
         foreach ($hashtags as $hash) {
             // Запрос на запись связи пост - хэштег
             $sql_add_hash = "INSERT INTO post_hashtag
@@ -67,7 +72,10 @@ if (!empty($post)) {
 
             $data_hash = array($repost_id, $hash['hash_id']);
             $stmt = db_get_prepare_stmt($con, $sql_add_hash, $data_hash);
-            mysqli_stmt_execute($stmt);
+            $res_hash = mysqli_stmt_execute($stmt);
+            if (!$res_hash) {
+                break;
+            }
         }
         // Увеличиваем счетчик репостов оригинального поста
         $sql = "UPDATE post
@@ -75,8 +83,16 @@ if (!empty($post)) {
             WHERE id = ?;";
 
         $stmt = db_get_prepare_stmt($con, $sql, [$post_id]);
-        mysqli_stmt_execute($stmt);
+        $res_count = mysqli_stmt_execute($stmt);
     }
+
+    // Фиксируем изменения в случае успешного выполнения всех запросов или откатываем транзакцию
+    if ($res_post && $res_hash && $res_count) {
+        mysqli_commit($con);
+    } else {
+        mysqli_rollback($con);
+    }
+
     header("Location: http://readme/profile.php?id=" . $user['id']);
 }
 
