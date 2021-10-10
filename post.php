@@ -22,7 +22,9 @@ if (!$post_id) {
 // Создаем запрос на получение поста с заданным id и его типа
 $sql_post = "SELECT
     post.*,
-    t_class AS p_type
+    t_class AS p_type,
+    (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
+    (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
 FROM post
 INNER JOIN post_type
 ON type_id = post_type.id
@@ -35,16 +37,6 @@ FROM hashtag
 INNER JOIN post_hashtag
 ON hashtag.id = hash_id
 AND post_id = ?;";
-
-// Запрос на получение количества комментариев к посту
-$sql_comment_cnt = "SELECT COUNT(id) AS comment_count
-FROM comment
-WHERE post_id = ?;";
-
-// Запрос на получение количества лайков к посту
-$sql_like_cnt = "SELECT COUNT(id) AS like_count
-FROM post_like
-WHERE post_id = ?;";
 
 // Запрос на получение комментариев к посту
 $sql_comments = "SELECT
@@ -64,19 +56,16 @@ $sql_user = "SELECT
     user.id,
     dt_add,
     u_name,
-    u_avatar
+    u_avatar,
+    (SELECT COUNT(id) FROM subscription WHERE user_id = user.id) AS subs_count,
+    (SELECT COUNT(id) FROM post WHERE user_id = user.id) AS posts_count
 FROM user
 WHERE user.id = ?;";
 
-// Запрос на получение количества подписчиков пользователя
-$sql_subs_cnt = "SELECT COUNT(id) AS subs_count
-FROM subscription
-WHERE user_id = ?;";
-
-// Запрос на получение количества постов пользователя
-$sql_post_cnt = "SELECT COUNT(id) AS posts_count
-FROM post
-WHERE user_id = ?;";
+// Создаем запрос на получение данных о подписке текущего пользователя
+$sql = "SELECT id FROM subscription
+WHERE subscriber_id = ?
+AND user_id = ?;";
 
 // Создаем подготовленное выражение и отправляем запрос на получение поста
 $data_post = [];
@@ -93,17 +82,6 @@ if (!$post) {
 $result = fetch_sql_response($con, $sql_hash, $data_post);
 $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// Создаем подготовленное выражение и отправляем запрос на получение количества комментариев к посту
-$result = fetch_sql_response($con, $sql_comment_cnt, $data_post);
-$c_cnt = mysqli_fetch_assoc($result);
-
-// Создаем подготовленное выражение и отправляем запрос на получение количества лайков у поста
-$result = fetch_sql_response($con, $sql_like_cnt, $data_post);
-$l_cnt = mysqli_fetch_assoc($result);
-
-// Объединяем полученные данные о посте в один массив
-$post = array_merge($post, $c_cnt, $l_cnt);
-
 // Создаем подготовленное выражение и отправляем запрос на получение комментариев поста
 $result = fetch_sql_response($con, $sql_comments, $data_post);
 $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -115,16 +93,11 @@ $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
 $p_user = mysqli_fetch_assoc($result);
 
-// Создаем подготовленное выражение и отправляем запрос на получение количества подписчиков пользователя
-$result = fetch_sql_response($con, $sql_subs_cnt, $data_user);
-$s_cnt = mysqli_fetch_assoc($result);
+// Отправляем запрос на существование у текущего пользователя подписки на автора поста
+$result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
+$is_subscribed = mysqli_num_rows($result) !== 0;
 
-// Создаем подготовленное выражение и отправляем запрос на получение количества постов пользователя
-$result = fetch_sql_response($con, $sql_post_cnt, $data_user);
-$p_cnt = mysqli_fetch_assoc($result);
-
-// Объединяем полученные данные о пользователе в один массив
-$p_user = array_merge($p_user, $s_cnt, $p_cnt);
+$is_current_user = $user['id'] == $user_id;
 
 $post_content = choose_post_template($post);
 $content = include_template('details.php', [
@@ -132,7 +105,9 @@ $content = include_template('details.php', [
     'hashtags' => $hashtags,
     'post' => $post,
     'post_content' => $post_content,
-    'user' => $p_user
+    'user' => $p_user,
+    'is_current_user' => $is_current_user,
+    'is_subscribed' => $is_subscribed
 ]);
 
 $title = 'readme: публикация';
@@ -145,5 +120,4 @@ $sql = 'UPDATE post SET watch_count = watch_count + 1
 WHERE id = ?;';
 
 $result = fetch_sql_response($con, $sql, [$post_id]);
-
 
