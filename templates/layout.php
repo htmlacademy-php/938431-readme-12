@@ -78,7 +78,7 @@
                     <li class="header__profile">
                         <a class="header__profile-link" href="#">
                             <div class="header__avatar-wrapper">
-                                <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" alt="Аватар профиля">
+                                <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" width="40" height="auto" alt="Аватар профиля">
                             </div>
                             <div class="header__profile-name">
                                 <span>
