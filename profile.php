@@ -110,10 +110,13 @@ switch($tab) {
         break;
 }
 
+$is_own_profile = $user_profile['id'] == $user['id'];
+
 $tab_content = include_template($template, $params);
 
 $content = include_template('profile.php', [
     'user' => $user_profile,
+    'is_own_profile' => $is_own_profile,
     'is_subscribed' => $is_subscribed,
     'tab_content' => $tab_content
 ]);
