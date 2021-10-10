@@ -73,30 +73,13 @@ $sql = "SELECT
     t_class AS p_type,
     type_id,
     watch_count,
-    comment_count,
-    like_count
+    (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
+    (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
 FROM post
 INNER JOIN user
 ON user_id = user.id
 INNER JOIN post_type
-ON type_id = post_type.id
-LEFT JOIN
-    (
-        SELECT
-        comment.post_id,
-        COUNT(comment.id) AS comment_count,
-        like_count
-        FROM comment
-        LEFT JOIN
-            (
-                SELECT post_id, COUNT(id) AS like_count
-                FROM post_like
-                GROUP BY post_id
-            ) AS post_likes
-        ON post_likes.post_id = comment.post_id
-        GROUP BY comment.post_id
-    ) AS post_count
-ON post_count.post_id = post.id"
+ON type_id = post_type.id"
 . $where_condition
 . " ORDER BY " . $order_param . " DESC;";
 

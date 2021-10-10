@@ -8,7 +8,7 @@
           <?= $post_content; ?>
           <div class="post__indicators">
             <div class="post__buttons">
-              <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+              <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']?>" title="Лайк">
                 <svg class="post__indicator-icon" width="20" height="17">
                   <use xlink:href="#icon-heart"></use>
                 </svg>
@@ -89,12 +89,12 @@
         <div class="post-details__user user">
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
-              <a class="post-details__avatar-link user__avatar-link" href="#">
+              <a class="post-details__avatar-link user__avatar-link" href="/profile.php?id=<?=$user['id']; ?>">
                 <img class="post-details__picture user__picture" src="<?=$user['u_avatar'];?>" width="60" height="60" alt="Аватар пользователя">
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
-              <a class="post-details__name user__name" href="#">
+              <a class="post-details__name user__name" href="/profile.php?id=<?=$user['id']; ?>">
                 <span><?=htmlspecialchars($user['u_name']);?></span>
               </a>
               <time class="post-details__time user__time" datetime="<?=$user['dt_add'];?>"><?= generate_passed_time_text($user['dt_add']);?> на сайте</time>

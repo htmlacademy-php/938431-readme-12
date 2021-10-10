@@ -54,5 +54,4 @@ if (!empty($bind)) {
     }
 }
 
-
 header("Location: {$_SERVER['HTTP_REFERER']}");

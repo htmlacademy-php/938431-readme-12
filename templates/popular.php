@@ -112,7 +112,7 @@
                         <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" alt="Аватар пользователя">
+                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" width="40" height="auto" alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
@@ -122,7 +122,7 @@
                     </div>
                     <div class="post__indicators">
                         <div class="post__buttons">
-                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                            <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']; ?>" title="Лайк">
                                 <svg class="post__indicator-icon" width="20" height="17">
                                     <use xlink:href="#icon-heart"></use>
                                 </svg>
