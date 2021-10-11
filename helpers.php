@@ -521,7 +521,7 @@ function get_post_value($name) {
  * @param string $name Имя поля формы
  * @return string|null Значение поля
  */
-function get_search_value($name) {
+function get_text_value($name) {
     $search = filter_input(INPUT_GET, $name) ?? '';
     return trim($search);
 }

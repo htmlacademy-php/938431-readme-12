@@ -13,7 +13,7 @@ require_once('helpers.php');
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
-$search = get_search_value('q');
+$search = get_text_value('q');
 
 if ($search) {
     $is_hashtag = substr($search, 0, 1) === '#';
