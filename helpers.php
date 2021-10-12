@@ -538,6 +538,18 @@ function validate_filled($value) {
 }
 
 /**
+ * Функция - валидатор длины текста в поле
+ * @param string $value Значение поля формы
+ * @return string|null Текст сообщения об ошибке
+ */
+function validate_min_length($value, $min) {
+    $leng = strlen($value);
+    if ($leng < $min) {
+        return "Длина текста должна быть не менее $min символов";
+    }
+}
+
+/**
  * Функция - валидатор поля ввода хэштегов
  * @param string $value Значение поля формы
  * @return string|null $message Текст сообщения об ошибке

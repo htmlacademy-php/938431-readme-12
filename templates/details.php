@@ -41,17 +41,19 @@
             <?php endforeach; ?>
           </ul>
           <div class="comments">
-            <form class="comments__form form" action="#" method="post">
+            <form class="comments__form form" action="/post.php?id=<?=$post['id']; ?>" method="post">
+                <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
               <div class="comments__my-avatar">
-                <img class="comments__picture" src="img/userpic-medium.jpg" alt="Аватар пользователя">
+                <img class="comments__picture" src="<?=$current_user_avatar; ?>" alt="Аватар пользователя">
               </div>
-              <div class="form__input-section form__input-section--error">
-                <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий"></textarea>
-                <label class="visually-hidden">Ваш комментарий</label>
+              <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
+                <textarea class="comments__textarea form__textarea form__input"
+                id="comment" name="comment" placeholder="Ваш комментарий"><?=get_post_value('comment'); ?></textarea>
+                <label class="visually-hidden" for="comment">Ваш комментарий</label>
                 <button class="form__error-button button" type="button">!</button>
                 <div class="form__error-text">
                   <h3 class="form__error-title">Ошибка валидации</h3>
-                  <p class="form__error-desc">Это поле обязательно к заполнению</p>
+                  <p class="form__error-desc"><?=$errors['comment'];?></p>
                 </div>
               </div>
               <button class="comments__submit button button--green" type="submit">Отправить</button>
@@ -79,10 +81,12 @@
                 </li>
                 <?php endforeach; ?>
               </ul>
-              <a class="comments__more-link" href="#">
+              <?php if (!$is_all_comments): ?>
+              <a class="comments__more-link" href="<?=update_query_params('comments', 'all')?>">
                 <span>Показать все комментарии</span>
                 <sup class="comments__amount"><?=$post['comment_count'] ?? 0;?></sup>
               </a>
+              <?php endif; ?>
             </div>
           </div>
         </div>

@@ -19,6 +19,9 @@ if (!$post_id) {
     exit;
 }
 
+$showed_comments = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_SPECIAL_CHARS);
+$is_all_comments = $showed_comments === 'all';
+
 // Создаем запрос на получение поста с заданным id и его типа
 $sql_post = "SELECT
     post.*,
@@ -39,6 +42,7 @@ ON hashtag.id = hash_id
 AND post_id = ?;";
 
 // Запрос на получение комментариев к посту
+$constraint = $is_all_comments ? ';' : ' LIMIT 2;';
 $sql_comments = "SELECT
     comment.dt_add AS c_date,
     c_content,
@@ -48,8 +52,8 @@ FROM comment
 INNER JOIN user
 ON user.id = comment.user_id
 WHERE post_id = ?
-ORDER BY c_date DESC
-LIMIT 5;";
+ORDER BY c_date DESC"
+. $constraint;
 
 // Создаем запрос на получение данных о пользователе
 $sql_user = "SELECT
@@ -97,17 +101,58 @@ $p_user = mysqli_fetch_assoc($result);
 $result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
 $is_subscribed = mysqli_num_rows($result) !== 0;
 
+$errors = [];
+// Проверяем был ли отправлен комментарий к посту
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
+    $c_post = filter_input_array(INPUT_POST, $filters, true);
+    // Проверяем поле с текстом комментария на заполненность и на длину текста
+    $comment = trim($c_post['comment']);
+    $errors['comment'] = validate_filled($comment);
+    if (!$errors['comment']) {
+        $errors['comment'] = validate_min_length($comment, 4);
+        $errors = array_diff($errors, array(''));
+    }
+    // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
+    if (empty($errors)) {
+        $sql = "SELECT COUNT(id) as count FROM post WHERE id = ?;";
+        $data = [$c_post['post-id']];
+        $result = fetch_sql_response($con, $sql, $data);
+        if (mysqli_num_rows($result) === 0) {
+            $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
+        } else {
+            // Создаем запрос на запись комментария в базу данных
+            $sql_com = "INSERT INTO comment (c_content, user_id, post_id)
+                VALUES (?,?,?);";
+            $data_com = array($comment, $user['id'], $post_id);
+
+            $stmt = db_get_prepare_stmt($con, $sql_com, $data_com);
+            $result = mysqli_stmt_execute($stmt);
+
+            if (!$result) {
+                $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
+            } else {
+                header("Location: http://readme/profile.php?id=" . $user_id);
+            }
+        }
+    }
+
+}
+
 $is_current_user = $user['id'] == $user_id;
 
 $post_content = choose_post_template($post);
 $content = include_template('details.php', [
     'comments' => $comments,
+    'current_user_avatar' => $user['u_avatar'],
+    'errors' => $errors,
     'hashtags' => $hashtags,
+    'is_all_comments' => $is_all_comments,
+    'is_current_user' => $is_current_user,
+    'is_subscribed' => $is_subscribed,
     'post' => $post,
     'post_content' => $post_content,
-    'user' => $p_user,
-    'is_current_user' => $is_current_user,
-    'is_subscribed' => $is_subscribed
+    'user' => $p_user
 ]);
 
 $title = 'readme: публикация';
