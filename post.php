@@ -147,7 +147,6 @@ $content = include_template('details.php', [
     'current_user_avatar' => $user['u_avatar'],
     'errors' => $errors,
     'hashtags' => $hashtags,
-    'is_all_comments' => $is_all_comments,
     'is_current_user' => $is_current_user,
     'is_subscribed' => $is_subscribed,
     'post' => $post,

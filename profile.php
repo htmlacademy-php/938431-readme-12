@@ -58,6 +58,7 @@ $tab_types = [
 
 // Получаем выбранную вкладку из массива $_GET
 $tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'posts';
+$get_params = $_GET;
 
 switch($tab) {
     // Вкладка ПОСТЫ
@@ -103,16 +104,47 @@ switch($tab) {
                 $author = mysqli_fetch_assoc($result);
                 $post['author'] = $author;
             }
+            // В случае, если в параметре запроса есть флаг показа комментариев,
+            // Создаем запрос на количество комментариев к посту
+            // Создаем запрос на получение комментариев к посту
+            // Добавляем полученные данные в массив $post
+            $q_param = 'post' . $post['id'];
+            if (array_key_exists($q_param, $get_params)) {
+                $sql_count = "SELECT COUNT(id) AS comment_count
+                    FROM comment WHERE post_id = ?;";
+
+                $result = fetch_sql_response($con, $sql_count, [$post['id']]);
+                $count = mysqli_fetch_assoc($result);
+                $post = array_merge($post, $count);
+                if ($get_params[$q_param] === 'cmtsall') {
+                    $constraint = ';';
+                } else {
+                    $constraint = ' LIMIT 2;';
+                }
+                $sql_com = "SELECT
+                    comment.*,
+                    u_avatar,
+                    u_name
+                FROM comment
+                INNER JOIN user
+                    ON user.id = user_id
+                WHERE post_id = ?"
+                . $constraint;
+
+                $result = fetch_sql_response($con, $sql_com, [$post['id']]);
+                $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                $post['comments'] = $comments;
+            }
         }
 
-        $params = ['posts' => $posts];
-        $template = 'tab-posts.php';
-        break;
+    $tab_params = ['posts' => $posts];
+    $template = 'tab-posts.php';
+    break;
 }
 
 $is_own_profile = $user_profile['id'] == $user['id'];
 
-$tab_content = include_template($template, $params);
+$tab_content = include_template($template, $tab_params);
 
 $content = include_template('profile.php', [
     'user' => $user_profile,
