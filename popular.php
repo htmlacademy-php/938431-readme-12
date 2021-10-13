@@ -34,12 +34,6 @@ if (!$result) {
 
 $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// Добавляем каждому типу поста ключ "url" для атрибута href ссылки
-foreach ($types AS &$type) {
-    $type['url'] = update_query_params('filter', $type['id']);
-};
-unset($type);
-
 // Получаем текущий фильтр и сортировку из массива $_GET
 $filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_NUMBER_INT);
 $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'popular';

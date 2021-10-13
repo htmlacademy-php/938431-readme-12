@@ -24,14 +24,14 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <? if (!$filter) echo ' filters__button--active';?>" href="<?=update_query_params('filter' , 0); ?>">
+                        <? if (!$filter) echo ' filters__button--active';?>" href="/popular.php?filter=0">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter === $type['id']) echo 'filters__button--active' ?>
-                         button" href="<?=$type['url']?>">
+                         button" href="/popular.php?filter=<?=$type['id']?>">
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon"
                               width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
