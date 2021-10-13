@@ -466,7 +466,7 @@ function fetch_sql_response($link, $sql, $data) {
  * @return string Итоговый HTML
  */
 function choose_post_template($post) {
-    $result = $post['p_type'];
+    $result = '';
     switch ($post['p_type']) {
         case 'link':
             $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
@@ -487,6 +487,37 @@ function choose_post_template($post) {
 
     return $result;
 };
+
+/**
+ * Генерирует html разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * @param $post array Массив с данными о посте
+ * @return string Итоговый HTML
+ */
+function generate_post_template($post) {
+    $type = $post['p_type'];
+    $result = '';
+    switch ($type) {
+        case 'link':
+            $template = 'post-link.php';
+        break;
+        case 'photo':
+            $template = 'post-photo.php';
+        break;
+        case 'text':
+            $template = 'post-text.php';
+        break;
+        case 'quote':
+            $template = 'post-quote.php';
+        break;
+        case 'video':
+            $template = 'post-video.php';
+        break;
+    }
+    if ($template) {
+        $result = include_template($template, ['post' => $post]);
+    }
+    return $result;
+}
 
 /**
  * Возвращает адресную строку для текущего скрипта с переданным параметром запроса

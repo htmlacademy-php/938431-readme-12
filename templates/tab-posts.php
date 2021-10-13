@@ -21,56 +21,8 @@
       <?php endif; ?>
     </header>
     <div class="post__main">
-      <a href="<?="/post.php?id=" . $post['id']?>">
-        <h2><?= htmlspecialchars($post['p_title']); ?></h2>
-      </a>
-    <!-- Разные типы постов -->
-    <?php switch($post['p_type']):
-    case 'quote': ?>
-    <!-- Цитата -->
-    <blockquote>
-        <p><?= htmlspecialchars($post['p_text']); ?></p>
-        <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
-    </blockquote>
-    <?php break; ?>
-    <? case 'text':
-    // Текст
-        echo text_template($post['p_text']);
-        break;
-    ?>
-
-    <?php case 'photo': ?>
-        <!-- Фото -->
-    <div class="post-photo__image-wrapper">
-        <img src="<?= $post['p_url'] ?>" alt="Фото от пользователя" width="760" height="396">
-    </div>
-    <?php break; ?>
-
-    <?php case 'link': ?>
-        <!-- Ссылка -->
-    <div class="post-link__wrapper">
-        <a class="post-link__external" href="<?=$post['p_url']; ?>" title="Перейти по ссылке">
-            <div class="post-link__info-wrapper">
-                <div class="post-link__icon-wrapper">
-                    <img src="<?=generate_favicon_url($post['p_url']); ?>" alt="Иконка">
-                </div>
-                <div class="post-link__info">
-                    <h3><?=extract_domain_name($post['p_url']); ?></h3>
-                </div>
-            </div>
-        </a>
-    </div>
-    <?php break; ?>
-
-    <?php case 'video': ?>
-        <!-- Видео -->
-    <div class="post-video__block">
-        <div class="post-video__preview">
-            <?=embed_youtube_video($post['p_url']); ?>
-        </div>
-    </div>
-    <?php break; ?>
-    <?php endswitch; ?>
+        <!-- Разные типы постов -->
+        <?php echo generate_post_template($post); ?>
     </div>
     <footer class="post__footer">
       <div class="post__indicators">
