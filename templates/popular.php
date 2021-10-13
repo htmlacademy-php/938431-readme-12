@@ -77,16 +77,16 @@
                     <?php case 'link': ?>
                         <!-- Ссылка -->
                     <div class="post-link__wrapper">
-                        <a class="post-link__external" href="http://<?=$post['p_url'] ?>" title="Перейти по ссылке">
+                        <a class="post-link__external" href="<?=$post['p_url'] ?>" title="Перейти по ссылке">
                             <div class="post-link__info-wrapper">
                                 <div class="post-link__icon-wrapper">
-                                    <img src="https://www.google.com/s2/favicons?domain=<?=$post['p_url']; ?>" alt="Иконка">
+                                    <img src="<?=generate_favicon_url($post['p_url']); ?>" width="16" height="16" alt="Иконка">
                                 </div>
                                 <div class="post-link__info">
                                     <h3><?= htmlspecialchars($post['p_title']); ?></h3>
                                 </div>
                             </div>
-                            <span><?= htmlspecialchars($post['p_url']); ?></span>
+                            <span><?=extract_domain_name($post['p_url']); ?></span>
                         </a>
                     </div>
                     <?php break; ?>
@@ -144,6 +144,14 @@
                 </footer>
             </article>
             <?php endforeach; ?>
+        </div>
+        <div class="popular__page-links">
+            <?php if ($page > 0): ?>
+            <a class="popular__page-link popular__page-link--prev button button--gray" href="<?update_query_params('page', $page - 1)?>">Предыдущая страница</a>
+            <?php endif;
+            if ($total_count > $page): ?>
+            <a class="popular__page-link popular__page-link--next button button--gray" href="<?update_query_params('page', $page - 1)?>">Следующая страница</a>
+            <?php endif; ?>
         </div>
     </div>
 </section>

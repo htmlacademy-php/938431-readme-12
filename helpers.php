@@ -682,6 +682,26 @@ function validate_video_url($value) {
 }
 
 /**
+ * Возвращает имя домена из url-адреса
+ * @param string $url url-адрес
+ * @return string $domain Имя домена
+ */
+function extract_domain_name($url) {
+    $parts = parse_url($url);
+    return $parts['host'];
+}
+
+/**
+ * Возвращает адрес фавиконки сайта по url-адресу
+ * @param string $url url-адрес
+ * @return string $fav_url Адрес к фавиконке
+ */
+function generate_favicon_url($url) {
+    $parts = parse_url($url);
+    return $parts['scheme'] . '://' . $parts['host'] . '/favicon.ico';
+}
+
+/**
  * Переименовывает первый найденный ключ, если он совпадает с одним из значений переданого массива
  * @param array $old_keys Массив имен ключей, которые надо заменить
  * @param string $new_key Новое имя ключа

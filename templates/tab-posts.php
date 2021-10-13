@@ -49,13 +49,13 @@
     <?php case 'link': ?>
         <!-- Ссылка -->
     <div class="post-link__wrapper">
-        <a class="post-link__external" href="http://<?=$post['p_url'] ?>" title="Перейти по ссылке">
+        <a class="post-link__external" href="<?=$post['p_url']; ?>" title="Перейти по ссылке">
             <div class="post-link__info-wrapper">
                 <div class="post-link__icon-wrapper">
-                    <img src="https://www.google.com/s2/favicons?domain=<?=$post['p_url']; ?>" alt="Иконка">
+                    <img src="<?=generate_favicon_url($post['p_url']); ?>" alt="Иконка">
                 </div>
                 <div class="post-link__info">
-                    <h3><?=$post['p_url']; ?></h3>
+                    <h3><?=extract_domain_name($post['p_url']); ?></h3>
                 </div>
             </div>
         </a>
