@@ -136,6 +136,7 @@ switch($tab) {
                 $post['comments'] = $comments;
             }
         }
+        unset($post);
 
     $tab_params = ['posts' => $posts];
     $template = 'tab-posts.php';

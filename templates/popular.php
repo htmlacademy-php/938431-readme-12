@@ -9,7 +9,7 @@
                 <ul class="popular__sorting-list sorting__list">
                     <?php foreach ($sort_types as $key => $value): ?>
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="<?=update_query_params('sort' , $key); ?>">
+                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="/popular.php?filter=<?=$filter; ?>&sort=<?=$key; ?>">
                             <span><?=$value;?></span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -32,7 +32,7 @@
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter === $type['id']) echo 'filters__button--active' ?>
                          button" href="/popular.php?filter=<?=$type['id']?>">
-                            <span class="visually-hidden">Фото</span>
+                            <span class="visually-hidden"><?=$type['t_title']?></span>
                             <svg class="filters__icon"
                               width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
                                 <use xlink:href="#icon-filter-<?=$type['p_type'] ?>"></use>
@@ -146,11 +146,11 @@
             <?php endforeach; ?>
         </div>
         <div class="popular__page-links">
-            <?php if ($page > 0): ?>
-            <a class="popular__page-link popular__page-link--prev button button--gray" href="<?update_query_params('page', $page - 1)?>">Предыдущая страница</a>
+            <?php if ($page > 1): ?>
+            <a class="popular__page-link popular__page-link--prev button button--gray" href="<?=update_query_params('page', $page - 1)?>">Предыдущая страница</a>
             <?php endif;
             if ($total_count > $page): ?>
-            <a class="popular__page-link popular__page-link--next button button--gray" href="<?update_query_params('page', $page - 1)?>">Следующая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" href="<?=update_query_params('page', $page + 1)?>">Следующая страница</a>
             <?php endif; ?>
         </div>
     </div>
