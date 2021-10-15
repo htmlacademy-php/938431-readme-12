@@ -61,14 +61,61 @@ $tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'posts';
 $get_params = $_GET;
 
 switch($tab) {
-    // Вкладка ПОСТЫ
-    case 'likes':
     // Вкладка ЛАЙКИ
+    case 'likes':
+        // Создаем запрос на получение постов пользователя у которых есть лайки
+        $sql = "SELECT
+            post.id,
+            p_url,
+            t_class AS p_type,
+            t_title,
+            height,
+            width,
+            last_dt
+        FROM post
+        INNER JOIN post_type
+            ON type_id = post_type.id
+        INNER JOIN (
+            SELECT DISTINCT MAX(dt_add) AS last_dt, post_id
+            FROM post_like
+                GROUP BY post_id
+            ) AS last_likes
+            ON last_likes.post_id = post.id
+        WHERE user_id = ?
+        ORDER BY last_dt DESC;";
+
+        $result = fetch_sql_response($con, $sql, [$profile_id]);
+        $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        // Для каждого поста получаем данные о последнем лайке и добавляем в массив $post
+        foreach ($posts as &$post) {
+           $sql_like = "SELECT
+                post_like.dt_add AS l_dt,
+                user_id AS l_user,
+                u_avatar,
+                u_name
+            FROM post_like
+            INNER JOIN user
+                ON user.id = user_id
+            WHERE post_id = ?
+            ORDER BY l_dt DESC
+            LIMIT 1;";
+
+            $data = [$post['id']];
+            $result = fetch_sql_response($con, $sql_like, $data);
+            $like = mysqli_fetch_assoc($result);
+            $post = array_merge($post, $like);
+        }
+        unset($post);
+
+        $template = 'tab-likes.php';
+        $tab_params = ['posts' => $posts];
         break;
     case 'subscriptions':
     // Вкладка ПОДПИСКИ
         break;
 
+    // Вкладка ПОСТЫ
     default:
         $sql = 'SELECT
             post.*,
@@ -148,10 +195,12 @@ $is_own_profile = $user_profile['id'] == $user['id'];
 $tab_content = include_template($template, $tab_params);
 
 $content = include_template('profile.php', [
-    'user' => $user_profile,
+    'active_tab' => $tab,
     'is_own_profile' => $is_own_profile,
     'is_subscribed' => $is_subscribed,
-    'tab_content' => $tab_content
+    'tab_content' => $tab_content,
+    'tab_types' => $tab_types,
+    'user' => $user_profile
 ]);
 
 $title = 'readme: профиль';

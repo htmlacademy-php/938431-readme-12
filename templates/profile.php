@@ -38,15 +38,22 @@
         <div class="profile__tabs filters">
           <b class="profile__tabs-caption filters__caption">Показать:</b>
           <ul class="profile__tabs-list filters__list tabs__list">
+            <?php
+            $link_cls = 'profile__tabs-link filters__button tabs__item button';
+            $cls_active = $link_cls . ' filters__button--active tabs__item--active';
+
+            foreach ($tab_types as $key => $value): ?>
             <li class="profile__tabs-item filters__item">
-              <a class="profile__tabs-link filters__button filters__button--active tabs__item tabs__item--active button">Посты</a>
+            <?php if ($key == $active_tab) {
+                $class = $cls_active;
+                $href = '';
+            } else {
+                $class = $link_cls;
+                $href = ' href="' . update_query_params('tab', $key) . '"';
+            } ?>
+              <a class="<?=$class; ?>"<?=$href; ?>><?=$value?></a>
             </li>
-            <li class="profile__tabs-item filters__item">
-              <a class="profile__tabs-link filters__button tabs__item button" href="#">Лайки</a>
-            </li>
-            <li class="profile__tabs-item filters__item">
-              <a class="profile__tabs-link filters__button tabs__item button" href="#">Подписки</a>
-            </li>
+            <?php endforeach; ?>
           </ul>
         </div>
         <div class="profile__tab-content">

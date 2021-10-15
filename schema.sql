@@ -121,3 +121,9 @@ ALTER TABLE post
     AFTER p_repost
   ADD repost_count MEDIUMINT DEFAULT 0
     AFTER watch_count;
+
+-- Добавляем в таблицу лайков столбец с датой создания лайка
+ALTER TABLE post_like
+  ADD dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    AFTER id;
+
