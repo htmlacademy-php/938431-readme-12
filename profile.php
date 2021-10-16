@@ -113,6 +113,45 @@ switch($tab) {
         break;
     case 'subscriptions':
     // Вкладка ПОДПИСКИ
+    // Создаем запрос на получение данных о подписках
+        $sql = "SELECT
+            subscription.user_id AS id,
+            u_avatar,
+            user.dt_add AS u_dt,
+            u_name,
+            subs_count,
+            posts_count
+        FROM subscription
+        INNER JOIN user
+            ON user.id = subscription.user_id
+        LEFT JOIN
+            (SELECT COUNT(id) AS subs_count, user_id
+                FROM subscription
+                GROUP BY user_id) AS subs
+            ON subs.user_id = subscription.user_id
+        LEFT JOIN
+            (SELECT COUNT(id) AS posts_count, user_id
+                FROM post
+                GROUP BY user_id) AS posts
+            ON posts.user_id = subscription.user_id
+        WHERE subscriber_id = ?;";
+
+        $result = fetch_sql_response($con, $sql, [$profile_id]);
+        $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        // Создаем запрос на получение id подписок текущего пользователя
+        $sql = "SELECT user_id FROM subscription WHERE subscriber_id = ?;";
+        $data = [$user['id']];
+        $result = fetch_sql_response($con, $sql, $data);
+        $current_subs = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $current_subs = array_column($current_subs, 'user_id');
+        // В данные подписчиков добавим поле с флагом подписан ли текущий пользователь на этого подписчика
+        foreach ($subscribers as &$subscriber) {
+            $subscriber['is_in_subs'] = in_array($subscriber['id'], $current_subs) ? 1 : 0;
+        }
+        unset($subscriber);
+        $tab_params = ['users' => $subscribers];
+        $template = 'tab-subscriptions.php';
         break;
 
     // Вкладка ПОСТЫ
