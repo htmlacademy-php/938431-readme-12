@@ -7,6 +7,19 @@
         <div class="post-details__main-block post post--details">
           <?= $post_content; ?>
           <div class="post__indicators">
+            <div class="post__info">
+                <time class="post__time" datetime="<?= $post['dt_add'];?>" title="<?= format_date($post['dt_add']);?>"><?= generate_passed_time_text($post['dt_add']);?> назад</time>
+            </div>
+            <span class="post__view"><?=$post['watch_count'] ?? 0; ?> просмотров</span>
+          </div>
+          <?php if ($hashtags): ?>
+          <ul class="post__tags">
+            <?php foreach ($hashtags as $hash): ?>
+            <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']; ?></a></li>
+            <?php endforeach; ?>
+          </ul>
+          <?php endif; ?>
+          <div class="post__indicators">
             <div class="post__buttons">
               <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']?>" title="Лайк">
                 <svg class="post__indicator-icon" width="20" height="17">
@@ -33,18 +46,12 @@
                 <span class="visually-hidden">количество репостов</span>
               </a>
             </div>
-            <span class="post__view"><?=$post['watch_count'] ?? 0; ?> просмотров</span>
           </div>
-          <ul class="post__tags">
-            <?php foreach ($hashtags as $hash): ?>
-            <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']; ?></a></li>
-            <?php endforeach; ?>
-          </ul>
           <div class="comments">
             <form class="comments__form form" action="/post.php?id=<?=$post['id']; ?>" method="post">
                 <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
               <div class="comments__my-avatar">
-                <img class="comments__picture" src="<?=$current_user_avatar; ?>" alt="Аватар пользователя">
+                <img class="comments__picture" src="<?=$current_user_avatar; ?>" width="40" height="40" alt="Аватар пользователя">
               </div>
               <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
                 <textarea class="comments__textarea form__textarea form__input"
