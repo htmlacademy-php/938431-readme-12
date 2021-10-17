@@ -169,7 +169,7 @@ switch($tab) {
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Для каждого поста получим набор хэштегов и данные автора оригинального поста в случае репоста
+        // Для каждого поста получим набор хэштегов, количество комментариев и данные автора оригинального поста в случае репоста
         foreach ($posts as &$post) {
             $sql_hash = "SELECT
                 title
@@ -181,6 +181,15 @@ switch($tab) {
             $result = fetch_sql_response($con, $sql_hash, [$post['id']]);
             $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
             $post['hashtags'] = $hashtags;
+
+            // Создаем запрос на количество комментариев к посту
+            $sql_count = "SELECT COUNT(id) AS comment_count
+                    FROM comment WHERE post_id = ?;";
+
+            $result = fetch_sql_response($con, $sql_count, [$post['id']]);
+            $count = mysqli_fetch_assoc($result);
+            $post = array_merge($post, $count);
+
             // В случае репоста делаем запрос на автора оригинального поста и добавляем поле "author" в массив $post
             if ($post['p_repost']) {
                 $sql_orig = "SELECT * FROM user
@@ -191,17 +200,11 @@ switch($tab) {
                 $post['author'] = $author;
             }
             // В случае, если в параметре запроса есть флаг показа комментариев,
-            // Создаем запрос на количество комментариев к посту
             // Создаем запрос на получение комментариев к посту
             // Добавляем полученные данные в массив $post
             $q_param = 'post' . $post['id'];
             if (array_key_exists($q_param, $get_params)) {
-                $sql_count = "SELECT COUNT(id) AS comment_count
-                    FROM comment WHERE post_id = ?;";
 
-                $result = fetch_sql_response($con, $sql_count, [$post['id']]);
-                $count = mysqli_fetch_assoc($result);
-                $post = array_merge($post, $count);
                 if ($get_params[$q_param] === 'cmtsall') {
                     $constraint = ';';
                 } else {

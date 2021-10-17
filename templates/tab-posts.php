@@ -93,9 +93,12 @@
       <label class="visually-hidden">Ваш комментарий</label>
       <button class="comments__submit button button--green" type="submit">Отправить</button>
     </form>
+    <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], '')?>">Скрыть комментарии</a>
     <?php else: ?>
     <div class="comments">
+      <?php if ($post['comment_count']): ?>
       <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'cmts')?>">Показать комментарии</a>
+      <?php endif; ?>
     </div>
     <? endif; ?>
   </article>
