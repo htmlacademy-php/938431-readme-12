@@ -111,6 +111,7 @@ switch($tab) {
         $template = 'tab-likes.php';
         $tab_params = ['posts' => $posts];
         break;
+
     case 'subscriptions':
     // Вкладка ПОДПИСКИ
     // Создаем запрос на получение данных о подписках
@@ -159,36 +160,20 @@ switch($tab) {
         $sql = 'SELECT
             post.*,
             (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count,
+            (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
             t_class AS p_type
         FROM post
         INNER JOIN post_type
         ON type_id = post_type.id
         WHERE post.user_id = ?
-        ORDER BY post.dt_add ASC;';
+        ORDER BY post.dt_add;';
 
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Для каждого поста получим набор хэштегов, количество комментариев и данные автора оригинального поста в случае репоста
+        // Для каждого поста получим набор хэштегов и данные автора оригинального поста в случае репоста
         foreach ($posts as &$post) {
-            $sql_hash = "SELECT
-                title
-            FROM hashtag
-            INNER JOIN post_hashtag
-            ON hashtag.id = hash_id
-            AND post_id = ?;";
-
-            $result = fetch_sql_response($con, $sql_hash, [$post['id']]);
-            $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            $post['hashtags'] = $hashtags;
-
-            // Создаем запрос на количество комментариев к посту
-            $sql_count = "SELECT COUNT(id) AS comment_count
-                    FROM comment WHERE post_id = ?;";
-
-            $result = fetch_sql_response($con, $sql_count, [$post['id']]);
-            $count = mysqli_fetch_assoc($result);
-            $post = array_merge($post, $count);
+            $post['hashtags'] = fetch_hashtags($con, $post['id']);
 
             // В случае репоста делаем запрос на автора оригинального поста и добавляем поле "author" в массив $post
             if ($post['p_repost']) {
@@ -205,7 +190,7 @@ switch($tab) {
             $q_param = 'post' . $post['id'];
             if (array_key_exists($q_param, $get_params)) {
 
-                if ($get_params[$q_param] === 'cmtsall') {
+                if ($get_params[$q_param] === 'cmts_all') {
                     $constraint = ';';
                 } else {
                     $constraint = ' LIMIT 2;';

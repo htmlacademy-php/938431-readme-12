@@ -33,14 +33,6 @@ INNER JOIN post_type
 ON type_id = post_type.id
 WHERE post.id = ?;";
 
-// Создаем запрос на получение хэштегов к посту с заданным id
-$sql_hash = "SELECT
-    title
-FROM hashtag
-INNER JOIN post_hashtag
-ON hashtag.id = hash_id
-AND post_id = ?;";
-
 // Запрос на получение комментариев к посту
 $constraint = $is_all_comments ? ';' : ' LIMIT 2;';
 $sql_comments = "SELECT
@@ -83,8 +75,7 @@ if (!$post) {
 }
 
 // Создаем подготовленное выражение и отправляем запрос на получение хэштегов к посту
-$result = fetch_sql_response($con, $sql_hash, $data_post);
-$hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$hashtags = fetch_hashtags($con, $post_id);
 
 // Создаем подготовленное выражение и отправляем запрос на получение комментариев поста
 $result = fetch_sql_response($con, $sql_comments, $data_post);

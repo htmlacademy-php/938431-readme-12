@@ -72,18 +72,10 @@ WHERE post.user_id IN
 $data = array($user['id']);
 $result = fetch_sql_response($con, $sql, $data);
 $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
 // Для каждого поста получим набор хэштегов
 foreach ($posts as &$post) {
-    $sql_hash = "SELECT
-        title
-    FROM hashtag
-    INNER JOIN post_hashtag
-    ON hashtag.id = hash_id
-    AND post_id = ?;";
-
-    $result = fetch_sql_response($con, $sql_hash, [$post['id']]);
-    $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    $post['hashtags'] = $hashtags;
+    $post['hashtags'] = fetch_hashtags($con, $post['id']);
 }
 unset($post);
 

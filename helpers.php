@@ -448,7 +448,7 @@ function set_connection() {
  */
 function fetch_sql_response($link, $sql, $data) {
    $stmt = db_get_prepare_stmt($link, $sql, $data);
-    mysqli_execute($stmt);
+    mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
 
@@ -458,6 +458,25 @@ function fetch_sql_response($link, $sql, $data) {
         exit;
     }
     return $result;
+}
+
+/**
+ * Отправляет запрос на получение хэштегов к посту с заданным id
+ * @param $link mysqli Ресурс соединения
+ * @param int $post_id  id поста
+ *
+ * @return array $hashtags Массив хэштегов
+ */
+function fetch_hashtags($link, $post_id) {
+    $sql = "SELECT title
+    FROM hashtag
+    INNER JOIN post_hashtag
+    ON hashtag.id = hash_id
+    AND post_id = ?;";
+
+    $result = fetch_sql_response($link, $sql, [$post_id]);
+    $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    return $hashtags;
 }
 
 /**
