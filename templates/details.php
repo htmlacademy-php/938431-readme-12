@@ -31,7 +31,7 @@
                 <span><?=$post['like_count'] ?? 0;?></span>
                 <span class="visually-hidden">количество лайков</span>
               </a>
-              <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+              <a class="post__indicator post__indicator--comments button" href="#comments" title="Комментарии">
                 <svg class="post__indicator-icon" width="19" height="17">
                   <use xlink:href="#icon-comment"></use>
                 </svg>
@@ -66,7 +66,7 @@
               <button class="comments__submit button button--green" type="submit">Отправить</button>
             </form>
             <div class="comments__list-wrapper">
-              <ul class="comments__list">
+              <ul class="comments__list" id="comments">
                 <?php foreach ($comments as $comment): ?>
                 <li class="comments__item user">
                   <div class="comments__avatar">
