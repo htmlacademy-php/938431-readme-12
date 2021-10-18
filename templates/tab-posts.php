@@ -78,7 +78,7 @@
           </li>
           <?php endforeach;
            if ($post['comment_count'] > count($post['comments'])): ?>
-            <a class="comments__more-link" href="<?= update_query_params('post' . $post['id'], 'cmtsall')?>">
+            <a class="comments__more-link" href="<?= update_query_params('post' . $post['id'], 'cmts_all')?>">
               <span>Показать все комментарии</span>
               <sup class="comments__amount"><?=$post['comment_count']; ?></sup>
             </a>
