@@ -42,7 +42,10 @@ CREATE TABLE IF NOT EXISTS post (
   p_text TEXT,
   quote_author VARCHAR(100),
   watch_count MEDIUMINT DEFAULT 0,
+  repost_count MEDIUMINT DEFAULT 0,
   user_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
+  p_repost BOOLEAN DEFAULT FALSE 'Признак репоста',
+  orig_user_id INT COMMENT 'Связь с полем id таблицы user',
   type_id SMALLINT NOT NULL COMMENT 'Связь с полем id таблицы post_type',
   INDEX idx_user_id (user_id) COMMENT 'Индекс поля user_id',
   INDEX idx_type_id (type_id) COMMENT 'Индекс поля type_id',
@@ -91,6 +94,7 @@ CREATE TABLE IF NOT EXISTS subscription (
 -- Таблица связей post_like. Данные о лайках поставленных постам
 CREATE TABLE IF NOT EXISTS post_like (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   user_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
   post_id INT NOT NULL COMMENT 'Связь с полем id таблицы post',
   INDEX idx_post_id (post_id) COMMENT 'Индекс поля post_id',
@@ -112,18 +116,3 @@ CREATE TABLE IF NOT EXISTS post_hashtag (
 
 -- Создаем Индекс для полнотекстового поиска в таблице post
 CREATE FULLTEXT INDEX p_ft_search ON post(p_title, p_text);
-
--- Добавляем в таблицу постов три столбца: признак репоста и id автора оригинального поста, счетчик репостов
-ALTER TABLE post
-	ADD p_repost BOOLEAN DEFAULT FALSE
-		AFTER user_id
-  ADD orig_user_id INT
-    AFTER p_repost
-  ADD repost_count MEDIUMINT DEFAULT 0
-    AFTER watch_count;
-
--- Добавляем в таблицу лайков столбец с датой создания лайка
-ALTER TABLE post_like
-  ADD dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    AFTER id;
-
