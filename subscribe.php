@@ -28,30 +28,31 @@ $data = array($profile_id, $user['id']);
 $result = fetch_sql_response($con, $sql, $data);
 $bind = mysqli_fetch_assoc($result);
 
-// Если нужная связь найдена - создаем запрос на ее удаление
-if (!empty($bind)) {
+if (empty($bind)) {
+    // Если подписки не существует
+    // Создаем запрос на получение пользователя с заданным id
+    $sql = "SELECT * FROM user
+    WHERE id = ?;";
+
+    $result = fetch_sql_response($con, $sql, [$profile_id]);
+    $profile_user = mysqli_fetch_assoc($result);
+
+    if (!empty($profile_user)) {
+    // Создаем запись в таблице связей subscription
+        $sql = "INSERT INTO subscription (user_id, subscriber_id) VALUES (?, ?);";
+
+        $stmt = db_get_prepare_stmt($con, $sql, $data);
+        $result = mysqli_stmt_execute($stmt);
+
+    // TODO: Отправить сообщение пользователю о новом подписчике
+    }
+} else {
+    // Если нужная связь найдена - создаем запрос на ее удаление
     $sql = "DELETE FROM subscription
     WHERE id = ?";
 
     $stmt = db_get_prepare_stmt($con, $sql, $bind);
     $result = mysqli_stmt_execute($stmt);
-} else {
-    // Создаем запрос на получение пользователя с заданным id
-    $sql = "SELECT * FROM user
-        WHERE id = ?;";
-
-    $result = fetch_sql_response($con, $sql, [$profile_id]);
-    $profile_user = mysqli_fetch_assoc($result);
-    if (!empty($profile_user)) {
-        // Создаем запись в таблице связей subscription
-        $sql = "INSERT INTO subscription (user_id, subscriber_id) VALUES (?, ?);";
-
-
-        $stmt = db_get_prepare_stmt($con, $sql, $data);
-        $result = mysqli_stmt_execute($stmt);
-
-        // TODO: Отправить сообщение пользователю о новом подписчике
-    }
 }
 
 header("Location: {$_SERVER['HTTP_REFERER']}");
