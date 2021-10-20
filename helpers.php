@@ -593,7 +593,7 @@ function validate_filled($value) {
  * @return string|null Текст сообщения об ошибке
  */
 function validate_min_length($value, $min) {
-    $leng = strlen($value);
+    $leng = mb_strlen($value);
     if ($leng < $min) {
         return "Длина текста должна быть не менее $min символов";
     }
@@ -729,16 +729,6 @@ function validate_video_url($value) {
         }
     }
     return $message;
-}
-
-/**
- * Возвращает имя домена из url-адреса
- * @param string $url url-адрес
- * @return string $domain Имя домена
- */
-function extract_domain_name($url) {
-    $parts = parse_url($url);
-    return $parts['host'];
 }
 
 /**
