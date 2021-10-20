@@ -10,8 +10,8 @@ VALUES
 -- Заполняем таблицу user (Пользователи)
 INSERT INTO user (email, u_password, u_name, u_avatar)
 VALUES
-  ('vladik@gmail.com', 'oiuy45', 'Владик', 'img/userpic.jpg'), #1
-  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'img/userpic-larisa-small.jpg'), #2
+  ('vladik@gmail.com', 'oiuy45', 'Владик', 'img/userpic-medium.jpg'), #1
+  ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'img/userpic-larisa.jpg'), #2
   ('victor@gmail.com', 'Xsfj23', 'Виктор', 'img/userpic-mark.jpg'), #3
   ('peter@gmail.com', 'xcv6ek', 'Петр', 'img/userpic-petro.jpg'), #4
   ('tanya@gmail.com', 'bnuy40', 'Таня', 'img/userpic-tanya.jpg'), #5
@@ -31,7 +31,7 @@ VALUES
   ('Игра престолов', NULL, 'Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала! Не могу дождаться начала финального сезона своего любимого сериала!', NULL, 4, 1, 3), #2
   ('Наконец, обработал фотки!', 'img/rock-medium.jpg', NULL, NULL, 25, 3, 1), #3
   ('Моя мечта', 'img/coast-medium.jpg', NULL, NULL, 15, 2, 1), #4
-  ('Делюсь ссылкой', 'www.htmlacademy.ru', 'Лучшие курсы', NULL, 3, 1, 5), #5
+  ('Делюсь ссылкой', 'https://www.htmlacademy.ru', 'Лучшие курсы', NULL, 3, 1, 5), #5
   ('Мачу Пикчу. Древние строения', 'https://youtu.be/RsVq66yJ8HI', NULL, NULL, 5, 1, 2); #6
 -- Заполняем таблицу comment (Комментарии)
 INSERT INTO comment (c_content, user_id, post_id)

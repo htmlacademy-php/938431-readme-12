@@ -9,7 +9,7 @@
                 <ul class="popular__sorting-list sorting__list">
                     <?php foreach ($sort_types as $key => $value): ?>
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="<?=update_query_params('sort' , $key); ?>">
+                        <a class="sorting__link <?=($sort === $key) ?"sorting__link--active" : "";?>" href="/popular.php?filter=<?=$filter; ?>&sort=<?=$key; ?>">
                             <span><?=$value;?></span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -24,15 +24,15 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <? if (!$filter) echo ' filters__button--active';?>" href="<?=update_query_params('filter' , 0); ?>">
+                        <? if (!$filter) echo ' filters__button--active';?>" href="/popular.php?filter=0">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter === $type['id']) echo 'filters__button--active' ?>
-                         button" href="<?=$type['url']?>">
-                            <span class="visually-hidden">Фото</span>
+                         button" href="/popular.php?filter=<?=$type['id']?>">
+                            <span class="visually-hidden"><?=$type['t_title']?></span>
                             <svg class="filters__icon"
                               width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
                                 <use xlink:href="#icon-filter-<?=$type['p_type'] ?>"></use>
@@ -77,16 +77,16 @@
                     <?php case 'link': ?>
                         <!-- Ссылка -->
                     <div class="post-link__wrapper">
-                        <a class="post-link__external" href="http://<?=$post['p_url'] ?>" title="Перейти по ссылке">
+                        <a class="post-link__external" href="<?=$post['p_url'] ?>" title="Перейти по ссылке">
                             <div class="post-link__info-wrapper">
                                 <div class="post-link__icon-wrapper">
-                                    <img src="https://www.google.com/s2/favicons?domain=<?=$post['p_url']; ?>" alt="Иконка">
+                                    <img src="<?=generate_favicon_url($post['p_url']); ?>" width="16" height="16" alt="Иконка">
                                 </div>
                                 <div class="post-link__info">
                                     <h3><?= htmlspecialchars($post['p_title']); ?></h3>
                                 </div>
                             </div>
-                            <span><?= htmlspecialchars($post['p_url']); ?></span>
+                            <span><?=parse_url($post['p_url'], PHP_URL_HOST); ?></span>
                         </a>
                     </div>
                     <?php break; ?>
@@ -109,10 +109,10 @@
                 </div>
                 <footer class="post__footer">
                     <div class="post__author">
-                        <a class="post__author-link" href="/profile.php?user=<?=$post['user_id']?>" title="Автор">
+                        <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" alt="Аватар пользователя">
+                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" width="40" height="auto" alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
@@ -122,7 +122,7 @@
                     </div>
                     <div class="post__indicators">
                         <div class="post__buttons">
-                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                            <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']; ?>" title="Лайк">
                                 <svg class="post__indicator-icon" width="20" height="17">
                                     <use xlink:href="#icon-heart"></use>
                                 </svg>
@@ -132,7 +132,7 @@
                                 <span><?=$post['like_count'] ?? 0;?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
-                            <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                            <a class="post__indicator post__indicator--comments button" href="/post.php?id=<?=$post['id']; ?>" title="Комментарии">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
@@ -144,6 +144,14 @@
                 </footer>
             </article>
             <?php endforeach; ?>
+        </div>
+        <div class="popular__page-links">
+            <?php if ($page > 1): ?>
+            <a class="popular__page-link popular__page-link--prev button button--gray" href="<?=update_query_params('page', $page - 1)?>">Предыдущая страница</a>
+            <?php endif;
+            if ($total_count > $page): ?>
+            <a class="popular__page-link popular__page-link--next button button--gray" href="<?=update_query_params('page', $page + 1)?>">Следующая страница</a>
+            <?php endif; ?>
         </div>
     </div>
 </section>

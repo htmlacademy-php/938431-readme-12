@@ -25,81 +25,12 @@
               </a>
             </header>
             <div class="post__main">
-              <h2>
-                <a href="<?="/post.php?id=" . $post['id']?>">
-                <?= htmlspecialchars($post['p_title']); ?>
-                </a>
-              </h2>
             <!-- Разные типы постов -->
-            <?php switch($post['p_type']):
-            //   Фото
-            case 'photo': ?>
-              <div class="post-photo__image-wrapper">
-                <img src="<?=$post['p_url'] ?>" alt="Фото от пользователя" width="760" height="396">
-              </div>
-            <?php break; ?>
-
-            <!-- Текст -->
-            <?php case 'text':
-            echo text_template($post['p_text']);
-            break;
-            ?>
-            <!-- Видео -->
-            <?php case 'video': ?>
-            <div class="post-video__block">
-                <div class="post-video__preview">
-                <?=embed_youtube_video($post['p_url']); ?>
-                </div>
-                <div class="post-video__control">
-                <button class="post-video__play post-video__play--paused button button--video" type="button"><span class="visually-hidden">Запустить видео</span></button>
-                <div class="post-video__scale-wrapper">
-                    <div class="post-video__scale">
-                    <div class="post-video__bar">
-                        <div class="post-video__toggle"></div>
-                    </div>
-                    </div>
-                </div>
-                <button class="post-video__fullscreen post-video__fullscreen--inactive button button--video" type="button"><span class="visually-hidden">Полноэкранный режим</span></button>
-                </div>
-                <button class="post-video__play-big button" type="button">
-                <svg class="post-video__play-big-icon" width="27" height="28">
-                    <use xlink:href="#icon-video-play-big"></use>
-                </svg>
-                <span class="visually-hidden">Запустить проигрыватель</span>
-                </button>
-            </div>
-            <?php break; ?>
-
-            <!-- Цитата -->
-            <?php case 'quote': ?>
-            <blockquote>
-                <p><?= htmlspecialchars($post['p_text']); ?></p>
-                <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
-            </blockquote>
-            <?php break; ?>
-
-            <!-- Ссылка -->
-            <?php case 'link': ?>
-            <div class="post-link__wrapper">
-                <a class="post-link__external" href="http://<?=$post['p_url'] ?>" title="Перейти по ссылке">
-                <div class="post-link__icon-wrapper">
-                    <img src="https://www.google.com/s2/favicons?domain=<?=$post['p_url']; ?>" alt="Иконка">
-                </div>
-                <div class="post-link__info">
-                    <h3><?= htmlspecialchars($post['p_title']); ?></h3>
-                    <span><?= htmlspecialchars($post['p_url']); ?></span>
-                </div>
-                <svg class="post-link__arrow" width="11" height="16">
-                    <use xlink:href="#icon-arrow-right-ad"></use>
-                </svg>
-                </a>
-            </div>
-            <?php break; ?>
-            <?php endswitch; ?>
+                <?php echo generate_post_template($post); ?>
             </div>
             <footer class="post__footer post__indicators">
                 <div class="post__buttons">
-                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']; ?>" title="Лайк">
                     <svg class="post__indicator-icon" width="20" height="17">
                     <use xlink:href="#icon-heart"></use>
                     </svg>

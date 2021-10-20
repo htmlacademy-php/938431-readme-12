@@ -146,7 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'title' => NULL,
             'url' => NULL,
             'text' => NULL,
-            'quote-author' => NULL
+            'quote-author' => NULL,
+            'user_id' => $user['id']
         ];
 
         $data_post = array_merge($empty_data, $post);
@@ -160,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             watch_count,
             user_id,
             type_id)
-        VALUES (?, ?, ?, ?, 0, 1, ?);";
+        VALUES (?, ?, ?, ?, 0, ?, ?);";
 
         // Создаем подготовленное выражение и отправляем запрос на на запись нового поста
         $stmt = db_get_prepare_stmt($con, $sql_add_post, $data_post);

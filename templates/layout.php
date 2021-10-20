@@ -15,7 +15,7 @@
 <header class="header">
     <div class="header__wrapper container">
         <div class="header__logo-wrapper">
-            <a class="header__logo-link" href="main.html">
+            <a class="header__logo-link" href="/">
                 <img class="header__logo" src="img/logo.svg" alt="Логотип readme" width="128" height="24">
             </a>
             <p class="header__topic">
@@ -25,7 +25,7 @@
         <form class="header__search-form form" action="/search.php" method="get">
             <div class="header__search">
                 <label class="visually-hidden">Поиск</label>
-                <input class="header__search-input form__input" type="search" name="q" value="<?=get_search_value('q');?>">
+                <input class="header__search-input form__input" type="search" name="q" value="<?=get_text_value('q');?>">
                 <button class="header__search-button button" type="submit">
                     <svg class="header__search-icon" width="18" height="18">
                         <use xlink:href="#icon-search"></use>
@@ -78,7 +78,7 @@
                     <li class="header__profile">
                         <a class="header__profile-link" href="#">
                             <div class="header__avatar-wrapper">
-                                <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" alt="Аватар профиля">
+                                <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" width="40" height="auto" alt="Аватар профиля">
                             </div>
                             <div class="header__profile-name">
                                 <span>
@@ -94,7 +94,7 @@
                             <div class="header__profile-tooltip">
                                 <ul class="header__profile-nav">
                                     <li class="header__profile-nav-item">
-                                        <a class="header__profile-nav-link" href="#">
+                                        <a class="header__profile-nav-link" href="/profile.php?id=<?=$user['id']; ?>">
                                             <span class="header__profile-nav-text">
                                                 Мой профиль
                                             </span>

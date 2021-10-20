@@ -448,7 +448,7 @@ function set_connection() {
  */
 function fetch_sql_response($link, $sql, $data) {
    $stmt = db_get_prepare_stmt($link, $sql, $data);
-    mysqli_execute($stmt);
+    mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
 
@@ -461,12 +461,31 @@ function fetch_sql_response($link, $sql, $data) {
 }
 
 /**
+ * Отправляет запрос на получение хэштегов к посту с заданным id
+ * @param $link mysqli Ресурс соединения
+ * @param int $post_id  id поста
+ *
+ * @return array $hashtags Массив хэштегов
+ */
+function fetch_hashtags($link, $post_id) {
+    $sql = "SELECT title
+    FROM hashtag
+    INNER JOIN post_hashtag
+    ON hashtag.id = hash_id
+    AND post_id = ?;";
+
+    $result = fetch_sql_response($link, $sql, [$post_id]);
+    $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    return $hashtags;
+}
+
+/**
  * Выбирает html шаблон в зависимости от полученного типа поста
  * @param $post array Массив с данными о посте
  * @return string Итоговый HTML
  */
 function choose_post_template($post) {
-    $result = $post['p_type'];
+    $result = '';
     switch ($post['p_type']) {
         case 'link':
             $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
@@ -487,6 +506,37 @@ function choose_post_template($post) {
 
     return $result;
 };
+
+/**
+ * Генерирует html разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * @param $post array Массив с данными о посте
+ * @return string Итоговый HTML
+ */
+function generate_post_template($post) {
+    $type = $post['p_type'];
+    $result = '';
+    switch ($type) {
+        case 'link':
+            $template = 'post-link.php';
+        break;
+        case 'photo':
+            $template = 'post-photo.php';
+        break;
+        case 'text':
+            $template = 'post-text.php';
+        break;
+        case 'quote':
+            $template = 'post-quote.php';
+        break;
+        case 'video':
+            $template = 'post-video.php';
+        break;
+    }
+    if ($template) {
+        $result = include_template($template, ['post' => $post]);
+    }
+    return $result;
+}
 
 /**
  * Возвращает адресную строку для текущего скрипта с переданным параметром запроса
@@ -521,7 +571,7 @@ function get_post_value($name) {
  * @param string $name Имя поля формы
  * @return string|null Значение поля
  */
-function get_search_value($name) {
+function get_text_value($name) {
     $search = filter_input(INPUT_GET, $name) ?? '';
     return trim($search);
 }
@@ -534,6 +584,18 @@ function get_search_value($name) {
 function validate_filled($value) {
     if (empty($value)) {
         return "Это поле должно быть заполнено";
+    }
+}
+
+/**
+ * Функция - валидатор длины текста в поле
+ * @param string $value Значение поля формы
+ * @return string|null Текст сообщения об ошибке
+ */
+function validate_min_length($value, $min) {
+    $leng = mb_strlen($value);
+    if ($leng < $min) {
+        return "Длина текста должна быть не менее $min символов";
     }
 }
 
@@ -667,6 +729,16 @@ function validate_video_url($value) {
         }
     }
     return $message;
+}
+
+/**
+ * Возвращает адрес фавиконки сайта по url-адресу
+ * @param string $url url-адрес
+ * @return string $fav_url Адрес к фавиконке
+ */
+function generate_favicon_url($url) {
+    $parts = parse_url($url);
+    return $parts['scheme'] . '://' . $parts['host'] . '/favicon.ico';
 }
 
 /**
