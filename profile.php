@@ -23,7 +23,7 @@ if (!$profile_id) {
 // Создаем запрос на получение данных пользователя с полученным id
 $sql = 'SELECT
     user.*,
-    (SELECT COUNT(subscriber_id)
+    (SELECT COUNT(id)
         FROM subscription
         WHERE user_id = user.id) AS subs_count,
     (SELECT COUNT(id)
@@ -109,14 +109,16 @@ switch($tab) {
         unset($post);
 
         $template = 'tab-likes.php';
-        $tab_params = ['posts' => $posts];
+        $tab_params = [
+            'posts' => $posts
+        ];
         break;
 
     case 'subscriptions':
     // Вкладка ПОДПИСКИ
     // Создаем запрос на получение данных о подписках
         $sql = "SELECT
-            subscription.user_id AS id,
+            subscription.user_id AS u_id,
             u_avatar,
             user.dt_add AS u_dt,
             u_name,
@@ -138,7 +140,7 @@ switch($tab) {
         WHERE subscriber_id = ?;";
 
         $result = fetch_sql_response($con, $sql, [$profile_id]);
-        $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $subscriptions = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
         // Создаем запрос на получение id подписок текущего пользователя
         $sql = "SELECT user_id FROM subscription WHERE subscriber_id = ?;";
@@ -146,12 +148,16 @@ switch($tab) {
         $result = fetch_sql_response($con, $sql, $data);
         $current_subs = mysqli_fetch_all($result, MYSQLI_ASSOC);
         $current_subs = array_column($current_subs, 'user_id');
-        // В данные подписчиков добавим поле с флагом подписан ли текущий пользователь на этого подписчика
-        foreach ($subscribers as &$subscriber) {
-            $subscriber['is_in_subs'] = in_array($subscriber['id'], $current_subs) ? 1 : 0;
+
+        // В данные о подписках добавим поле с флагом подписан ли текущий пользователь на этого автора
+        foreach ($subscriptions as &$subscription) {
+            $subscription['is_in_subs'] = in_array($subscription['u_id'], $current_subs) ? 1 : 0;
         }
-        unset($subscriber);
-        $tab_params = ['users' => $subscribers];
+        unset($subscription);
+        $tab_params = [
+            'current_user_id' => $user['id'],
+            'users' => $subscriptions
+        ];
         $template = 'tab-subscriptions.php';
         break;
 
@@ -212,7 +218,53 @@ switch($tab) {
         }
         unset($post);
 
-    $tab_params = ['posts' => $posts];
+        $errors = [];
+    // Проверяем был ли отправлен комментарий к посту
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
+        $c_post = filter_input_array(INPUT_POST, $filters, true);
+        // Проверяем поле с текстом комментария на заполненность и на длину текста
+        $comment = trim($c_post['comment']);
+        $errors['comment'] = validate_filled($comment);
+        if (!$errors['comment']) {
+            $errors['comment'] = validate_min_length($comment, 4);
+            $errors = array_diff($errors, array(''));
+        }
+        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
+        if (empty($errors)) {
+            $sql = "SELECT user_id FROM post WHERE id = ?;";
+            $post_id = $c_post['post-id'];
+            $result = fetch_sql_response($con, $sql, [$post_id]);
+
+            if (mysqli_num_rows($result)) {
+                // Если пост найден, сохраняем автора поста
+                $author = mysqli_fetch_assoc($result);
+                $author_id = $author['user_id'];
+
+                // Создаем запрос на запись комментария в базу данных
+                $sql_com = "INSERT INTO comment (c_content, user_id, post_id)
+                    VALUES (?,?,?);";
+                $data_com = array($comment, $user['id'], $post_id);
+
+                $stmt = db_get_prepare_stmt($con, $sql_com, $data_com);
+                $result = mysqli_stmt_execute($stmt);
+
+                if (!$result) {
+                    $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
+                } else {
+                    header("Location: http://readme/profile.php?id=" . $author_id);
+                }
+            } else {
+                $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
+            }
+        }
+    }
+
+    $tab_params = [
+        'current_user_avatar' => $user['u_avatar'],
+        'errors' => $errors,
+        'posts' => $posts
+     ];
     $template = 'tab-posts.php';
     break;
 }
@@ -221,7 +273,7 @@ $is_own_profile = $user_profile['id'] == $user['id'];
 
 $tab_content = include_template($template, $tab_params);
 
-$content = include_template('profile.php', [
+$content = include_template('user-profile.php', [
     'active_tab' => $tab,
     'is_own_profile' => $is_own_profile,
     'is_subscribed' => $is_subscribed,
