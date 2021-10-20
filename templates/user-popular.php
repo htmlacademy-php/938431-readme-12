@@ -86,7 +86,7 @@
                                     <h3><?= htmlspecialchars($post['p_title']); ?></h3>
                                 </div>
                             </div>
-                            <span><?=extract_domain_name($post['p_url']); ?></span>
+                            <span><?=parse_url($post['p_url'], PHP_URL_HOST); ?></span>
                         </a>
                     </div>
                     <?php break; ?>

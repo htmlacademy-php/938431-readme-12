@@ -39,7 +39,8 @@ $sql_comments = "SELECT
     comment.dt_add AS c_date,
     c_content,
     u_name,
-    u_avatar
+    u_avatar,
+    user_id
 FROM comment
 INNER JOIN user
 ON user.id = comment.user_id
@@ -90,7 +91,7 @@ $p_user = mysqli_fetch_assoc($result);
 
 // Отправляем запрос на существование у текущего пользователя подписки на автора поста
 $result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
-$is_subscribed = mysqli_num_rows($result) !== 0;
+$is_subscribed = (bool) mysqli_num_rows($result);
 
 $errors = [];
 // Проверяем был ли отправлен комментарий к посту

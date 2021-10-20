@@ -103,7 +103,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 $title = 'readme: популярное';
 
-$content = include_template('popular.php', ['page' => $page, 'posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types, 'total_count' => $pages_count]);
+$content = include_template('user-popular.php', ['page' => $page, 'posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types, 'total_count' => $pages_count]);
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
 print($layout);

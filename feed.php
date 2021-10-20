@@ -81,7 +81,7 @@ unset($post);
 
 $title = 'readme: моя лента';
 
-$content = include_template('feed.php', ['filter' => $filter, 'posts' => $posts, 'types' => $types]);
+$content = include_template('user-feed.php', ['filter' => $filter, 'posts' => $posts, 'types' => $types]);
 $title = 'readme: моя лента';
 
 $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);

@@ -70,13 +70,13 @@
                 <?php foreach ($comments as $comment): ?>
                 <li class="comments__item user">
                   <div class="comments__avatar">
-                    <a class="user__avatar-link" href="#">
+                    <a class="user__avatar-link" href="/profile.php?id=<?=$comment['user_id']?>">
                       <img class="comments__picture" src="<?=$comment['u_avatar'] ;?>" alt="Аватар пользователя">
                     </a>
                   </div>
                   <div class="comments__info">
                     <div class="comments__name-wrapper">
-                      <a class="comments__user-name" href="#">
+                      <a class="comments__user-name" href="/profile.php?id=<?=$comment['user_id']?>">
                         <span><?= htmlspecialchars($comment['u_name']); ?></span>
                       </a>
                       <time class="comments__time" datetime="<?= $comment['c_date'];?>"><?= generate_passed_time_text($comment['c_date']);?> назад</time>
