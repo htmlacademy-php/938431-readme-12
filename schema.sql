@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS message (
   m_content TEXT,
   sender_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
   receiver_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
+  is_new BOOLEAN DEFAULT TRUE,
   INDEX idx_send_id (sender_id) COMMENT 'Индекс поля sender_id',
   INDEX inx_rec_id (receiver_id) COMMENT 'Индекс поля receiver_id',
   FOREIGN KEY fk_send_id (sender_id) REFERENCES user (id),

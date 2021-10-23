@@ -67,7 +67,7 @@
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--messages">
-                        <a class="header__page-link" href="messages.html" title="Личные сообщения">
+                        <a class="header__page-link" href="/messages.php" title="Личные сообщения">
                             <span class="visually-hidden">Личные сообщения</span>
                         </a>
                     </li>
@@ -101,10 +101,12 @@
                                         </a>
                                     </li>
                                     <li class="header__profile-nav-item">
-                                        <a class="header__profile-nav-link" href="#">
+                                        <a class="header__profile-nav-link" href="/messages.php">
                                             <span class="header__profile-nav-text">
                                                 Сообщения
-                                                <i class="header__profile-indicator">2</i>
+                                                <?php if ($user['m_count']): ?>
+                                                <i class="header__profile-indicator"><?=$user['m_count'];?></i>
+                                                <?php endif; ?>
                                             </span>
                                         </a>
                                     </li>
