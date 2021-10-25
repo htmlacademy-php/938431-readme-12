@@ -291,7 +291,7 @@ function cut_excerpt_1($text, $max_length) {
 }
 
 /**
- * Обрезает текст до заданной длины, не обрезая слов.
+ * Обрезает текст до заданной длины, не обрезая слов, добавляя многоточие в конце текста.
  * Вариант 2. (не использует массивы, только функции для строк)
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
@@ -299,9 +299,17 @@ function cut_excerpt_1($text, $max_length) {
 */
 function cut_excerpt_2($text, $max_length) {
     $new_text = trim($text);
+    $text_length = mb_strlen($new_text);
     $new_text = mb_substr($new_text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
+        $position = mb_strrpos($new_text, ' ');
+    if (!$position) {
+        $position = $max_length + 1;
+    }
     $new_text = mb_substr($new_text, 0, $position);
+    if (mb_strlen($new_text) < $text_length) {
+        $new_text .= '...';
+    }
     return $new_text;
 }
 
@@ -317,7 +325,7 @@ function text_template($text, $max_length = 300) {
     if (mb_strlen($text) <= $max_length) {
         $result = '<p>' . htmlspecialchars($text) . '</p>';
     } else {
-        $result = '<p>' . htmlspecialchars(cut_excerpt_2($text, $max_length)) . '...</p>
+        $result = '<p>' . htmlspecialchars(cut_excerpt_2($text, $max_length)) . '</p>
     <a class="post-text__more-link" href="#">Читать далее</a>';
     }
 
