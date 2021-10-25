@@ -27,7 +27,7 @@
             <a class="profile__user-button user__button user__button--subscription button button--main" href="/subscribe.php?id=<?=$user['id']?>"><?=$is_subscribed ? 'Отписаться' : 'Подписаться' ?></a>
             <?php endif; ?>
             <?php if ($is_subscribed): ?>
-            <a class="profile__user-button user__button user__button--writing button button--green" href="#">Отправить сообщение</a>
+            <a class="profile__user-button user__button user__button--writing button button--green" href="/messages.php?id=<?=$user['id']?>">Отправить сообщение</a>
             <?php endif; ?>
           </div>
         </div>
