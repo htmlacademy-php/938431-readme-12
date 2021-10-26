@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS post (
   watch_count MEDIUMINT DEFAULT 0,
   repost_count MEDIUMINT DEFAULT 0,
   user_id INT NOT NULL COMMENT 'Связь с полем id таблицы user',
-  p_repost BOOLEAN DEFAULT FALSE 'Признак репоста',
+  p_repost BOOLEAN DEFAULT FALSE COMMENT 'Признак репоста',
   orig_user_id INT COMMENT 'Связь с полем id таблицы user',
   type_id SMALLINT NOT NULL COMMENT 'Связь с полем id таблицы post_type',
   INDEX idx_user_id (user_id) COMMENT 'Индекс поля user_id',
