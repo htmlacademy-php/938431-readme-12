@@ -32,7 +32,7 @@
                     <?php if ($logged_user['id'] == $user['sender_id']) {
                         echo 'Вы: ';
                     }
-                     echo htmlspecialchars(cut_excerpt_2($user['m_content'], 25));
+                     echo htmlspecialchars(cut_excerpt($user['m_content'], 25));
                     ?>
                 </p>
                 <time class="messages__preview-time" datetime="<?=$user['dt_add']?>">
