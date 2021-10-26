@@ -52,7 +52,9 @@
             <form class="comments__form form" action="/post.php?id=<?=$post['id']; ?>" method="post">
                 <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
               <div class="comments__my-avatar">
+                <?php if ($current_user_avatar): ?>
                 <img class="comments__picture" src="<?=$current_user_avatar; ?>" width="40" height="40" alt="Аватар пользователя">
+                <?php endif; ?>
               </div>
               <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
                 <textarea class="comments__textarea form__textarea form__input"
@@ -73,7 +75,9 @@
                 <li class="comments__item user">
                   <div class="comments__avatar">
                     <a class="user__avatar-link" href="/profile.php?id=<?=$comment['user_id']?>">
+                      <?php if ($comment['u_avatar']): ?>
                       <img class="comments__picture" src="<?=$comment['u_avatar'] ;?>" alt="Аватар пользователя">
+                      <?php endif; ?>
                     </a>
                   </div>
                   <div class="comments__info">
@@ -103,7 +107,9 @@
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
               <a class="post-details__avatar-link user__avatar-link" href="/profile.php?id=<?=$user['id']; ?>">
+                <?php if ($user['u_avatar']): ?>
                 <img class="post-details__picture user__picture" src="<?=$user['u_avatar'];?>" width="60" height="60" alt="Аватар пользователя">
+                <?php endif; ?>
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
@@ -128,7 +134,7 @@
             <a class="user__button user__button--subscription button button--main" href="/subscribe.php?id=<?=$user['id']?>"><?=($is_subscribed) ? 'Отписаться' : 'Подписаться' ?></a>
             <?php endif; ?>
             <?php if ($is_subscribed): ?>
-            <a class="user__button user__button--writing button button--green" href="#">Отправить сообщение</a>
+            <a class="user__button user__button--writing button button--green" href="/messages.php?id=<?=$user['id']; ?>">Отправить сообщение</a>
             <?php endif; ?>
           </div>
         </div>

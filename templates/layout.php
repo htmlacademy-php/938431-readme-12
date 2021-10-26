@@ -78,7 +78,9 @@
                     <li class="header__profile">
                         <a class="header__profile-link" href="#">
                             <div class="header__avatar-wrapper">
+                                <?php if ($user['u_avatar']): ?>
                                 <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" width="40" height="auto" alt="Аватар профиля">
+                                <?php endif; ?>
                             </div>
                             <div class="header__profile-name">
                                 <span>

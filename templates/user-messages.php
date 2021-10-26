@@ -16,8 +16,10 @@
             ?>
             <a class="<?=$class; ?>" <?=$href_attribute; ?>>
             <div class="messages__avatar-wrapper">
+                <?php if ($user['u_avatar']): ?>
                 <img class="messages__avatar" src="<?=$user['u_avatar']; ?>" width="60" height="60" alt="Аватар пользователя">
-                <?php if ($user['new_count']): ?>
+                <?php endif;
+                  if ($user['new_count']): ?>
                 <i class="messages__indicator"><?=htmlspecialchars($user['new_count']); ?></i>
                 <?php endif; ?>
             </div>
@@ -51,7 +53,9 @@
             <div class="messages__info-wrapper">
                 <div class="messages__item-avatar">
                 <a class="messages__author-link" href="/profile.php?id=<?=$message['u_id']; ?>">
+                    <?php if ($message['u_avatar']): ?>
                     <img class="messages__avatar" src="<?=$message['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
+                    <?php endif; ?>
                 </a>
                 </div>
                 <div class="messages__item-info">
@@ -76,7 +80,9 @@
         <form class="comments__form form" action="/messages.php?id=<?=$active_user_id; ?>" method="post">
             <input type="hidden" name="active-user-id" value="<?=$active_user_id; ?>">
             <div class="comments__my-avatar">
-            <img class="comments__picture" src="<?=$logged_user['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
+            <?php if ($logged_user['u_avatar']): ?>
+                <img class="comments__picture" src="<?=$logged_user['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
+            <?php endif; ?>
             </div>
             <div class="form__input-section <?php if(!empty($errors['message'])) echo 'form__input-section--error'; ?>">
             <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваше сообщение"></textarea>

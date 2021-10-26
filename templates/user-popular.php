@@ -111,8 +111,9 @@
                     <div class="post__author">
                         <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" width="40" height="auto" alt="Аватар пользователя">
+                                <?php if ($post['u_avatar']): ?>
+                                <img class="post__author-avatar" src="<?=$post['u_avatar']?>" width="40" height="auto" alt="Аватар пользователя">
+                                <?php endif; ?>
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
