@@ -87,11 +87,11 @@ foreach ($recipients as &$recipient) {
 unset($recipient);
 
 // Отсортируем полученный массив по полю с датой последнего сообщения
-function compare_date($a, $b) {
-    if ($a['dt_add'] == $b['dt_add']) {
+function compare_date($left, $right) {
+    if ($left['dt_add'] == $right['dt_add']) {
         return 0;
     }
-    return ($a['dt_add'] > $b['dt_add']) ? -1 : 1;;
+    return ($left['dt_add'] > $right['dt_add']) ? -1 : 1;;
 };
 
 usort($recipients, 'compare_date');
