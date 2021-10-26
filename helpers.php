@@ -1,4 +1,6 @@
 <?php
+
+error_reporting(E_ALL);
 /**
  * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
  *
@@ -302,7 +304,6 @@ function cut_excerpt_2($text, $max_length) {
     $text_length = mb_strlen($new_text);
     $new_text = mb_substr($new_text, 0, $max_length + 1);
     $position = mb_strrpos($new_text, ' ');
-        $position = mb_strrpos($new_text, ' ');
     if (!$position) {
         $position = $max_length + 1;
     }
@@ -368,10 +369,10 @@ function calc_time_interval($date_str) {
  * Увеличивает первый параметр на единицу, если второй параметр - истиный
 
  * @param int $number Исходное число
- * @param bool $cond
+ * @param bool $condition
 */
-function increment_by_condition($number, $cond) {
-    if ($cond) $number++;
+function increment_by_condition($number, $condition) {
+    if ($condition) $number++;
     return $number;
 }
 
@@ -433,17 +434,17 @@ function generate_passed_time_text($date) {
  */
 function set_connection() {
     // Устанавливаем соединение
-    $con = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
+    $link = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
 
-    if (!$con) {
+    if (!$link) {
         print('Ошибка подключения: ' . mysqli_connect_error());
         exit;
     };
 
     // Устанавливаем кодировку
-    mysqli_set_charset($con, 'utf8');
+    mysqli_set_charset($link, 'utf8');
 
-    return $con;
+    return $link;
 }
 
 /**
@@ -601,8 +602,8 @@ function validate_filled($value) {
  * @return string|null Текст сообщения об ошибке
  */
 function validate_min_length($value, $min) {
-    $leng = mb_strlen($value);
-    if ($leng < $min) {
+    $length = mb_strlen($value);
+    if ($length < $min) {
         return "Длина текста должна быть не менее $min символов";
     }
 }
@@ -630,11 +631,27 @@ function validate_hashtag($value) {
  * @return string Расширение файла (с точкой)
  */
 function get_file_ext($file_type) {
-    $type_arr = explode('/', $file_type);
-    return  '.' . array_pop($type_arr);
+    $type_parts = explode('/', $file_type);
+    return  '.' . array_pop($type_parts);
 }
 
 define('MAX_FILE_SIZE', 2097152); // 2Мб в байтах
+
+/**
+ * Функция - валидатор файла изображения. (Проверяет, что файл является изображением)
+ * @param string $path Путь к файлу
+ * @return string|null $message Текст сообщения об ошибке
+ */
+
+function validate_image_file($path) {
+    $message = null;
+    $required_types = ['image/jpeg', 'image/png', 'image/gif'];
+    $file_type = mime_content_type($path);
+    if (!in_array($file_type, $required_types)) {
+        $message = "Загрузите картинку в одном из форматов: gif, jpeg, png";
+    }
+    return $message;
+}
 
 /**
  * Функция - валидатор загруженного файла
@@ -645,12 +662,11 @@ function validate_file($file) {
     $message = null;
     if (!empty($file['name'])) {
         $file_path = $file['tmp_name'];
-        $required_types = ['image/jpeg', 'image/png', 'image/gif'];
-        $file_type = mime_content_type($file_path);
-        if (!in_array($file_type, $required_types)) {
-            $message = "Загрузите картинку в одном из форматов: gif, jpeg, png";
-        } elseif ($file['size'] > MAX_FILE_SIZE) {
-            $message = "Максимальный размер файла: 2Мб";
+        $message = validate_image_file($file_path);
+        if (!$message) {
+            if ($file['size'] > MAX_FILE_SIZE) {
+                $message = "Максимальный размер файла: 2Мб";
+            }
         }
     }
     return $message;
@@ -690,6 +706,9 @@ function validate_photo_url($value) {
                 $loaded_img = file_get_contents($value);
                 if (!$loaded_img) {
                     $message = "Не удалось загрузить файл по указанной ссылке";
+                } else {
+                    $tmp_path = save_file_to_uploads($value);
+                    $message = validate_image_file($tmp_path);
                 }
             }
         }
@@ -759,27 +778,12 @@ function rename_key($old_keys, $new_key, $arr) {
     $keys = array_keys($arr);
     $values = array_values($arr);
     foreach ($old_keys as $value) {
-        $key_ind = array_search($value, $keys);
-        if ($key_ind) {
-            $keys[$key_ind] = $new_key;
+        $key_index = array_search($value, $keys);
+        if ($key_index) {
+            $keys[$key_index] = $new_key;
             $arr = array_combine($keys, $values);
             break;
         }
     }
     return $arr;
-}
-
-/**
- * Отображает массив
- *
- * @param $var
- */
-function array_view($var) {
-?>
-
-	<div style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
-		<pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var,true)?></pre>
-	</div>
-
-<?php
 }
