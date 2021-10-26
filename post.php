@@ -128,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
-
 }
 
 $is_current_user = $user['id'] == $user_id;
@@ -156,4 +155,3 @@ $sql = 'UPDATE post SET watch_count = watch_count + 1
 WHERE id = ?;';
 
 $result = fetch_sql_response($con, $sql, [$post_id]);
-

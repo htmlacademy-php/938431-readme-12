@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Создаем запрос на запись нового пользователя
         $login = filter_var($form['login'], FILTER_DEFAULT);
         $password = password_hash($form['password'], PASSWORD_DEFAULT);
-        $avatar = $path ?? NULL;
+        $avatar = $path ?? null;
         $sql = "INSERT INTO user (
             email,
             u_password,

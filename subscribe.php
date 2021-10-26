@@ -39,7 +39,7 @@ if (empty($bind)) {
     $profile_user = mysqli_fetch_assoc($result);
 
     if (!empty($profile_user)) {
-    // Создаем запись в таблице связей subscription
+        // Создаем запись в таблице связей subscription
         $sql = "INSERT INTO subscription (user_id, subscriber_id) VALUES (?, ?);";
 
         $stmt = db_get_prepare_stmt($con, $sql, $data);
@@ -73,12 +73,12 @@ if (empty($bind)) {
         }
     }
 } else {
-        // Если нужная связь найдена - создаем запрос на ее удаление
-        $sql = "DELETE FROM subscription
+    // Если нужная связь найдена - создаем запрос на ее удаление
+    $sql = "DELETE FROM subscription
         WHERE id = ?";
 
-        $stmt = db_get_prepare_stmt($con, $sql, $bind);
-        $result = mysqli_stmt_execute($stmt);
+    $stmt = db_get_prepare_stmt($con, $sql, $bind);
+    $result = mysqli_stmt_execute($stmt);
 }
 
 header("Location: {$_SERVER['HTTP_REFERER']}");

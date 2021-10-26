@@ -24,7 +24,7 @@
                     <div class="post-mini__preview">
                       <a class="post-mini__link" href="/post.php?id=<?=$post['id'];?>" title="Перейти на публикацию">
                       <!-- Разные типы постов -->
-                      <?php switch($post['p_type']):
+                      <?php switch ($post['p_type']):
                       case 'photo': ?>
                       <!-- Фото -->
                         <div class="post-mini__image-wrapper">

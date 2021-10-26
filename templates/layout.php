@@ -44,24 +44,24 @@
                     ?>
                     <li class="header__my-page header__my-page--popular">
                         <?php if ($_SERVER['PHP_SELF'] == '/popular.php') {
-                            $class = $cls_active;
-                            $href = '';
-                        } else {
-                            $class = $link_cls;
-                            $href = 'href="/popular.php"';
-                        } ?>
+                        $class = $cls_active;
+                        $href = '';
+                    } else {
+                        $class = $link_cls;
+                        $href = 'href="/popular.php"';
+                    } ?>
                         <a class="<?=$class?>" <?=$href?> title="Популярный контент">
                             <span class="visually-hidden">Популярный контент</span>
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--feed">
                         <?php if ($_SERVER['PHP_SELF'] == '/feed.php') {
-                            $class = $cls_active;
-                            $href = '';
-                        } else {
-                            $class = $link_cls;
-                            $href = 'href="/feed.php"';
-                        } ?>
+                        $class = $cls_active;
+                        $href = '';
+                    } else {
+                        $class = $link_cls;
+                        $href = 'href="/feed.php"';
+                    } ?>
                         <a class="<?=$class?>" <?=$href?> title="Моя лента">
                             <span class="visually-hidden">Моя лента</span>
                         </a>

@@ -5,7 +5,9 @@
     <div class="messages__contacts">
         <ul class="messages__contacts-list tabs__list">
         <?php foreach ($recipients as $user): ?>
-        <li class="messages__contacts-item <?php if ($user['new_count']) echo ' messages__contacts-item--new'; ?>">
+        <li class="messages__contacts-item <?php if ($user['new_count']) {
+    echo ' messages__contacts-item--new';
+} ?>">
             <?php
                 $class = 'messages__contacts-tab tabs__item';
                 $href_attribute = 'href="' . update_query_params('id', $user['id']) . '"';
@@ -30,8 +32,8 @@
                 <div class="messages__preview">
                 <p class="messages__preview-text">
                     <?php if ($logged_user['id'] == $user['sender_id']) {
-                        echo 'Вы: ';
-                    }
+                      echo 'Вы: ';
+                  }
                      echo htmlspecialchars(cut_excerpt($user['m_content'], 25));
                     ?>
                 </p>
@@ -48,8 +50,10 @@
     <div class="messages__chat">
         <div class="messages__chat-wrapper">
         <ul class="messages__list tabs__content tabs__content--active">
-            <?php foreach($messages as $message): ?>
-            <li class="messages__item <?php if ($logged_user['id'] == $message['u_id']) echo ' messages__item--my'; ?>">
+            <?php foreach ($messages as $message): ?>
+            <li class="messages__item <?php if ($logged_user['id'] == $message['u_id']) {
+                        echo ' messages__item--my';
+                    } ?>">
             <div class="messages__info-wrapper">
                 <div class="messages__item-avatar">
                 <a class="messages__author-link" href="/profile.php?id=<?=$message['u_id']; ?>">
@@ -84,7 +88,9 @@
                 <img class="comments__picture" src="<?=$logged_user['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
             <?php endif; ?>
             </div>
-            <div class="form__input-section <?php if(!empty($errors['message'])) echo 'form__input-section--error'; ?>">
+            <div class="form__input-section <?php if (!empty($errors['message'])) {
+                        echo 'form__input-section--error';
+                    } ?>">
             <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваше сообщение"></textarea>
             <label class="visually-hidden">Ваше сообщение</label>
             <button class="form__error-button button" type="button">!</button>

@@ -3,7 +3,7 @@
   <?php foreach ($posts as $post): ?>
   <article class="profile__post post post-<?=$post['p_type'];?>">
     <header class="post__header">
-      <?php if($post['p_repost']): ?>
+      <?php if ($post['p_repost']): ?>
         <div class="post__author">
           <?php
             $author = $post['author'];
@@ -96,7 +96,9 @@
         <img class="comments__picture" src="<?=$current_user_avatar; ?>" alt="Аватар пользователя">
         <?php endif; ?>
       </div>
-      <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
+      <div class="form__input-section <?php if (!empty($errors['comment'])) {
+               echo 'form__input-section--error';
+           } ?>">
         <textarea class="comments__textarea form__textarea form__input"
         id="comment" name="comment" placeholder="Ваш комментарий"><?=get_post_value('comment'); ?></textarea>
         <label class="visually-hidden" for="comment">Ваш комментарий</label>
@@ -113,7 +115,7 @@
     <div class="comments">
       <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'cmts')?>">Показать комментарии</a>
     </div>
-    <? endif; ?>
+    <?php endif; ?>
   </article>
   <?php endforeach; ?>
 </section>

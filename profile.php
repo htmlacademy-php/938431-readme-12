@@ -36,7 +36,7 @@ WHERE id = ?;';
 $result = fetch_sql_response($con, $sql, [$profile_id]);
 $user_profile = mysqli_fetch_assoc($result);
 
-if(!$user_profile) {
+if (!$user_profile) {
     http_response_code(404);
     exit;
 }
@@ -60,7 +60,7 @@ $tab_types = [
 $tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_SPECIAL_CHARS) ?? 'posts';
 $get_params = $_GET;
 
-switch($tab) {
+switch ($tab) {
     // Вкладка ЛАЙКИ
     case 'likes':
         // Создаем запрос на получение постов пользователя у которых есть лайки
@@ -89,7 +89,7 @@ switch($tab) {
 
         // Для каждого поста получаем данные о последнем лайке и добавляем в массив $post
         foreach ($posts as &$post) {
-           $sql_like = "SELECT
+            $sql_like = "SELECT
                 post_like.dt_add AS l_dt,
                 user_id AS l_user,
                 u_avatar,
@@ -195,7 +195,6 @@ switch($tab) {
             // Добавляем полученные данные в массив $post
             $q_param = 'post' . $post['id'];
             if (array_key_exists($q_param, $get_params)) {
-
                 if ($get_params[$q_param] === 'cmts_all') {
                     $constraint = ';';
                 } else {

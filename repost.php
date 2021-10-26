@@ -95,4 +95,3 @@ if (!empty($post)) {
 
     header("Location: http://readme/profile.php?id=" . $user['id']);
 }
-

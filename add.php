@@ -33,7 +33,7 @@ $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $active_type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING) ?? 'text';
 
 // Добавляем каждому типу поста ключ "url" для атрибута href ссылки
-foreach ($types AS &$type) {
+foreach ($types as &$type) {
     $type['url'] = update_query_params('type', $type['t_class']);
 };
 unset($type);
@@ -41,7 +41,6 @@ unset($type);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
     $options = [
         'required' => ['title'],
         'filters' => ['title' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
@@ -71,16 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ];
 
     $rules = [
-        'photo-url' => function($value) {
+        'photo-url' => function ($value) {
             return validate_photo_url($value);
         },
-        'post-link' => function($value) {
+        'post-link' => function ($value) {
             return validate_url($value);
         },
-        'tags' => function($value) {
+        'tags' => function ($value) {
             return validate_hashtag($value);
         },
-        'video-url' => function($value) {
+        'video-url' => function ($value) {
             return validate_video_url($value);
         }
     ];
@@ -114,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $path = replace_file_to_uploads($file_photo);
                 $post['photo-url'] = $path;
             } else {
-            // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
+                // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
                 $tmp_path = save_file_to_uploads($value);
                 $file_type = mime_content_type($tmp_path);
                 $file_ext = get_file_ext($file_type);
@@ -144,10 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post = rename_key($url_keys, 'url', $post);
 
         $empty_data = [
-            'title' => NULL,
-            'url' => NULL,
-            'text' => NULL,
-            'quote-author' => NULL,
+            'title' => null,
+            'url' => null,
+            'text' => null,
+            'quote-author' => null,
             'user_id' => $user['id']
         ];
 
@@ -206,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_stmt_execute($stmt);
                 }
             }
-        //  Если доступен почтовый сервер, отправляем сообщения подписчикам о публикации нового поста
+            //  Если доступен почтовый сервер, отправляем сообщения подписчикам о публикации нового поста
             try {
                 $transport->start();
                 $sql = "SELECT
@@ -247,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } catch (\Swift_TransportException $ex) {
                 $_SESSION['email_error'] = $ex->getMessage();
             }
-        // Перенаправляем на страницу просмотра поста
+            // Перенаправляем на страницу просмотра поста
             header("Location: http://readme/post.php?id=" . $post_id);
             exit;
         } else {

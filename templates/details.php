@@ -56,7 +56,9 @@
                 <img class="comments__picture" src="<?=$current_user_avatar; ?>" width="40" height="40" alt="Аватар пользователя">
                 <?php endif; ?>
               </div>
-              <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
+              <div class="form__input-section <?php if (!empty($errors['comment'])) {
+    echo 'form__input-section--error';
+} ?>">
                 <textarea class="comments__textarea form__textarea form__input"
                 id="comment" name="comment" placeholder="Ваш комментарий"><?=get_post_value('comment'); ?></textarea>
                 <label class="visually-hidden" for="comment">Ваш комментарий</label>

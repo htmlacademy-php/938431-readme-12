@@ -160,7 +160,8 @@ function check_youtube_url($url)
 {
     $id = extract_youtube_id($url);
 
-    set_error_handler(function () {}, E_WARNING);
+    set_error_handler(function () {
+    }, E_WARNING);
     $headers = get_headers('https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=' . $id);
     restore_error_handler();
 
@@ -273,7 +274,8 @@ function generate_random_date($index)
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function cut_excerpt($text, $max_length) {
+function cut_excerpt($text, $max_length)
+{
     $new_text = trim($text);
     $text_length = mb_strlen($new_text);
     $new_text = mb_substr($new_text, 0, $max_length + 1);
@@ -296,7 +298,8 @@ function cut_excerpt($text, $max_length) {
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function text_template($text, $max_length = 200) {
+function text_template($text, $max_length = 200)
+{
     if (mb_strlen($text) <= $max_length) {
         $result = '<p>' . htmlspecialchars($text) . '</p>';
     } else {
@@ -312,7 +315,8 @@ function text_template($text, $max_length = 200) {
 
  * @param array $elements - Исходный массив
 */
-function add_dates($elements) {
+function add_dates($elements)
+{
     foreach ($elements as $key => $element) {
         $elements[$key]['date_add'] = generate_random_date($key);
     }
@@ -323,7 +327,8 @@ function add_dates($elements) {
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
 */
-function format_date($date) {
+function format_date($date)
+{
     $date = date_create($date);
 
     return date_format($date, 'd-m-Y H:i');
@@ -333,7 +338,8 @@ function format_date($date) {
  * Возвращает интервал времени между текущей датой и заданной
  * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
 */
-function calc_time_interval($date_str) {
+function calc_time_interval($date_str)
+{
     $target_date = date_create('now');
     $origin_date = date_create($date_str);
     return date_diff($origin_date, $target_date);
@@ -345,8 +351,11 @@ function calc_time_interval($date_str) {
  * @param int $number Исходное число
  * @param bool $condition
 */
-function increment_by_condition($number, $condition) {
-    if ($condition) $number++;
+function increment_by_condition($number, $condition)
+{
+    if ($condition) {
+        $number++;
+    }
     return $number;
 }
 
@@ -358,7 +367,8 @@ function increment_by_condition($number, $condition) {
  * @param object $interval Экземпляр DateInterval
  * @return string Временной интервал в человекочитаемом виде
 */
-function generate_interval_text($interval) {
+function generate_interval_text($interval)
+{
     $week = 7; // 7 суток
     $passed_seconds = $interval -> s;
     $passed_minutes = $interval -> i;
@@ -370,20 +380,16 @@ function generate_interval_text($interval) {
     if (!$passed_months and !$passed_weeks and !$passed_days and !$passed_hours) {
         $result = increment_by_condition($passed_minutes, $passed_seconds);
         $result .= get_noun_plural_form($result, ' минута', ' минуты', ' минут');
-
-    } else if (!$passed_months and !$passed_weeks and !$passed_days) {
+    } elseif (!$passed_months and !$passed_weeks and !$passed_days) {
         $result = increment_by_condition($passed_hours, $passed_minutes);
         $result .= get_noun_plural_form($result, ' час', ' часа', ' часов');
-
-    } else if (!$passed_months and !$passed_weeks) {
+    } elseif (!$passed_months and !$passed_weeks) {
         $result = increment_by_condition($passed_days, $passed_hours);
         $result .= get_noun_plural_form($result, ' день', ' дня', ' дней');
-
-    } else if (!$passed_months) {
+    } elseif (!$passed_months) {
         $result = increment_by_condition($passed_weeks, $passed_days);
 
         $result .= get_noun_plural_form($result, ' неделя', ' недели', ' недель');
-
     } else {
         $result = increment_by_condition($passed_months, $passed_weeks);
         $result .= get_noun_plural_form($result, ' месяц', ' месяца', ' месяцев');
@@ -397,7 +403,8 @@ function generate_interval_text($interval) {
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
  * @return string
 */
-function generate_passed_time_text($date) {
+function generate_passed_time_text($date)
+{
     $interval = calc_time_interval($date);
     return generate_interval_text($interval);
 }
@@ -406,7 +413,8 @@ function generate_passed_time_text($date) {
  * Устанавливает соединение с базой readme, устанавливает кодировку и Ресурс соединения
  * @return mysqli Ресурс соединения
  */
-function set_connection() {
+function set_connection()
+{
     // Устанавливаем соединение
     $link = mysqli_connect('localhost', 'mysql', 'mysql', 'readme');
 
@@ -429,8 +437,9 @@ function set_connection() {
  *
  * @return mysqli Объект результата
  */
-function fetch_sql_response($link, $sql, $data) {
-   $stmt = db_get_prepare_stmt($link, $sql, $data);
+function fetch_sql_response($link, $sql, $data)
+{
+    $stmt = db_get_prepare_stmt($link, $sql, $data);
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
@@ -450,7 +459,8 @@ function fetch_sql_response($link, $sql, $data) {
  *
  * @return array $hashtags Массив хэштегов
  */
-function fetch_hashtags($link, $post_id) {
+function fetch_hashtags($link, $post_id)
+{
     $sql = "SELECT title
     FROM hashtag
     INNER JOIN post_hashtag
@@ -467,22 +477,23 @@ function fetch_hashtags($link, $post_id) {
  * @param $post array Массив с данными о посте
  * @return string Итоговый HTML
  */
-function choose_post_template($post) {
+function choose_post_template($post)
+{
     $result = '';
     switch ($post['p_type']) {
         case 'link':
             $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
             break;
-        case 'photo';
+        case 'photo':
             $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
             break;
-        case 'quote';
+        case 'quote':
             $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
             break;
-        case 'text';
+        case 'text':
             $result = include_template('details-text.php', ['text' => $post['p_text']]);
             break;
-        case 'video';
+        case 'video':
             $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
             break;
     };
@@ -495,7 +506,8 @@ function choose_post_template($post) {
  * @param $post array Массив с данными о посте
  * @return string Итоговый HTML
  */
-function generate_post_template($post) {
+function generate_post_template($post)
+{
     $type = $post['p_type'];
     $result = '';
     switch ($type) {
@@ -527,7 +539,8 @@ function generate_post_template($post) {
  * @param string|integer $value Значение параметра запроса
  * @return string url-адрес с обновленными параметрами запроса
  */
-function update_query_params($key, $value) {
+function update_query_params($key, $value)
+{
     $params = $_GET;
 
     if ($value) {
@@ -545,7 +558,8 @@ function update_query_params($key, $value) {
  * @param string $name Имя поля формы
  * @return string|null Значение поля
  */
-function get_post_value($name) {
+function get_post_value($name)
+{
     return filter_input(INPUT_POST, $name) ?? '';
 }
 
@@ -554,7 +568,8 @@ function get_post_value($name) {
  * @param string $name Имя поля формы
  * @return string|null Значение поля
  */
-function get_text_value($name) {
+function get_text_value($name)
+{
     $search = filter_input(INPUT_GET, $name) ?? '';
     return trim($search);
 }
@@ -564,7 +579,8 @@ function get_text_value($name) {
  * @param string $value Значение поля формы
  * @return string|null Текст сообщения об ошибке
  */
-function validate_filled($value) {
+function validate_filled($value)
+{
     if (empty($value)) {
         return "Это поле должно быть заполнено";
     }
@@ -575,7 +591,8 @@ function validate_filled($value) {
  * @param string $value Значение поля формы
  * @return string|null Текст сообщения об ошибке
  */
-function validate_min_length($value, $min) {
+function validate_min_length($value, $min)
+{
     $length = mb_strlen($value);
     if ($length < $min) {
         return "Длина текста должна быть не менее $min символов";
@@ -587,9 +604,10 @@ function validate_min_length($value, $min) {
  * @param string $value Значение поля формы
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_hashtag($value) {
+function validate_hashtag($value)
+{
     $message = null;
-    $words = explode( " ", $value);
+    $words = explode(" ", $value);
     foreach ($words as $value) {
         if (!preg_match("/^#\w+$/ui", $value)) {
             $message = "Теги должны быть разделены пробелами и начинаться с #. Теги могут состоять из букв, цифр и символа подчеркивания.";
@@ -604,7 +622,8 @@ function validate_hashtag($value) {
  * @param array $file_type MIME-тип файла
  * @return string Расширение файла (с точкой)
  */
-function get_file_ext($file_type) {
+function get_file_ext($file_type)
+{
     $type_parts = explode('/', $file_type);
     return  '.' . array_pop($type_parts);
 }
@@ -617,7 +636,8 @@ define('MAX_FILE_SIZE', 2097152); // 2Мб в байтах
  * @return string|null $message Текст сообщения об ошибке
  */
 
-function validate_image_file($path) {
+function validate_image_file($path)
+{
     $message = null;
     $required_types = ['image/jpeg', 'image/png', 'image/gif'];
     $file_type = mime_content_type($path);
@@ -632,7 +652,8 @@ function validate_image_file($path) {
  * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_file($file) {
+function validate_file($file)
+{
     $message = null;
     if (!empty($file['name'])) {
         $file_path = $file['tmp_name'];
@@ -652,7 +673,8 @@ function validate_file($file) {
  * @return string|null $message Текст сообщения об ошибке
  */
 
-function validate_url($value) {
+function validate_url($value)
+{
     $message = null;
     if (!filter_var($value, FILTER_VALIDATE_URL)) {
         $message = "Указан некорректный URL-адрес";
@@ -665,7 +687,8 @@ function validate_url($value) {
  * @param string $value url-адрес
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_photo_url($value) {
+function validate_photo_url($value)
+{
     $message = null;
     // Если не загружен файл - проверяем наличие ссылки
     if (empty($_FILES['file']['name'])) {
@@ -695,7 +718,8 @@ function validate_photo_url($value) {
  * @param string $file_url url-адрес
  * @return string $path Путь к файлу на сервере
  */
-function save_file_to_uploads($file_url) {
+function save_file_to_uploads($file_url)
+{
     $uploaded_file = file_get_contents($file_url);
     $filename = uniqid();
     $path = 'uploads/' . $filename;
@@ -708,7 +732,8 @@ function save_file_to_uploads($file_url) {
  * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
  * @return string $path Путь к файлу на сервере
  */
-function replace_file_to_uploads($file) {
+function replace_file_to_uploads($file)
+{
     $file_type = mime_content_type($file['tmp_name']);
     $filename = uniqid() . get_file_ext($file_type);
     $path = 'uploads/' . $filename;
@@ -721,7 +746,8 @@ function replace_file_to_uploads($file) {
  * @param string $value url-адрес
  * @return string|null $message Текст сообщения об ошибке
  */
-function validate_video_url($value) {
+function validate_video_url($value)
+{
     $message = validate_url($value);
     if (!$message) {
         $result = check_youtube_url($value);
@@ -737,7 +763,8 @@ function validate_video_url($value) {
  * @param string $url url-адрес
  * @return string $fav_url Адрес к фавиконке
  */
-function generate_favicon_url($url) {
+function generate_favicon_url($url)
+{
     $parts = parse_url($url);
     return $parts['scheme'] . '://' . $parts['host'] . '/favicon.ico';
 }
@@ -748,7 +775,8 @@ function generate_favicon_url($url) {
  * @param string $new_key Новое имя ключа
  * @return array Массив с переименованным ключом
  */
-function rename_key($old_keys, $new_key, $arr) {
+function rename_key($old_keys, $new_key, $arr)
+{
     $keys = array_keys($arr);
     $values = array_values($arr);
     foreach ($old_keys as $value) {
