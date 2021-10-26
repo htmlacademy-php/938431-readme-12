@@ -9,6 +9,7 @@ if (!$user) {
 }
 
 require_once('helpers.php');
+require_once('mail-init.php');
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -44,15 +45,40 @@ if (empty($bind)) {
         $stmt = db_get_prepare_stmt($con, $sql, $data);
         $result = mysqli_stmt_execute($stmt);
 
-    // TODO: Отправить сообщение пользователю о новом подписчике
+        if ($result) {
+            try {
+                $transport->start();
+                // Отправляем сообщение пользователю о новом подписчике
+                $subscriber_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
+                $recipient = [];
+                $recipient[$profile_user['email']] = $profile_user['u_name'];
+
+                $message = new Swift_Message();
+                $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
+                $message->setTo($recipient);
+                $message->setSubject('У вас новый подписчик');
+                $text_message = 'На вас подписался новый пользователь ' .$user['u_name'] . '. Вот ссылка на его профиль: ';
+
+                $message_content = include_template('subscriber-email.php', [
+                    'recipient_name' => $profile_user['u_name'],
+                    'text' => $text_message,
+                    'url' => $subscriber_url
+                ]);
+
+                $message->setBody($message_content, 'text/html');
+                $result = $mailer->send($message);
+            } catch (\Swift_TransportException $ex) {
+                $_SESSION['email_error'] = $ex->getMessage();
+            }
+        }
     }
 } else {
-    // Если нужная связь найдена - создаем запрос на ее удаление
-    $sql = "DELETE FROM subscription
-    WHERE id = ?";
+        // Если нужная связь найдена - создаем запрос на ее удаление
+        $sql = "DELETE FROM subscription
+        WHERE id = ?";
 
-    $stmt = db_get_prepare_stmt($con, $sql, $bind);
-    $result = mysqli_stmt_execute($stmt);
+        $stmt = db_get_prepare_stmt($con, $sql, $bind);
+        $result = mysqli_stmt_execute($stmt);
 }
 
 header("Location: {$_SERVER['HTTP_REFERER']}");

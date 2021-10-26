@@ -9,6 +9,7 @@ if (!$user) {
 }
 
 require_once('helpers.php');
+require_once('mail-init.php');
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -206,6 +207,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_stmt_execute($stmt);
                 }
             }
+        //  Если доступен почтовый сервер, отправляем сообщения подписчикам о публикации нового поста
+            try {
+                $transport->start();
+                $sql = "SELECT
+                    subscriber_id,
+                    u_name,
+                    email
+                FROM subscription
+                INNER JOIN user
+                    ON user.id = subscriber_id
+                WHERE user_id = ?;";
+
+                $author_id = $user['id'];
+                $result = fetch_sql_response($con, $sql, [$author_id]);
+                if ($result && mysqli_num_rows($result)) {
+                    $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+                    $text_message = 'Пользователь ' . $user['u_name'] .'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
+                    $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
+
+                    foreach ($subscribers as $subscriber) {
+                        $recipient = [];
+                        $recipient[$subscriber['email']] = $subscriber['u_name'];
+                        $message = new Swift_Message();
+                        $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
+                        $message->setTo($recipient);
+                        $message->setSubject('Новая публикация от пользователя' . $user['u_name']);
+
+                        $message_content = include_template('subscriber-email.php', [
+                            'recipient_name' => $subscriber['u_name'],
+                            'text' => $text_message,
+                            'url' => $author_url
+                        ]);
+
+                        $message->setBody($message_content, 'text/html');
+                        $result = $mailer->send($message);
+                    }
+                }
+            } catch (\Swift_TransportException $ex) {
+                $_SESSION['email_error'] = $ex->getMessage();
+            }
         // Перенаправляем на страницу просмотра поста
             header("Location: http://readme/post.php?id=" . $post_id);
             exit;
@@ -253,8 +295,6 @@ $content = include_template('adding-post.php', [
 ]);
 
 $title = 'readme: добавление публикации';
-$is_auth = rand(0, 1);
-$user_name = 'Юлия'; // укажите здесь ваше имя
 
 $layout = include_template('layout.php', [
     'page_content' => $content,
