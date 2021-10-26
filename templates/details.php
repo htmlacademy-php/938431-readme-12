@@ -48,6 +48,7 @@
             </div>
           </div>
           <div class="comments">
+            <?php if (!$is_current_user): ?>
             <form class="comments__form form" action="/post.php?id=<?=$post['id']; ?>" method="post">
                 <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
               <div class="comments__my-avatar">
@@ -65,6 +66,7 @@
               </div>
               <button class="comments__submit button button--green" type="submit">Отправить</button>
             </form>
+            <?php endif; ?>
             <div class="comments__list-wrapper">
               <ul class="comments__list" id="comments">
                 <?php foreach ($comments as $comment): ?>
