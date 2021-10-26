@@ -42,31 +42,31 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $opts = [
+    $options = [
         'required' => ['title'],
         'filters' => ['title' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
     ];
 
     $form_options = [
         'link' => [
-            'required' => array_merge($opts['required'], ['post-link']),
-            'filters' => array_merge($opts['filters'], ['post-link' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['post-link']),
+            'filters' => array_merge($options['filters'], ['post-link' => FILTER_DEFAULT])
         ],
         'photo' => [
-            'required' => $opts['required'],
-            'filters' => array_merge($opts['filters'], ['photo-url' =>  FILTER_DEFAULT])
+            'required' => $options['required'],
+            'filters' => array_merge($options['filters'], ['photo-url' =>  FILTER_DEFAULT])
         ],
         'quote' => [
-            'required' => array_merge($opts['required'], ['quote-text', 'quote-author']),
-            'filters' => array_merge($opts['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['quote-text', 'quote-author']),
+            'filters' => array_merge($options['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
         ],
         'text' => [
-            'required' => array_merge($opts['required'], ['post-text']),
-            'filters' => array_merge($opts['filters'], ['post-text' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['post-text']),
+            'filters' => array_merge($options['filters'], ['post-text' => FILTER_DEFAULT])
         ],
         'video' => [
-            'required' => array_merge($opts['required'], ['video-url']),
-            'filters' => array_merge($opts['filters'], ['video-url' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['video-url']),
+            'filters' => array_merge($options['filters'], ['video-url' => FILTER_DEFAULT])
         ]
     ];
 
@@ -88,8 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $active_type = get_post_value('post-type');
     $options = $form_options[$active_type];
     $required = $options['required'];
-    $p_filters = $options['filters'];
-    $post = filter_input_array(INPUT_POST, $p_filters, true);
+    $post_filters = $options['filters'];
+    $post = filter_input_array(INPUT_POST, $post_filters, true);
 
     foreach ($post as $key => $value) {
         if (in_array($key, $required)) {
@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post['type_id'] = $type_id;
 
         // Сохраняем значение поля хэштеги в отдельную переменную, а из массива $post это поле удаляем
-        $hash_str = $post['tags'];
+        $hash_str = trim($post['tags']);
         unset($post['tags']);
 
         // Переименовываем ключи 'post-text' и 'quote-text' => 'text'
@@ -171,8 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // В случае успеха отправляем запросы на запись хэштегов к посту
         if ($result) {
             $post_id = mysqli_insert_id($con);
-            $hashtags = explode(' ', str_replace('#', '', $hash_str));
-
+            $hashtags = $hash_str ? explode(' ', str_replace('#', '', $hash_str)) : [];
             // Запрос на получение id хэштега
             $sql_get_hashid = "SELECT id FROM hashtag
             WHERE title = ?;";
