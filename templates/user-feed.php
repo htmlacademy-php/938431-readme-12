@@ -12,7 +12,9 @@
                 <header class="post__header post__author">
                     <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                     <div class="post__avatar-wrapper">
+                        <?php if ($post['u_avatar']): ?>
                         <img class="post__author-avatar" src="<?=$post['u_avatar']?>" alt="Аватар пользователя" width="60" height="60">
+                        <?php endif; ?>
                     </div>
                     <div class="post__info">
                         <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
@@ -62,13 +64,17 @@
         </div>
         <ul class="feed__filters filters">
         <li class="feed__filters-item filters__item">
-            <a class="filters__button <? if (!$filter) echo ' filters__button--active';?>" href="/feed.php?filter=0">
+            <a class="filters__button <?php if (!$filter) {
+    echo ' filters__button--active';
+}?>" href="/feed.php?filter=0">
             <span>Все</span>
             </a>
         </li>
         <?php foreach ($types as $type): ?>
         <li class="feed__filters-item filters__item">
-            <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter == $type['id']) echo 'filters__button--active' ?> button" href="/feed.php?filter=<?=$type['id']?>">
+            <a class="filters__button filters__button--<?=$type['p_type']?> <?php if ($filter == $type['id']) {
+    echo 'filters__button--active';
+} ?> button" href="/feed.php?filter=<?=$type['id']?>">
             <span class="visually-hidden"><?=$type['t_title']?></span>
             <svg class="filters__icon" width="22" height="18">
                 <use xlink:href="#icon-filter-<?=$type['p_type'] ?>"></use>

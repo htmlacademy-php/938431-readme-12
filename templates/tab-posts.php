@@ -3,14 +3,16 @@
   <?php foreach ($posts as $post): ?>
   <article class="profile__post post post-<?=$post['p_type'];?>">
     <header class="post__header">
-      <?php if($post['p_repost']): ?>
+      <?php if ($post['p_repost']): ?>
         <div class="post__author">
           <?php
             $author = $post['author'];
           ?>
           <a class="post__author-link" href="/profile.php?id=<?=$author['id']; ?>" title="Автор">
             <div class="post__avatar-wrapper post__avatar-wrapper--repost">
+              <?php if ($author['u_avatar']): ?>
               <img class="post__author-avatar" src="<?=$author['u_avatar']; ?>" alt="Аватар пользователя">
+              <?php endif; ?>
             </div>
             <div class="post__info">
               <b class="post__author-name">Репост: <?=$author['u_name']; ?></b>
@@ -61,7 +63,9 @@
           <li class="comments__item user">
             <div class="comments__avatar">
               <a class="user__avatar-link" href="/profile.php?id=<?=$comment['user_id']; ?>">
+                <?php if ($comment['u_avatar']): ?>
                 <img class="comments__picture" src="<?=$comment['u_avatar']; ?>" alt="Аватар пользователя">
+                <?php endif; ?>
               </a>
             </div>
             <div class="comments__info">
@@ -88,9 +92,13 @@
     <form class="comments__form form" action="" method="post">
     <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
       <div class="comments__my-avatar">
+        <?php if ($current_user_avatar): ?>
         <img class="comments__picture" src="<?=$current_user_avatar; ?>" alt="Аватар пользователя">
+        <?php endif; ?>
       </div>
-      <div class="form__input-section <?php if(!empty($errors['comment'])) echo 'form__input-section--error' ?>">
+      <div class="form__input-section <?php if (!empty($errors['comment'])) {
+               echo 'form__input-section--error';
+           } ?>">
         <textarea class="comments__textarea form__textarea form__input"
         id="comment" name="comment" placeholder="Ваш комментарий"><?=get_post_value('comment'); ?></textarea>
         <label class="visually-hidden" for="comment">Ваш комментарий</label>
@@ -107,7 +115,7 @@
     <div class="comments">
       <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'cmts')?>">Показать комментарии</a>
     </div>
-    <? endif; ?>
+    <?php endif; ?>
   </article>
   <?php endforeach; ?>
 </section>

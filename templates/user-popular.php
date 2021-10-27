@@ -24,13 +24,17 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <? if (!$filter) echo ' filters__button--active';?>" href="/popular.php?filter=0">
+                        <?php if (!$filter) {
+    echo ' filters__button--active';
+}?>" href="/popular.php?filter=0">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type['p_type']?> <? if ($filter === $type['id']) echo 'filters__button--active' ?>
+                        <a class="filters__button filters__button--<?=$type['p_type']?> <?php if ($filter === $type['id']) {
+    echo 'filters__button--active';
+} ?>
                          button" href="/popular.php?filter=<?=$type['id']?>">
                             <span class="visually-hidden"><?=$type['t_title']?></span>
                             <svg class="filters__icon"
@@ -53,7 +57,7 @@
                 </header>
                 <div class="post__main">
                     <!-- Разные типы постов -->
-                    <?php switch($post['p_type']):
+                    <?php switch ($post['p_type']):
                     case 'quote': ?>
                     <!-- Цитата -->
                     <blockquote>
@@ -61,7 +65,7 @@
                         <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                     </blockquote>
                     <?php break; ?>
-                    <? case 'text':
+                    <?php case 'text':
                     // Текст
                         echo text_template($post['p_text']);
                         break;
@@ -111,8 +115,9 @@
                     <div class="post__author">
                         <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="<?= $post['u_avatar'] ?>" width="40" height="auto" alt="Аватар пользователя">
+                                <?php if ($post['u_avatar']): ?>
+                                <img class="post__author-avatar" src="<?=$post['u_avatar']?>" width="40" height="auto" alt="Аватар пользователя">
+                                <?php endif; ?>
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>

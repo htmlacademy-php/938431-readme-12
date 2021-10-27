@@ -1,0 +1,8 @@
+{
+    "name": "elagina/readme",
+    "description": "Service for publishing posts on the blog",
+    "type": "project",
+    "require": {
+        "swiftmailer/swiftmailer": "^6.3"
+    }
+}

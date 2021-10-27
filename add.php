@@ -9,6 +9,7 @@ if (!$user) {
 }
 
 require_once('helpers.php');
+require_once('mail-init.php');
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -32,7 +33,7 @@ $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $active_type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING) ?? 'text';
 
 // Добавляем каждому типу поста ключ "url" для атрибута href ссылки
-foreach ($types AS &$type) {
+foreach ($types as &$type) {
     $type['url'] = update_query_params('type', $type['t_class']);
 };
 unset($type);
@@ -40,46 +41,45 @@ unset($type);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $opts = [
+    $options = [
         'required' => ['title'],
         'filters' => ['title' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
     ];
 
     $form_options = [
         'link' => [
-            'required' => array_merge($opts['required'], ['post-link']),
-            'filters' => array_merge($opts['filters'], ['post-link' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['post-link']),
+            'filters' => array_merge($options['filters'], ['post-link' => FILTER_DEFAULT])
         ],
         'photo' => [
-            'required' => $opts['required'],
-            'filters' => array_merge($opts['filters'], ['photo-url' =>  FILTER_DEFAULT])
+            'required' => $options['required'],
+            'filters' => array_merge($options['filters'], ['photo-url' =>  FILTER_DEFAULT])
         ],
         'quote' => [
-            'required' => array_merge($opts['required'], ['quote-text', 'quote-author']),
-            'filters' => array_merge($opts['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['quote-text', 'quote-author']),
+            'filters' => array_merge($options['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
         ],
         'text' => [
-            'required' => array_merge($opts['required'], ['post-text']),
-            'filters' => array_merge($opts['filters'], ['post-text' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['post-text']),
+            'filters' => array_merge($options['filters'], ['post-text' => FILTER_DEFAULT])
         ],
         'video' => [
-            'required' => array_merge($opts['required'], ['video-url']),
-            'filters' => array_merge($opts['filters'], ['video-url' => FILTER_DEFAULT])
+            'required' => array_merge($options['required'], ['video-url']),
+            'filters' => array_merge($options['filters'], ['video-url' => FILTER_DEFAULT])
         ]
     ];
 
     $rules = [
-        'photo-url' => function($value) {
+        'photo-url' => function ($value) {
             return validate_photo_url($value);
         },
-        'post-link' => function($value) {
+        'post-link' => function ($value) {
             return validate_url($value);
         },
-        'tags' => function($value) {
+        'tags' => function ($value) {
             return validate_hashtag($value);
         },
-        'video-url' => function($value) {
+        'video-url' => function ($value) {
             return validate_video_url($value);
         }
     ];
@@ -87,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $active_type = get_post_value('post-type');
     $options = $form_options[$active_type];
     $required = $options['required'];
-    $p_filters = $options['filters'];
-    $post = filter_input_array(INPUT_POST, $p_filters, true);
+    $post_filters = $options['filters'];
+    $post = filter_input_array(INPUT_POST, $post_filters, true);
 
     foreach ($post as $key => $value) {
         if (in_array($key, $required)) {
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $path = replace_file_to_uploads($file_photo);
                 $post['photo-url'] = $path;
             } else {
-            // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
+                // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
                 $tmp_path = save_file_to_uploads($value);
                 $file_type = mime_content_type($tmp_path);
                 $file_ext = get_file_ext($file_type);
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post['type_id'] = $type_id;
 
         // Сохраняем значение поля хэштеги в отдельную переменную, а из массива $post это поле удаляем
-        $hash_str = $post['tags'];
+        $hash_str = trim($post['tags']);
         unset($post['tags']);
 
         // Переименовываем ключи 'post-text' и 'quote-text' => 'text'
@@ -143,10 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post = rename_key($url_keys, 'url', $post);
 
         $empty_data = [
-            'title' => NULL,
-            'url' => NULL,
-            'text' => NULL,
-            'quote-author' => NULL,
+            'title' => null,
+            'url' => null,
+            'text' => null,
+            'quote-author' => null,
             'user_id' => $user['id']
         ];
 
@@ -170,8 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // В случае успеха отправляем запросы на запись хэштегов к посту
         if ($result) {
             $post_id = mysqli_insert_id($con);
-            $hashtags = explode(' ', str_replace('#', '', $hash_str));
-
+            $hashtags = $hash_str ? explode(' ', str_replace('#', '', $hash_str)) : [];
             // Запрос на получение id хэштега
             $sql_get_hashid = "SELECT id FROM hashtag
             WHERE title = ?;";
@@ -206,7 +205,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_stmt_execute($stmt);
                 }
             }
-        // Перенаправляем на страницу просмотра поста
+            //  Если доступен почтовый сервер, отправляем сообщения подписчикам о публикации нового поста
+            try {
+                $transport->start();
+                $sql = "SELECT
+                    subscriber_id,
+                    u_name,
+                    email
+                FROM subscription
+                INNER JOIN user
+                    ON user.id = subscriber_id
+                WHERE user_id = ?;";
+
+                $author_id = $user['id'];
+                $result = fetch_sql_response($con, $sql, [$author_id]);
+                if ($result && mysqli_num_rows($result)) {
+                    $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+                    $text_message = 'Пользователь ' . $user['u_name'] .'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
+                    $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
+
+                    foreach ($subscribers as $subscriber) {
+                        $recipient = [];
+                        $recipient[$subscriber['email']] = $subscriber['u_name'];
+                        $message = new Swift_Message();
+                        $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
+                        $message->setTo($recipient);
+                        $message->setSubject('Новая публикация от пользователя' . $user['u_name']);
+
+                        $message_content = include_template('subscriber-email.php', [
+                            'recipient_name' => $subscriber['u_name'],
+                            'text' => $text_message,
+                            'url' => $author_url
+                        ]);
+
+                        $message->setBody($message_content, 'text/html');
+                        $result = $mailer->send($message);
+                    }
+                }
+            } catch (\Swift_TransportException $ex) {
+                $_SESSION['email_error'] = $ex->getMessage();
+            }
+            // Перенаправляем на страницу просмотра поста
             header("Location: http://readme/post.php?id=" . $post_id);
             exit;
         } else {
@@ -253,8 +293,6 @@ $content = include_template('adding-post.php', [
 ]);
 
 $title = 'readme: добавление публикации';
-$is_auth = rand(0, 1);
-$user_name = 'Юлия'; // укажите здесь ваше имя
 
 $layout = include_template('layout.php', [
     'page_content' => $content,

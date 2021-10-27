@@ -44,30 +44,30 @@
                     ?>
                     <li class="header__my-page header__my-page--popular">
                         <?php if ($_SERVER['PHP_SELF'] == '/popular.php') {
-                            $class = $cls_active;
-                            $href = '';
-                        } else {
-                            $class = $link_cls;
-                            $href = 'href="/popular.php"';
-                        } ?>
+                        $class = $cls_active;
+                        $href = '';
+                    } else {
+                        $class = $link_cls;
+                        $href = 'href="/popular.php"';
+                    } ?>
                         <a class="<?=$class?>" <?=$href?> title="Популярный контент">
                             <span class="visually-hidden">Популярный контент</span>
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--feed">
                         <?php if ($_SERVER['PHP_SELF'] == '/feed.php') {
-                            $class = $cls_active;
-                            $href = '';
-                        } else {
-                            $class = $link_cls;
-                            $href = 'href="/feed.php"';
-                        } ?>
+                        $class = $cls_active;
+                        $href = '';
+                    } else {
+                        $class = $link_cls;
+                        $href = 'href="/feed.php"';
+                    } ?>
                         <a class="<?=$class?>" <?=$href?> title="Моя лента">
                             <span class="visually-hidden">Моя лента</span>
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--messages">
-                        <a class="header__page-link" href="messages.html" title="Личные сообщения">
+                        <a class="header__page-link" href="/messages.php" title="Личные сообщения">
                             <span class="visually-hidden">Личные сообщения</span>
                         </a>
                     </li>
@@ -78,7 +78,9 @@
                     <li class="header__profile">
                         <a class="header__profile-link" href="#">
                             <div class="header__avatar-wrapper">
+                                <?php if ($user['u_avatar']): ?>
                                 <img class="header__profile-avatar" src="<?=$user['u_avatar']; ?>" width="40" height="auto" alt="Аватар профиля">
+                                <?php endif; ?>
                             </div>
                             <div class="header__profile-name">
                                 <span>
@@ -101,10 +103,12 @@
                                         </a>
                                     </li>
                                     <li class="header__profile-nav-item">
-                                        <a class="header__profile-nav-link" href="#">
+                                        <a class="header__profile-nav-link" href="/messages.php">
                                             <span class="header__profile-nav-text">
                                                 Сообщения
-                                                <i class="header__profile-indicator">2</i>
+                                                <?php if ($user['m_count']): ?>
+                                                <i class="header__profile-indicator"><?=$user['m_count'];?></i>
+                                                <?php endif; ?>
                                             </span>
                                         </a>
                                     </li>

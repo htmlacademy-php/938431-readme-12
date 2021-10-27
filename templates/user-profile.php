@@ -5,7 +5,9 @@
       <div class="profile__user user container">
         <div class="profile__user-info user__info">
           <div class="profile__avatar user__avatar">
-            <img class="profile__picture user__picture" src="<?=htmlspecialchars($user['u_avatar']); ?>" width="100" height="auto" alt="Аватар пользователя">
+            <?php if ($user['u_avatar']): ?>
+            <img class="profile__picture user__picture" src="<?=$user['u_avatar']; ?>" width="100" height="auto" alt="Аватар пользователя">
+            <?php endif; ?>
           </div>
           <div class="profile__name-wrapper user__name-wrapper">
             <span class="profile__name user__name"><?=$user['u_name']?></span>
@@ -27,7 +29,7 @@
             <a class="profile__user-button user__button user__button--subscription button button--main" href="/subscribe.php?id=<?=$user['id']?>"><?=$is_subscribed ? 'Отписаться' : 'Подписаться' ?></a>
             <?php endif; ?>
             <?php if ($is_subscribed): ?>
-            <a class="profile__user-button user__button user__button--writing button button--green" href="#">Отправить сообщение</a>
+            <a class="profile__user-button user__button user__button--writing button button--green" href="/messages.php?id=<?=$user['id']?>">Отправить сообщение</a>
             <?php endif; ?>
           </div>
         </div>

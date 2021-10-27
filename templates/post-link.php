@@ -1,5 +1,5 @@
 <div class="post-link__wrapper">
-    <a class="post-link__external" href="http://<?=$post['p_url'] ?>" title="Перейти по ссылке">
+    <a class="post-link__external" href="<?=$post['p_url'] ?>" title="Перейти по ссылке">
     <div class="post-link__icon-wrapper">
         <img src="<?=generate_favicon_url($post['p_url']); ?>" alt="Иконка">
     </div>

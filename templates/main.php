@@ -63,13 +63,15 @@
             <div class="authorization__input-wrapper form__input-wrapper">
               <?php if (isset($errors['login'])): ?>
               <div class="form__input-section form__input-section--error">
-              <? endif; ?>
+              <?php endif; ?>
                 <input class="authorization__input authorization__input--login form__input" type="text" name="login" placeholder="Логин" value="<?=get_post_value('login') ?>">
                 <svg class="form__input-icon" width="19" height="18">
                     <use xlink:href="#icon-input-user"></use>
                 </svg>
                 <label class="visually-hidden">Логин</label>
-              <?php if (isset($errors['login'])) echo '</div>'; ?>
+              <?php if (isset($errors['login'])) {
+    echo '</div>';
+} ?>
               <span class="form__error-label form__error-label--login">
                 <?=$errors['login'] ?? ''; ?>
               </span>
@@ -77,13 +79,15 @@
             <div class="authorization__input-wrapper form__input-wrapper">
               <?php if (isset($errors['password'])): ?>
               <div class="form__input-section form__input-section--error">
-              <? endif; ?>
+              <?php endif; ?>
               <input class="authorization__input authorization__input--password form__input" type="password" name="password" placeholder="Пароль" value="<?=get_post_value('password') ?>">
               <svg class="form__input-icon" width="16" height="20">
                 <use xlink:href="#icon-input-password"></use>
               </svg>
               <label class="visually-hidden">Пароль</label>
-              <?php if (isset($errors['password'])) echo '</div>'; ?>
+              <?php if (isset($errors['password'])) {
+    echo '</div>';
+} ?>
               <span class="form__error-label">
                 <?=$errors['password'] ?? ''; ?>
               </span>
