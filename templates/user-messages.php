@@ -22,7 +22,7 @@
                 <img class="messages__avatar" src="<?=$user['u_avatar']; ?>" width="60" height="60" alt="Аватар пользователя">
                 <?php endif;
                   if ($user['new_count']): ?>
-                <i class="messages__indicator"><?=htmlspecialchars($user['new_count']); ?></i>
+                <i class="messages__indicator"><?=$user['new_count']; ?></i>
                 <?php endif; ?>
             </div>
             <div class="messages__info">
@@ -88,7 +88,7 @@
                 <img class="comments__picture" src="<?=$logged_user['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
             <?php endif; ?>
             </div>
-            <div class="form__input-section <?php if (!empty($errors['message'])) {
+            <div class="form__input-section <?php if (isset($errors['message'])) {
                         echo 'form__input-section--error';
                     } ?>">
             <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваше сообщение"></textarea>

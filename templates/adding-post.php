@@ -37,7 +37,7 @@
                       <?=$title_field ?>
                       <div class="adding-post__input-wrapper form__input-wrapper">
                         <label class="adding-post__label form__label" for="photo-url"><?=$label['photo-url']; ?></label>
-                        <div class="form__input-section  <?php if (!empty($errors['photo-url'])) {
+                        <div class="form__input-section  <?php if (isset($errors['photo-url'])) {
     echo 'form__input-section--error';
 } ?>">
                           <input class="adding-post__input form__input" id="photo-url" type="text" name="photo-url" placeholder="Введите ссылку" value="<?=get_post_value('photo-url') ?>">
@@ -79,7 +79,7 @@
                       <?=$title_field ?>
                       <div class="adding-post__input-wrapper form__input-wrapper">
                         <label class="adding-post__label form__label" for="video-url"><?=$label['video-url']; ?> <span class="form__input-required">*</span></label>
-                        <div class="form__input-section  <?php if (!empty($errors['video-url'])) {
+                        <div class="form__input-section  <?php if (isset($errors['video-url'])) {
     echo 'form__input-section--error';
 } ?>">
                           <input class="adding-post__input form__input" id="video-url" type="text" name="video-url" placeholder="Введите ссылку" value="<?=get_post_value('video-url'); ?>">
@@ -113,7 +113,7 @@
                       <?=$title_field ?>
                       <div class="adding-post__textarea-wrapper form__textarea-wrapper">
                         <label class="adding-post__label form__label" for="post-text"><?=$label['post-text']; ?> <span class="form__input-required">*</span></label>
-                        <div class="form__input-section  <?php if (!empty($errors['post-text'])) {
+                        <div class="form__input-section  <?php if (isset($errors['post-text'])) {
     echo 'form__input-section--error';
 } ?>">
                           <textarea class="adding-post__textarea form__textarea form__input" id="post-text" name="post-text" placeholder="Введите текст публикации"><?=get_post_value('post-text'); ?></textarea>
@@ -146,7 +146,7 @@
                       <?=$title_field ?>
                       <div class="adding-post__input-wrapper form__textarea-wrapper">
                         <label class="adding-post__label form__label" for="quote-text"><?=$label['quote-text']; ?> <span class="form__input-required">*</span></label>
-                        <div class="form__input-section  <?php if (!empty($errors['quote-text'])) {
+                        <div class="form__input-section  <?php if (isset($errors['quote-text'])) {
     echo 'form__input-section--error';
 } ?>">
                           <textarea class="adding-post__textarea adding-post__textarea--quote form__textarea form__input" id="quote-text" name="quote-text" placeholder="Текст цитаты"><?=get_post_value('quote-text'); ?></textarea>
@@ -159,7 +159,7 @@
                       </div>
                       <div class="adding-post__textarea-wrapper form__input-wrapper">
                         <label class="adding-post__label form__label" for="quote-author"><?=$label['quote-author']; ?> <span class="form__input-required">*</span></label>
-                        <div class="form__input-section  <?php if (!empty($errors['quote-author'])) {
+                        <div class="form__input-section  <?php if (isset($errors['quote-author'])) {
     echo 'form__input-section--error';
 } ?>">
                           <input class="adding-post__input form__input" id="quote-author" type="text" name="quote-author" value="<?=get_post_value('quote-author'); ?>">
@@ -192,7 +192,7 @@
                       <?=$title_field ?>
                       <div class="adding-post__textarea-wrapper form__input-wrapper">
                         <label class="adding-post__label form__label" for="post-link"><?=$label['post-link']; ?> <span class="form__input-required">*</span></label>
-                        <div class="form__input-section  <?php if (!empty($errors['post-link'])) {
+                        <div class="form__input-section  <?php if (isset($errors['post-link'])) {
     echo 'form__input-section--error';
 } ?>">
                           <input class="adding-post__input form__input" id="post-link" type="text" name="post-link" value="<?=get_post_value('post-link'); ?>">
@@ -205,7 +205,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <?=$invalid_block ?>
+                    <?=$invalid_block; ?>
                   </div>
                   <div class="adding-post__buttons">
                     <button class="adding-post__submit button button--main" type="submit">Опубликовать</button>
