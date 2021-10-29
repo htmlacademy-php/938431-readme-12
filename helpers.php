@@ -473,8 +473,18 @@ function fetch_hashtags($link, $post_id)
 }
 
 /**
+ * Возвращает html шаблон для футера
+ * @param string|null $footer_class Расширенный класс для тега <footer>
+ * @return string Итоговый HTML
+ */
+function include_footer($footer_class = '')
+{
+    return include_template('footer.php', ['footer_class' => $footer_class ?? '']);
+}
+
+/**
  * Выбирает html шаблон в зависимости от полученного типа поста
- * @param $post array Массив с данными о посте
+ * @param array $post  Массив с данными о посте
  * @return string Итоговый HTML
  */
 function choose_post_template($post)
@@ -627,9 +637,6 @@ function get_file_ext($file_type)
     $type_parts = explode('/', $file_type);
     return  '.' . array_pop($type_parts);
 }
-
-define('MAX_FILE_SIZE', 2097152); // 2Мб в байтах
-
 /**
  * Функция - валидатор файла изображения. (Проверяет, что файл является изображением)
  * @param string $path Путь к файлу
@@ -647,6 +654,9 @@ function validate_image_file($path)
     return $message;
 }
 
+define('MB', 1048576); // 1Мб в байтах
+define('MAX_FILE_SIZE', 2); // 2Мб
+
 /**
  * Функция - валидатор загруженного файла
  * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
@@ -655,12 +665,12 @@ function validate_image_file($path)
 function validate_file($file)
 {
     $message = null;
-    if (!empty($file['name'])) {
+    if (isset($file['name'])) {
         $file_path = $file['tmp_name'];
         $message = validate_image_file($file_path);
         if (!$message) {
-            if ($file['size'] > MAX_FILE_SIZE) {
-                $message = "Максимальный размер файла: 2Мб";
+            if ($file['size'] > MAX_FILE_SIZE * MB) {
+                $message = "Максимальный размер файла: " . MAX_FILE_SIZE . "Мб";
             }
         }
     }
@@ -711,6 +721,55 @@ function validate_photo_url($value)
         }
     }
     return $message;
+}
+
+/**
+ * Проверяет авторизационные данные пользователя, открывает сессию в случае успешной авторизации
+ * @param array $form Массив $_POST
+ * @param mysqli $link Ресурс соединения
+ * @return array $errors Массив с сообщениями об ошибках для полей 'email', 'password'
+ */
+function authorize_user($form, $link)
+{
+    $errors = [];
+    // Проверяем заполненность обязательных полей
+    foreach ($form as $key => $value) {
+        if (empty($form[$key])) {
+            $errors[$key] = 'Это поле должно быть заполнено';
+        }
+    }
+
+    if (count($errors)) {
+        return $errors;
+    }
+    // Проверяем существование пользователя с введенным email
+    $email = filter_var($form['login'], FILTER_VALIDATE_EMAIL);
+    if ($email) {
+        $sql = "SELECT * FROM user WHERE email = '$email'";
+        $result = mysqli_query($link, $sql);
+        $user = $result ? mysqli_fetch_array($result, MYSQLI_ASSOC) : null;
+        if ($user) {
+            // Проверяем пароль и открываем сессию
+            if (password_verify($form['password'], $user['u_password'])) {
+                // Создаем запрос на количество непрочитанных сообщений
+                $user_id = $user['id'];
+                $sql = "SELECT COUNT(id) AS m_count
+                        FROM message
+                        WHERE receiver_id = '$user_id'
+                            AND is_new = TRUE";
+                $result = mysqli_query($link, $sql);
+                $user['m_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
+                $_SESSION['user'] = $user;
+            } else {
+                $errors['password'] = 'Неверный пароль';
+            }
+        } else {
+            $errors['login'] = 'Пользователь с таким email не найден';
+        }
+    } else {
+        $errors['login'] = 'Введен некорректный email';
+    }
+    return $errors;
 }
 
 /**

@@ -87,11 +87,14 @@ $label = [
     'password-repeat' => 'Повтор пароля',
     'file' => 'Загрузка фото'
 ];
+$invalid_block = '';
 
-$invalid_block = include_template('invalid-block.php', [
-    'errors' => $errors,
-    'label' => $label
-]);
+if (count($errors)) {
+    $invalid_block = include_template('invalid-block.php', [
+        'errors' => $errors,
+        'label' => $label
+    ]);
+}
 
 $content = include_template('registration.php', [
     'label' => $label,

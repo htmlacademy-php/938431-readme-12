@@ -9,20 +9,20 @@
         <div class="form__text-inputs">
           <div class="registration__input-wrapper form__input-wrapper">
             <label class="registration__label form__label" for="registration-email"><?=$label['email']; ?> <span class="form__input-required">*</span></label>
-            <div class="form__input-section  <?php if (!empty($errors['email'])) {
+            <div class="form__input-section <?php if (isset($errors['email'])) {
     echo 'form__input-section--error';
 } ?>">
               <input class="registration__input form__input" id="registration-email" type="email" name="email" placeholder="Укажите эл.почту" value="<?=get_post_value('email') ?>">
               <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
               <div class="form__error-text">
                 <h3 class="form__error-title"><?=$label['email']; ?></h3>
-                <p class="form__error-desc"><?=$errors['email'] ?? '' ?></p>
+                <p class="form__error-desc"><?=$errors['email'] ?? ''; ?></p>
               </div>
             </div>
           </div>
           <div class="registration__input-wrapper form__input-wrapper">
             <label class="registration__label form__label" for="registration-login"><?=$label['login']; ?> <span class="form__input-required">*</span></label>
-            <div class="form__input-section  <?php if (!empty($errors['login'])) {
+            <div class="form__input-section  <?php if (isset($errors['login'])) {
     echo 'form__input-section--error';
 } ?>">
               <input class="registration__input form__input" id="registration-login" type="text" name="login" placeholder="Укажите логин" value="<?=get_post_value('login') ?>">
@@ -35,7 +35,7 @@
           </div>
           <div class="registration__input-wrapper form__input-wrapper">
             <label class="registration__label form__label" for="registration-password"><?=$label['password']; ?><span class="form__input-required">*</span></label>
-            <div class="form__input-section  <?php if (!empty($errors['password'])) {
+            <div class="form__input-section  <?php if (isset($errors['password'])) {
     echo 'form__input-section--error';
 } ?>">
               <input class="registration__input form__input" id="registration-password" type="password" name="password" placeholder="Придумайте пароль" value="<?=get_post_value('password') ?>">
@@ -48,7 +48,7 @@
           </div>
           <div class="registration__input-wrapper form__input-wrapper">
             <label class="registration__label form__label" for="registration-password-repeat"><?=$label['password-repeat']; ?><span class="form__input-required">*</span></label>
-            <div class="form__input-section  <?php if (!empty($errors['password-repeat'])) {
+            <div class="form__input-section  <?php if (isset($errors['password-repeat'])) {
     echo 'form__input-section--error';
 } ?>">
               <input class="registration__input form__input" id="registration-password-repeat" type="password" name="password-repeat" placeholder="Повторите пароль" value="<?=get_post_value('password-repeat') ?>">
@@ -60,7 +60,7 @@
             </div>
           </div>
         </div>
-        <?=$invalid_block ?>>
+        <?=$invalid_block; ?>
 
       </div>
       <div class="registration__input-file-container form__input-container form__input-container--file">

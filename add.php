@@ -41,33 +41,35 @@ unset($type);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $options = [
-        'required' => ['title'],
-        'filters' => ['title' => FILTER_DEFAULT, 'tags' => FILTER_DEFAULT]
-    ];
-
     $form_options = [
         'link' => [
-            'required' => array_merge($options['required'], ['post-link']),
-            'filters' => array_merge($options['filters'], ['post-link' => FILTER_DEFAULT])
+            'required' => ['post-link'],
+            'filters' =>['post-link']
         ],
         'photo' => [
-            'required' => $options['required'],
-            'filters' => array_merge($options['filters'], ['photo-url' =>  FILTER_DEFAULT])
+            'required' => [],
+            'filters' => ['photo-url']
         ],
         'quote' => [
-            'required' => array_merge($options['required'], ['quote-text', 'quote-author']),
-            'filters' => array_merge($options['filters'], ['quote-author' => FILTER_DEFAULT, 'quote-text' => FILTER_DEFAULT])
+            'required' => ['quote-text', 'quote-author'],
+            'filters' => ['quote-author', 'quote-text']
         ],
         'text' => [
-            'required' => array_merge($options['required'], ['post-text']),
-            'filters' => array_merge($options['filters'], ['post-text' => FILTER_DEFAULT])
+            'required' => ['post-text'],
+            'filters' => ['post-text']
         ],
         'video' => [
-            'required' => array_merge($options['required'], ['video-url']),
-            'filters' => array_merge($options['filters'], ['video-url' => FILTER_DEFAULT])
+            'required' => ['video-url'],
+            'filters' => ['video-url']
         ]
     ];
+
+    foreach ($form_options as &$option) {
+        $option['required'] = array_merge(['title'], $option['required']);
+        $option['filters'] = array_merge(['title', 'tags'], $option['filters']);
+        $option['filters'] = array_fill_keys($option['filters'], FILTER_DEFAULT);
+    }
+    unset($option);
 
     $rules = [
         'photo-url' => function ($value) {
@@ -277,10 +279,13 @@ $tags_field = include_template('field-tags.php', [
     'error' => $errors['tags'] ?? ''
 ]);
 
-$invalid_block = include_template('invalid-block.php', [
-    'errors' => $errors,
-    'label' => $label
-]);
+$invalid_block = '';
+if (count($errors)) {
+    $invalid_block = include_template('invalid-block.php', [
+        'errors' => $errors,
+        'label' => $label
+    ]);
+}
 
 $content = include_template('adding-post.php', [
     'types' => $types,
