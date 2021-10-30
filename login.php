@@ -33,19 +33,19 @@ $invalid_block = '';
 if (count($errors)) {
     $invalid_block = include_template('invalid-block.php', [
         'errors' => $errors,
-        'label' => $label
+        'label' => $label,
     ]);
 }
 
 $content = include_template('user-login.php', [
     'errors' => $errors,
-    'invalid_block' => $invalid_block
+    'invalid_block' => $invalid_block,
 ]);
 
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => 'readme: авторизация',
-    'user' => null
+    'user' => null,
 ]);
 
 print($layout);

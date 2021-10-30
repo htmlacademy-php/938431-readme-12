@@ -45,7 +45,7 @@ if ($search) {
         FROM post_hashtag
         INNER JOIN hashtag
         ON hashtag.id = post_hashtag.hash_id
-        WHERE title = ?;";
+        WHERE title = ?";
 
         $hash = substr($search, 1);
         $result = fetch_sql_response($con, $sql_hash, [$hash]);
@@ -83,7 +83,11 @@ if ($search) {
     }
 
     $title = 'readme: страница результатов поиска';
-    $layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
+    $layout = include_template('layout.php', [
+        'page_content' => $content,
+        'page_title' => $title,
+        'user' => $user,
+    ]);
     print($layout);
 } else {
     header("Location: {$_SERVER['HTTP_REFERER']}");

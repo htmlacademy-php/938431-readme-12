@@ -49,7 +49,7 @@ $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
 // Создаем ограничение для SQL запроса
 $where_condition = '';
 if ($filter) {
-    $where_condition = " WHERE type_id = " .$filter;
+    $where_condition = " WHERE type_id = " . $filter;
 };
 
 $order_param = 'watch_count';
@@ -87,10 +87,10 @@ $sql = "SELECT
     (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
     (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
 FROM post
-INNER JOIN user
-ON user_id = user.id
-INNER JOIN post_type
-ON type_id = post_type.id"
+    INNER JOIN user
+        ON user_id = user.id
+    INNER JOIN post_type
+        ON type_id = post_type.id"
 . $where_condition
 . " ORDER BY " . $order_param . " DESC
 LIMIT ? OFFSET ?";
@@ -103,7 +103,19 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 $title = 'readme: популярное';
 
-$content = include_template('user-popular.php', ['page' => $page, 'posts' => $posts, 'types' => $types, 'filter' => $filter, 'sort' => $sort, 'sort_types' => $sort_types, 'total_count' => $pages_count]);
+$content = include_template('user-popular.php', [
+    'page' => $page,
+    'posts' => $posts,
+    'types' => $types,
+    'filter' => $filter,
+    'sort' => $sort,
+    'sort_types' => $sort_types,
+    'total_count' => $pages_count,
+]);
 
-$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
+$layout = include_template('layout.php', [
+    'page_content' => $content,
+    'page_title' => $title,
+    'user' => $user,
+]);
 print($layout);

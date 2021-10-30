@@ -41,6 +41,7 @@ unset($type);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Для каждого типа поста определим опции: обязательные поля формы и применяемые фильтры
     $form_options = [
         'link' => [
             'required' => ['post-link'],
@@ -71,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     unset($option);
 
+    // Определяем правила валидации полей формы
     $rules = [
         'photo-url' => function ($value) {
             return validate_photo_url($value);
@@ -110,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!$errors) {
         if ($active_type == 'photo') {
             // Если загружен файл и нет ошибок его сохраняем в папку uploads
-            if (!empty($_FILES['file']['name'])) {
+            if (isset($_FILES['file']['name'])) {
                 $file_photo = $_FILES['file'];
                 $path = replace_file_to_uploads($file_photo);
                 $post['photo-url'] = $path;
@@ -144,13 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post = rename_key($text_keys, 'text', $post);
         $post = rename_key($url_keys, 'url', $post);
 
-        $empty_data = [
-            'title' => null,
-            'url' => null,
-            'text' => null,
-            'quote-author' => null,
-            'user_id' => $user['id']
-        ];
+        $empty_data = array_fill_keys(['title', 'url', 'text', 'quote-author'], null);
+        $empty_data['user_id'] = $user['id'];
 
         $data_post = array_merge($empty_data, $post);
 
@@ -163,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             watch_count,
             user_id,
             type_id)
-        VALUES (?, ?, ?, ?, 0, ?, ?);";
+        VALUES (?, ?, ?, ?, 0, ?, ?)";
 
         // Создаем подготовленное выражение и отправляем запрос на на запись нового поста
         $stmt = db_get_prepare_stmt($con, $sql_add_post, $data_post);
@@ -283,7 +280,7 @@ $invalid_block = '';
 if (count($errors)) {
     $invalid_block = include_template('invalid-block.php', [
         'errors' => $errors,
-        'label' => $label
+        'label' => $label,
     ]);
 }
 
@@ -294,7 +291,7 @@ $content = include_template('adding-post.php', [
     'tags_field' => $tags_field,
     'label' => $label,
     'errors' => $errors,
-    'invalid_block' => $invalid_block
+    'invalid_block' => $invalid_block,
 ]);
 
 $title = 'readme: добавление публикации';
@@ -302,6 +299,6 @@ $title = 'readme: добавление публикации';
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => $title,
-    'user' => $user
+    'user' => $user,
 ]);
 print($layout);

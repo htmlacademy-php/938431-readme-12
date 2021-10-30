@@ -23,7 +23,7 @@ if (!$profile_id) {
 // Создаем запрос на получение связи из таблицы подписок пользователей
 $sql = "SELECT id FROM subscription
     WHERE user_id = ?
-    AND subscriber_id = ?;";
+    AND subscriber_id = ?";
 
 $data = array($profile_id, $user['id']);
 $result = fetch_sql_response($con, $sql, $data);
@@ -33,14 +33,14 @@ if (empty($bind)) {
     // Если подписки не существует
     // Создаем запрос на получение пользователя с заданным id
     $sql = "SELECT * FROM user
-    WHERE id = ?;";
+    WHERE id = ?";
 
     $result = fetch_sql_response($con, $sql, [$profile_id]);
     $profile_user = mysqli_fetch_assoc($result);
 
     if (!empty($profile_user)) {
         // Создаем запись в таблице связей subscription
-        $sql = "INSERT INTO subscription (user_id, subscriber_id) VALUES (?, ?);";
+        $sql = "INSERT INTO subscription (user_id, subscriber_id) VALUES (?, ?)";
 
         $stmt = db_get_prepare_stmt($con, $sql, $data);
         $result = mysqli_stmt_execute($stmt);
@@ -62,7 +62,7 @@ if (empty($bind)) {
                 $message_content = include_template('subscriber-email.php', [
                     'recipient_name' => $profile_user['u_name'],
                     'text' => $text_message,
-                    'url' => $subscriber_url
+                    'url' => $subscriber_url,
                 ]);
 
                 $message->setBody($message_content, 'text/html');
