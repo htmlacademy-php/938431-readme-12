@@ -60,7 +60,7 @@ if (!empty($post)) {
 
         // Создаем запрос на получение id хэштегов к посту с заданным id
         $sql_hash = "SELECT hash_id FROM post_hashtag
-            WHERE post_id = ?;";
+            WHERE post_id = ?";
         $result = fetch_sql_response($con, $sql_hash, [$post_id]);
         $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
         $res_hash = true;
@@ -68,7 +68,7 @@ if (!empty($post)) {
         foreach ($hashtags as $hash) {
             // Запрос на запись связи пост - хэштег
             $sql_add_hash = "INSERT INTO post_hashtag
-                SET post_id = ?, hash_id = ?;";
+                SET post_id = ?, hash_id = ?";
 
             $data_hash = array($repost_id, $hash['hash_id']);
             $stmt = db_get_prepare_stmt($con, $sql_add_hash, $data_hash);
@@ -80,7 +80,7 @@ if (!empty($post)) {
         // Увеличиваем счетчик репостов оригинального поста
         $sql = "UPDATE post
             SET repost_count = repost_count + 1
-            WHERE id = ?;";
+            WHERE id = ?";
 
         $stmt = db_get_prepare_stmt($con, $sql, [$post_id]);
         $res_count = mysqli_stmt_execute($stmt);

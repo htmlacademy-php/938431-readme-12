@@ -19,6 +19,8 @@ if (!$post_id) {
     exit;
 }
 
+define('SHOWED_COMMENTS_ON_START', 2);
+
 $showed_comments = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_SPECIAL_CHARS);
 $is_all_comments = $showed_comments === 'all';
 
@@ -29,12 +31,12 @@ $sql_post = "SELECT
     (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
     (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
 FROM post
-INNER JOIN post_type
-ON type_id = post_type.id
-WHERE post.id = ?;";
+    INNER JOIN post_type
+        ON type_id = post_type.id
+WHERE post.id = ?";
 
 // Запрос на получение комментариев к посту
-$constraint = $is_all_comments ? ';' : ' LIMIT 2;';
+$constraint = $is_all_comments ? '' : ' LIMIT ' . SHOWED_COMMENTS_ON_START;
 $sql_comments = "SELECT
     comment.dt_add AS c_date,
     c_content,
@@ -42,8 +44,8 @@ $sql_comments = "SELECT
     u_avatar,
     user_id
 FROM comment
-INNER JOIN user
-ON user.id = comment.user_id
+    INNER JOIN user
+        ON user.id = comment.user_id
 WHERE post_id = ?
 ORDER BY c_date DESC"
 . $constraint;
@@ -57,12 +59,12 @@ $sql_user = "SELECT
     (SELECT COUNT(id) FROM subscription WHERE user_id = user.id) AS subs_count,
     (SELECT COUNT(id) FROM post WHERE user_id = user.id) AS posts_count
 FROM user
-WHERE user.id = ?;";
+WHERE user.id = ?";
 
 // Создаем запрос на получение данных о подписке текущего пользователя
 $sql = "SELECT id FROM subscription
 WHERE subscriber_id = ?
-AND user_id = ?;";
+AND user_id = ?";
 
 // Создаем подготовленное выражение и отправляем запрос на получение поста
 $data_post = [];
@@ -142,12 +144,16 @@ $content = include_template('details.php', [
     'is_subscribed' => $is_subscribed,
     'post' => $post,
     'post_content' => $post_content,
-    'user' => $p_user
+    'user' => $p_user,
 ]);
 
 $title = 'readme: публикация';
 
-$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
+$layout = include_template('layout.php', [
+    'page_content' => $content,
+    'page_title' => $title,
+    'user' => $user,
+]);
 print($layout);
 
 // Увеличиваем счетчик просмотров поста

@@ -201,7 +201,7 @@ $content = include_template('user-messages.php', [
     'errors' => $errors,
     'logged_user' => $user,
     'messages' => $messages,
-    'recipients' => $recipients
+    'recipients' => $recipients,
 ]);
 
 $title = 'readme: личные сообщения';
@@ -209,6 +209,6 @@ $title = 'readme: личные сообщения';
 $layout = include_template('layout.php', [
     'page_content' => $content,
     'page_title' => $title,
-    'user' => $user
+    'user' => $user,
 ]);
 print($layout);

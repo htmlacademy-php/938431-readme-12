@@ -18,7 +18,7 @@ $con = set_connection();
 // Перенаправляем на главную страницу незалогиненных пользователей
 if (!isset($user)) {
     header('Location: /index.php');
-    exit();
+    exit;
 }
 
 // Получаем текущий фильтр  из массива $_GET
@@ -81,8 +81,16 @@ unset($post);
 
 $title = 'readme: моя лента';
 
-$content = include_template('user-feed.php', ['filter' => $filter, 'posts' => $posts, 'types' => $types]);
+$content = include_template('user-feed.php', [
+    'filter' => $filter,
+    'posts' => $posts,
+    'types' => $types,
+]);
 $title = 'readme: моя лента';
 
-$layout = include_template('layout.php', ['page_content' => $content, 'page_title' => $title, 'user' => $user]);
+$layout = include_template('layout.php', [
+    'page_content' => $content,
+    'page_title' => $title,
+    'user' => $user,
+]);
 print($layout);

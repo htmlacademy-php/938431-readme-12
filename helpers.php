@@ -266,7 +266,10 @@ function generate_random_date($index)
     return $dt;
 }
 
-// Мои функции
+//         ******  Мои функции  ******
+
+define('MB', 1048576); // 1Мб в байтах
+define('MAX_FILE_SIZE', 2); // 2Мб
 
 /**
  * Обрезает текст до заданной длины, не обрезая слов, добавляя многоточие в конце текста.
@@ -293,12 +296,11 @@ function cut_excerpt($text, $max_length)
 /**
  * Возвращает разметку с отфильтрованным текстом.
  * Если длина текста превышает заданную, обрезает его, фильтрует и добавляет многоточие и ссылку "Читать далее".
-
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
 */
-function text_template($text, $max_length = 200)
+function text_template($text, $max_length = 300)
 {
     if (mb_strlen($text) <= $max_length) {
         $result = '<p>' . htmlspecialchars($text) . '</p>';
@@ -312,7 +314,6 @@ function text_template($text, $max_length = 200)
 
 /**
  * Добавляет всем элементам массива новое поле с ключом "date" и значением - случайной датой
-
  * @param array $elements - Исходный массив
 */
 function add_dates($elements)
@@ -347,7 +348,6 @@ function calc_time_interval($date_str)
 
 /**
  * Увеличивает первый параметр на единицу, если второй параметр - истиный
-
  * @param int $number Исходное число
  * @param bool $condition
 */
@@ -654,9 +654,6 @@ function validate_image_file($path)
     return $message;
 }
 
-define('MB', 1048576); // 1Мб в байтах
-define('MAX_FILE_SIZE', 2); // 2Мб
-
 /**
  * Функция - валидатор загруженного файла
  * @param array $file Поле массива $_FILES, соответствующее имени input[type="file"]
@@ -702,10 +699,7 @@ function validate_photo_url($value)
     $message = null;
     // Если не загружен файл - проверяем наличие ссылки
     if (empty($_FILES['file']['name'])) {
-        if (!$value) {
-            // Если нет файла и нет ссылки
-            $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
-        } else {
+        if ($value) {
             // Если нет файла, но есть ссылка, проверяем url
             $message = validate_url($value);
             // Если url корректный, пробуем скачать файл по ссылке
@@ -718,6 +712,9 @@ function validate_photo_url($value)
                     $message = validate_image_file($tmp_path);
                 }
             }
+        } else {
+            // Если нет файла и нет ссылки
+            $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
         }
     }
     return $message;
