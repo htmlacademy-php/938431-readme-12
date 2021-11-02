@@ -13,7 +13,7 @@
                       </div>
                       <div class="post-mini__name-wrapper user__name-wrapper">
                         <a class="post-mini__name user__name" href="/profile.php?id=<?=$post['like_user'];?>">
-                          <span><?=$post['username']?></span>
+                          <span><?=htmlspecialchars($post['username']);?></span>
                         </a>
                         <div class="post-mini__action">
                           <span class="post-mini__activity user__additional">Лайкнул вашу публикацию</span>

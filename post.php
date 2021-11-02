@@ -99,9 +99,9 @@ $errors = [];
 // Проверяем был ли отправлен комментарий к посту
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
-    $c_post = filter_input_array(INPUT_POST, $filters, true);
+    $comment_post = filter_input_array(INPUT_POST, $filters, true);
     // Проверяем поле с текстом комментария на заполненность и на длину текста
-    $comment = trim($c_post['comment']);
+    $comment = trim($comment_post['comment']);
     $errors['comment'] = validate_filled($comment);
     if (!$errors['comment']) {
         $errors['comment'] = validate_min_length($comment, 4);
@@ -110,13 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
     if (empty($errors)) {
         $sql = "SELECT COUNT(id) as count FROM post WHERE id = ?;";
-        $data = [$c_post['post-id']];
+        $data = [$comment_post['post-id']];
         $result = fetch_sql_response($con, $sql, $data);
         if (mysqli_num_rows($result) === 0) {
             $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
         } else {
             // Создаем запрос на запись комментария в базу данных
-            $sql_com = "INSERT INTO comment (c_content, user_id, post_id)
+            $sql_com = "INSERT INTO comment (comment_text, user_id, post_id)
                 VALUES (?,?,?);";
             $data_com = array($comment, $user['id'], $post_id);
 

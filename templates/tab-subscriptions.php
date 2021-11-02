@@ -13,7 +13,7 @@
             </div>
             <div class="post-mini__name-wrapper user__name-wrapper">
             <a class="post-mini__name user__name" href="/profile.php?id=<?=$user['user_id']?>">
-                <span><?=$user['username']?></span>
+                <span><?=htmlspecialchars($user['username']); ?></span>
             </a>
             <time class="post-mini__time user__additional" datetime="<?=$user['user_date']?>"><?= generate_passed_time_text($user['user_date']);?> на сайте</time>
             </div>

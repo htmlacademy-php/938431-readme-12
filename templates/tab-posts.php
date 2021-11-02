@@ -15,7 +15,7 @@
               <?php endif; ?>
             </div>
             <div class="post__info">
-              <b class="post__author-name">Репост: <?=$author['username']; ?></b>
+              <b class="post__author-name">Репост: <?=htmlspecialchars($author['username']); ?></b>
               <time class="post__time" datetime="<?=$post['date_add']?>"><?= generate_passed_time_text($post['date_add']);?> назад</time>
             </div>
           </a>
@@ -71,7 +71,7 @@
             <div class="comments__info">
               <div class="comments__name-wrapper">
                 <a class="comments__user-name" href="/profile.php?id=<?=$comment['user_id']; ?>">
-                  <span><?=$comment['username']; ?></span>
+                  <span><?=htmlspecialchars($comment['username']); ?></span>
                 </a>
                 <time class="comments__time" datetime="<?=$comment['date_add'];?>"><?= generate_passed_time_text($comment['date_add']);?> назад</time>
               </div>

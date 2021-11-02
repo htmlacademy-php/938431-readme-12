@@ -10,7 +10,7 @@
             <?php endif; ?>
           </div>
           <div class="profile__name-wrapper user__name-wrapper">
-            <span class="profile__name user__name"><?=$user['username']?></span>
+            <span class="profile__name user__name"><?=htmlspecialchars($user['username']); ?></span>
             <time class="profile__user-time user__time" datetime="<?=$user['date_add'];?>"><?= generate_passed_time_text($user['date_add']);?> на сайте</time>
             </div>
           </div>

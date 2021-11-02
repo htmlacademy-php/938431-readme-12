@@ -1,6 +1,6 @@
 <main class="page__main page__main--publication">
   <div class="container">
-    <h1 class="page__title page__title--publication"><?=$post['post_title'];?></h1>
+    <h1 class="page__title page__title--publication"><?=htmlspecialchars($post['post_title']);?></h1>
     <section class="post-details">
       <h2 class="visually-hidden">Публикация</h2>
       <div class="post-details__wrapper post-photo">
