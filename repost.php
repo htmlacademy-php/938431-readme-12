@@ -28,20 +28,20 @@ $post = mysqli_fetch_assoc($result);
 if (!empty($post)) {
     // Создаем запрос на запись нового поста
     $sql_add_post = "INSERT INTO post (
-            p_title,
-            p_url,
-            p_text,
+            post_title,
+            post_url,
+            post_text,
             quote_author,
             user_id,
-            p_repost,
-            orig_user_id,
+            is_repost,
+            original_user_id,
             type_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
     $data_post = [];
-    $data_post[] = $post['p_title'];
-    $data_post[] = $post['p_url'];
-    $data_post[] = $post['p_text'];
+    $data_post[] = $post['post_title'];
+    $data_post[] = $post['post_url'];
+    $data_post[] = $post['post_text'];
     $data_post[] = $post['quote_author'];
     $data_post[] = $user['id'];
     $data_post[] = 1;
@@ -52,28 +52,28 @@ if (!empty($post)) {
 
     // Создаем подготовленное выражение и отправляем запрос на на запись нового поста
     $stmt = db_get_prepare_stmt($con, $sql_add_post, $data_post);
-    $res_post = mysqli_stmt_execute($stmt);
+    $result_post = mysqli_stmt_execute($stmt);
 
-    if ($res_post) {
+    if ($result_post) {
         // В случае успеха отправляем запросы на запись хэштегов к посту
         $repost_id = mysqli_insert_id($con);
 
         // Создаем запрос на получение id хэштегов к посту с заданным id
-        $sql_hash = "SELECT hash_id FROM post_hashtag
+        $sql_hash = "SELECT hashtag_id FROM post_hashtag
             WHERE post_id = ?";
         $result = fetch_sql_response($con, $sql_hash, [$post_id]);
         $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        $res_hash = true;
+        $result_hash = true;
 
         foreach ($hashtags as $hash) {
             // Запрос на запись связи пост - хэштег
             $sql_add_hash = "INSERT INTO post_hashtag
-                SET post_id = ?, hash_id = ?";
+                SET post_id = ?, hashtag_id = ?";
 
             $data_hash = array($repost_id, $hash['hash_id']);
             $stmt = db_get_prepare_stmt($con, $sql_add_hash, $data_hash);
-            $res_hash = mysqli_stmt_execute($stmt);
-            if (!$res_hash) {
+            $result_hash = mysqli_stmt_execute($stmt);
+            if (!$result_hash) {
                 break;
             }
         }
@@ -83,11 +83,11 @@ if (!empty($post)) {
             WHERE id = ?";
 
         $stmt = db_get_prepare_stmt($con, $sql, [$post_id]);
-        $res_count = mysqli_stmt_execute($stmt);
+        $result_count = mysqli_stmt_execute($stmt);
     }
 
     // Фиксируем изменения в случае успешного выполнения всех запросов или откатываем транзакцию
-    if ($res_post && $res_hash && $res_count) {
+    if ($result_post && $result_hash && $result_count) {
         mysqli_commit($con);
     } else {
         mysqli_rollback($con);

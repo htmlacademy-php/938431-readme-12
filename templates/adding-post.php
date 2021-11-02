@@ -9,17 +9,17 @@
               <ul class="adding-post__tabs-list filters__list tabs__list">
                 <?php foreach ($types as $type): ?>
                 <li class="adding-post__tabs-item filters__item">
-                  <a class="adding-post__tabs-link filters__button filters__button--<?=$type['t_class']?> tabs__item button <?php if ($active_type === $type['t_class']) {
+                  <a class="adding-post__tabs-link filters__button filters__button--<?=$type['type_class']?> tabs__item button <?php if ($active_type === $type['type_class']) {
     echo 'filters__button--active tabs__item--active';
 } ?>"
-                    <?php if ($active_type !== $type['t_class']) {
+                    <?php if ($active_type !== $type['type_class']) {
     echo('href="' . $type['url'] . '"');
 } ?>
                   >
                     <svg class="filters__icon" width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
-                      <use xlink:href="#icon-filter-<?=$type['t_class'] ?>"></use>
+                      <use xlink:href="#icon-filter-<?=$type['type_class'] ?>"></use>
                     </svg>
-                    <span><?=$type['t_title'] ?></span>
+                    <span><?=$type['type_title'] ?></span>
                   </a>
                 </li>
                 <?php endforeach; ?>

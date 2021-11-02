@@ -8,17 +8,17 @@
         <div class="feed__main-wrapper">
         <div class="feed__wrapper">
             <?php foreach ($posts as $post): ?>
-            <article class="feed__post post post-<?=$post['p_type'] ?>">
+            <article class="feed__post post post-<?=$post['type_class'] ?>">
                 <header class="post__header post__author">
                     <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                     <div class="post__avatar-wrapper">
-                        <?php if ($post['u_avatar']): ?>
-                        <img class="post__author-avatar" src="<?=$post['u_avatar']?>" alt="Аватар пользователя" width="60" height="60">
+                        <?php if ($post['avatar']): ?>
+                        <img class="post__author-avatar" src="<?=$post['avatar']?>" alt="Аватар пользователя" width="60" height="60">
                         <?php endif; ?>
                     </div>
                     <div class="post__info">
-                        <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
-                        <span class="post__time"><?= generate_passed_time_text($post['p_date']);?> назад</span>
+                        <b class="post__author-name"><?= htmlspecialchars($post['username']); ?></b>
+                        <span class="post__time"><?= generate_passed_time_text($post['post_date']);?> назад</span>
                     </div>
                     </a>
                 </header>
@@ -54,7 +54,7 @@
                     </div>
                     <ul class="post__tags">
                         <?php foreach ($post['hashtags'] as $hash): ?>
-                        <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']?></a></li>
+                        <li><a href="search.php?q=%23<?=$hash['hashtag_title']?>">#<?=$hash['hashtag_title']?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </footer>
@@ -72,12 +72,12 @@
         </li>
         <?php foreach ($types as $type): ?>
         <li class="feed__filters-item filters__item">
-            <a class="filters__button filters__button--<?=$type['p_type']?> <?php if ($filter == $type['id']) {
+            <a class="filters__button filters__button--<?=$type['type_class']?> <?php if ($filter == $type['id']) {
     echo 'filters__button--active';
 } ?> button" href="/feed.php?filter=<?=$type['id']?>">
-            <span class="visually-hidden"><?=$type['t_title']?></span>
+            <span class="visually-hidden"><?=$type['type_title']?></span>
             <svg class="filters__icon" width="22" height="18">
-                <use xlink:href="#icon-filter-<?=$type['p_type'] ?>"></use>
+                <use xlink:href="#icon-filter-<?=$type['type_class'] ?>"></use>
             </svg>
             </a>
         </li>

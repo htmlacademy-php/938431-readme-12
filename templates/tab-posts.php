@@ -1,22 +1,22 @@
 <section class="profile__posts tabs__content tabs__content--active">
   <h2 class="visually-hidden">Публикации</h2>
   <?php foreach ($posts as $post): ?>
-  <article class="profile__post post post-<?=$post['p_type'];?>">
+  <article class="profile__post post post-<?=$post['type_class'];?>">
     <header class="post__header">
-      <?php if ($post['p_repost']): ?>
+      <?php if ($post['is_repost']): ?>
         <div class="post__author">
           <?php
             $author = $post['author'];
           ?>
           <a class="post__author-link" href="/profile.php?id=<?=$author['id']; ?>" title="Автор">
             <div class="post__avatar-wrapper post__avatar-wrapper--repost">
-              <?php if ($author['u_avatar']): ?>
-              <img class="post__author-avatar" src="<?=$author['u_avatar']; ?>" alt="Аватар пользователя">
+              <?php if ($author['avatar']): ?>
+              <img class="post__author-avatar" src="<?=$author['avatar']; ?>" alt="Аватар пользователя">
               <?php endif; ?>
             </div>
             <div class="post__info">
-              <b class="post__author-name">Репост: <?=$author['u_name']; ?></b>
-              <time class="post__time" datetime="<?=$post['dt_add']?>"><?= generate_passed_time_text($post['dt_add']);?> назад</time>
+              <b class="post__author-name">Репост: <?=$author['username']; ?></b>
+              <time class="post__time" datetime="<?=$post['date_add']?>"><?= generate_passed_time_text($post['date_add']);?> назад</time>
             </div>
           </a>
         </div>
@@ -47,11 +47,11 @@
             <span class="visually-hidden">количество репостов</span>
           </a>
         </div>
-        <time class="post__time" datetime="<?=$post['dt_add'];?>"><?= generate_passed_time_text($post['dt_add']);?> назад</time>
+        <time class="post__time" datetime="<?=$post['date_add'];?>"><?= generate_passed_time_text($post['date_add']);?> назад</time>
       </div>
       <ul class="post__tags">
         <?php foreach ($post['hashtags'] as $hash): ?>
-        <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']?></a></li>
+        <li><a href="search.php?q=%23<?=$hash['hashtag_title']?>">#<?=$hash['hashtag_title']?></a></li>
         <?php endforeach; ?>
       </ul>
     </footer>
@@ -63,26 +63,26 @@
           <li class="comments__item user">
             <div class="comments__avatar">
               <a class="user__avatar-link" href="/profile.php?id=<?=$comment['user_id']; ?>">
-                <?php if ($comment['u_avatar']): ?>
-                <img class="comments__picture" src="<?=$comment['u_avatar']; ?>" alt="Аватар пользователя">
+                <?php if ($comment['avatar']): ?>
+                <img class="comments__picture" src="<?=$comment['avatar']; ?>" alt="Аватар пользователя">
                 <?php endif; ?>
               </a>
             </div>
             <div class="comments__info">
               <div class="comments__name-wrapper">
                 <a class="comments__user-name" href="/profile.php?id=<?=$comment['user_id']; ?>">
-                  <span><?=$comment['u_name']; ?></span>
+                  <span><?=$comment['username']; ?></span>
                 </a>
-                <time class="comments__time" datetime="<?=$comment['dt_add'];?>"><?= generate_passed_time_text($comment['dt_add']);?> назад</time>
+                <time class="comments__time" datetime="<?=$comment['date_add'];?>"><?= generate_passed_time_text($comment['date_add']);?> назад</time>
               </div>
               <p class="comments__text">
-                <?= htmlspecialchars($comment['c_content']); ?>
+                <?= htmlspecialchars($comment['comment_text']); ?>
               </p>
             </div>
           </li>
           <?php endforeach;
            if ($post['comment_count'] > count($post['comments'])): ?>
-            <a class="comments__more-link" href="<?= update_query_params('post' . $post['id'], 'cmts_all')?>">
+            <a class="comments__more-link" href="<?= update_query_params('post' . $post['id'], 'comments_all')?>">
               <span>Показать все комментарии</span>
               <sup class="comments__amount"><?=$post['comment_count']; ?></sup>
             </a>
@@ -113,7 +113,7 @@
     <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], '')?>">Скрыть комментарии</a>
     <?php else: ?>
     <div class="comments">
-      <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'cmts')?>">Показать комментарии</a>
+      <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'comments')?>">Показать комментарии</a>
     </div>
     <?php endif; ?>
   </article>

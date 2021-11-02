@@ -12,17 +12,17 @@
         <div class="container">
         <div class="search__content">
           <?php foreach ($posts as $post): ?>
-          <article class="search__post post post-<?=$post['p_type'] ?>">
+          <article class="search__post post post-<?=$post['type_class'] ?>">
             <header class="post__header post__author">
               <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                 <div class="post__avatar-wrapper">
-                  <?php if ($post['u_avatar']): ?>
-                  <img class="post__author-avatar" src="<?=$post['u_avatar']?>" alt="Аватар пользователя" width="60" height="60">
+                  <?php if ($post['avatar']): ?>
+                  <img class="post__author-avatar" src="<?=$post['avatar']?>" alt="Аватар пользователя" width="60" height="60">
                   <?php endif; ?>
                 </div>
                 <div class="post__info">
-                  <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
-                  <span class="post__time"><?= generate_passed_time_text($post['p_date']);?> назад</span>
+                  <b class="post__author-name"><?= htmlspecialchars($post['username']); ?></b>
+                  <span class="post__time"><?= generate_passed_time_text($post['post_date']);?> назад</span>
                 </div>
               </a>
             </header>
@@ -42,7 +42,7 @@
                     <span><?=$post['like_count'] ?? 0;?></span>
                     <span class="visually-hidden">количество лайков</span>
                 </a>
-                <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                <a class="post__indicator post__indicator--comments button" href="/post.php?id=<?=$post['id']; ?>" title="Комментарии">
                     <svg class="post__indicator-icon" width="19" height="17">
                     <use xlink:href="#icon-comment"></use>
                     </svg>

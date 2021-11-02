@@ -19,15 +19,15 @@ if ($search) {
     // Создаем запрос на получение постов
     $sql_posts = "SELECT
         post.id,
-        p_title,
-        post.dt_add AS p_date,
-        p_url,
-        p_text,
+        post_title,
+        post.date_add AS post_date,
+        post_url,
+        post_text,
         quote_author,
         user_id,
-        u_name,
-        u_avatar,
-        t_class AS p_type,
+        username,
+        avatar,
+        type_class,
         type_id,
         (SELECT COUNT(id) FROM comment WHERE comment.post_id = post.id) AS comment_count,
         (SELECT COUNT(id) FROM post_like l WHERE l.post_id = post.id) AS like_count
@@ -44,8 +44,8 @@ if ($search) {
         post_id
         FROM post_hashtag
         INNER JOIN hashtag
-        ON hashtag.id = post_hashtag.hash_id
-        WHERE title = ?";
+        ON hashtag.id = hashtag_id
+        WHERE hashtag_title = ?";
 
         $hash = substr($search, 1);
         $result = fetch_sql_response($con, $sql_hash, [$hash]);
@@ -56,7 +56,7 @@ if ($search) {
             $comma_separated_ids = implode(',', $posts_ids);
 
             $where_condition = ' WHERE post.id IN ('. $comma_separated_ids .')
-            ORDER BY p_date DESC;';
+            ORDER BY post_date DESC';
             $data = [];
             $sql = $sql_posts . $where_condition;
         } else {
@@ -65,7 +65,7 @@ if ($search) {
         }
     } else {
         // Полнотекстовый поиск
-        $where_condition = ' WHERE MATCH (p_title, p_text) AGAINST (?);';
+        $where_condition = ' WHERE MATCH (post_title, post_text) AGAINST (?)';
         $data = [$search];
         $sql = $sql_posts . $where_condition;
     }

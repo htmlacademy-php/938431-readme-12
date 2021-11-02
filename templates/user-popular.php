@@ -32,14 +32,14 @@
                     </li>
                     <?php foreach ($types as $type): ?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type['p_type']?> <?php if ($filter === $type['id']) {
+                        <a class="filters__button filters__button--<?=$type['type_class']?> <?php if ($filter === $type['id']) {
     echo 'filters__button--active';
 } ?>
                          button" href="/popular.php?filter=<?=$type['id']?>">
-                            <span class="visually-hidden"><?=$type['t_title']?></span>
+                            <span class="visually-hidden"><?=$type['type_title']?></span>
                             <svg class="filters__icon"
                               width="<?=$type['width'] ?>" height="<?=$type['height'] ?>">
-                                <use xlink:href="#icon-filter-<?=$type['p_type'] ?>"></use>
+                                <use xlink:href="#icon-filter-<?=$type['type_class'] ?>"></use>
                             </svg>
                         </a>
                     </li>
@@ -49,48 +49,48 @@
         </div>
         <div class="popular__posts">
             <?php foreach ($posts as $post): ?>
-            <article class="popular__post post post-<?=$post['p_type'] ?>">
+            <article class="popular__post post post-<?=$post['type_class'] ?>">
                 <header class="post__header">
                     <a href="<?="/post.php?id=" . $post['id']?>">
-                        <h2><?= htmlspecialchars($post['p_title']); ?></h2>
+                        <h2><?= htmlspecialchars($post['post_title']); ?></h2>
                     </a>
                 </header>
                 <div class="post__main">
                     <!-- Разные типы постов -->
-                    <?php switch ($post['p_type']):
+                    <?php switch ($post['type_class']):
                     case 'quote': ?>
                     <!-- Цитата -->
                     <blockquote>
-                        <p><?= htmlspecialchars($post['p_text']); ?></p>
+                        <p><?= htmlspecialchars($post['post_text']); ?></p>
                         <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                     </blockquote>
                     <?php break; ?>
                     <?php case 'text':
                     // Текст
-                        echo text_template($post['p_text']);
+                        echo text_template($post['post_text']);
                         break;
                     ?>
 
                     <?php case 'photo': ?>
                         <!-- Фото -->
                     <div class="post-photo__image-wrapper">
-                        <img src="<?= $post['p_url'] ?>" alt="Фото от пользователя" width="360" height="240">
+                        <img src="<?= $post['post_url'] ?>" alt="Фото от пользователя" width="360" height="240">
                     </div>
                     <?php break; ?>
 
                     <?php case 'link': ?>
                         <!-- Ссылка -->
                     <div class="post-link__wrapper">
-                        <a class="post-link__external" href="<?=$post['p_url'] ?>" title="Перейти по ссылке">
+                        <a class="post-link__external" href="<?=$post['post_url'] ?>" title="Перейти по ссылке">
                             <div class="post-link__info-wrapper">
                                 <div class="post-link__icon-wrapper">
-                                    <img src="<?=generate_favicon_url($post['p_url']); ?>" width="16" height="16" alt="Иконка">
+                                    <img src="<?=generate_favicon_url($post['post_url']); ?>" width="16" height="16" alt="Иконка">
                                 </div>
                                 <div class="post-link__info">
-                                    <h3><?= htmlspecialchars($post['p_title']); ?></h3>
+                                    <h3><?= htmlspecialchars($post['post_title']); ?></h3>
                                 </div>
                             </div>
-                            <span><?=parse_url($post['p_url'], PHP_URL_HOST); ?></span>
+                            <span><?=parse_url($post['post_url'], PHP_URL_HOST); ?></span>
                         </a>
                     </div>
                     <?php break; ?>
@@ -99,7 +99,7 @@
                         <!-- Видео -->
                     <div class="post-video__block">
                         <div class="post-video__preview">
-                            <?=embed_youtube_cover($post['p_url']); ?>
+                            <?=embed_youtube_cover($post['post_url']); ?>
                         </div>
                         <a href="post-details.html" class="post-video__play-big button">
                             <svg class="post-video__play-big-icon" width="14" height="14">
@@ -115,13 +115,13 @@
                     <div class="post__author">
                         <a class="post__author-link" href="/profile.php?id=<?=$post['user_id']?>" title="Автор">
                             <div class="post__avatar-wrapper">
-                                <?php if ($post['u_avatar']): ?>
-                                <img class="post__author-avatar" src="<?=$post['u_avatar']?>" width="40" height="auto" alt="Аватар пользователя">
+                                <?php if ($post['avatar']): ?>
+                                <img class="post__author-avatar" src="<?=$post['avatar']?>" width="40" height="auto" alt="Аватар пользователя">
                                 <?php endif; ?>
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($post['u_name']); ?></b>
-                                <time class="post__time" datetime="<?= $post['p_date'];?>" title="<?= format_date($post['p_date']);?>"><?= generate_passed_time_text($post['p_date']);?> назад</time>
+                                <b class="post__author-name"><?= htmlspecialchars($post['username']); ?></b>
+                                <time class="post__time" datetime="<?= $post['post_date'];?>" title="<?= format_date($post['post_date']);?>"><?= generate_passed_time_text($post['post_date']);?> назад</time>
                             </div>
                         </a>
                     </div>

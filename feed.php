@@ -25,14 +25,9 @@ if (!isset($user)) {
 $filter = filter_input(INPUT_GET, 'filter', FILTER_SANITIZE_NUMBER_INT) ?? 0;
 
 // Создаем запрос на получение типов постов
-$sql = "SELECT
-    id,
-    t_class AS p_type,
-    t_title,
-    width,
-    height
-FROM post_type
-ORDER BY id ASC";
+$sql = "SELECT *
+        FROM post_type
+        ORDER BY id ASC";
 
 $result = fetch_sql_response($con, $sql, []);
 $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -45,16 +40,16 @@ if ($filter) {
 
 $sql = "SELECT
     post.id,
-    p_title,
-    post.dt_add AS p_date,
-    p_url,
-    p_text,
+    post_title,
+    post.date_add AS post_date,
+    post_url,
+    post_text,
     quote_author,
     repost_count,
     user_id,
-    u_name,
-    u_avatar,
-    t_class AS p_type,
+    username,
+    avatar,
+    type_class,
     type_id,
     (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
     (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
@@ -67,7 +62,7 @@ WHERE post.user_id IN
     (SELECT user_id FROM subscription
         WHERE subscriber_id = ?)"
 . $constraint
-. " ORDER BY post.dt_add ASC;";
+. " ORDER BY post.date_add ASC;";
 
 $data = array($user['id']);
 $result = fetch_sql_response($con, $sql, $data);

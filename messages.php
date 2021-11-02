@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors['message'] = 'Пост не найден. Не удалось записать комментарий';
         } else {
             // Создаем запрос на запись сообщения в базу данных
-            $sql_message = "INSERT INTO message (m_content, sender_id, receiver_id)
+            $sql_message = "INSERT INTO message (message_text, sender_id, receiver_id)
                 VALUES (?,?,?);";
             $data_message = array($message, $user['id'], $m_post['active-user-id']);
 
@@ -57,8 +57,8 @@ $logged_user_id = $user['id'];
 // Получаем список пользователей, с которыми есть переписка
 $sql = "SELECT DISTINCT
             user.id,
-            u_avatar,
-            u_name
+            avatar,
+            username
         FROM user
         WHERE id IN (SELECT DISTINCT sender_id FROM message WHERE receiver_id = ?)
             OR id IN (SELECT DISTINCT receiver_id FROM message WHERE sender_id = ?)";
@@ -83,25 +83,25 @@ if ($active_user_id) {
     $result = mysqli_stmt_execute($stmt);
 
     // Обновляем данные о количестве непрочитанных сообщений в сессии
-    $sql = "SELECT COUNT(id) AS m_count
+    $sql = "SELECT COUNT(id) AS message_count
             FROM message
             WHERE receiver_id = '$logged_user_id'
                 AND is_new = TRUE";
     $result = mysqli_query($con, $sql);
-    $user['m_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
+    $user['message_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
     $_SESSION['user'] = $user;
 }
 
 // Получим данные последнего сообщения для каждого участника переписки
 foreach ($recipients as &$recipient) {
     $sql = "SELECT
-                dt_add,
-                m_content,
+                date_add,
+                message_text,
                 sender_id
             FROM message
             WHERE sender_id IN (?, ?)
                 AND receiver_id IN (?, ?)
-            ORDER BY dt_add DESC
+            ORDER BY date_add DESC
             LIMIT 1";
 
     $data = array($recipient['id'], $logged_user_id, $recipient['id'], $logged_user_id);
@@ -128,24 +128,24 @@ unset($recipient);
 // Отсортируем полученный массив по полю с датой последнего сообщения
 function compare_date($left, $right)
 {
-    if ($left['dt_add'] == $right['dt_add']) {
+    if ($left['date_add'] == $right['date_add']) {
         return 0;
     }
-    return ($left['dt_add'] > $right['dt_add']) ? -1 : 1;
+    return ($left['date_add'] > $right['date_add']) ? -1 : 1;
 };
 
 usort($recipients, 'compare_date');
 
 if (!empty($recipients)) {
     // Добавим каждому элементу массива поле с датой в строковом формате
-    $months = array(1 => 'янв', 'фев', 'мар', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек');
+    $months = array(1 => 'янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек');
 
     foreach ($recipients as &$recipient) {
-        $message_dt = strtotime($recipient['dt_add']);
-        if (date('d-m-Y') === date('d-m-Y', $message_dt)) {
-            $recipient['format_dt'] = date('H:i', $message_dt);
+        $message_date = strtotime($recipient['date_add']);
+        if (date('d-m-Y') === date('d-m-Y', $message_date)) {
+            $recipient['format_date'] = date('H:i', $message_date);
         } else {
-            $recipient['format_dt'] = date('d ' . $months[date('n', $message_dt)]);
+            $recipient['format_date'] = date('d ' . $months[date('n', $message_date)]);
         }
     }
     unset($recipient);
@@ -157,21 +157,22 @@ $messages = [];
 if (empty($recipients) or !in_array($active_user_id, array_column($recipients, 'id'))) {
     $sql = "SELECT
         id,
-        u_avatar,
-        u_name FROM user WHERE id = ?;";
+        avatar,
+        username FROM user WHERE id = ?;";
     $result = fetch_sql_response($con, $sql, [$active_user_id]);
     if ($result && mysqli_num_rows($result)) {
         $active_user = mysqli_fetch_assoc($result);
-        $empty_data = [
-            'id' => null,
-            'u_avatar' => null,
-            'u_name' => null,
-            'dt_add' => null,
-            'm_content' => null,
-            'sender_id' => null,
-            'new_count' => null,
-            'format_dt' => null
+        $data_keys = [
+            'id',
+            'avatar',
+            'username',
+            'date_add',
+            'message_text',
+            'sender_id',
+            'new_count',
+            'format_date',
         ];
+        $empty_data = array_fill_keys($data_keys, null);
         $active_user = array_merge($empty_data, $active_user);
         array_unshift($recipients, $active_user);
     }
@@ -179,15 +180,15 @@ if (empty($recipients) or !in_array($active_user_id, array_column($recipients, '
     // Если с пользователем есть чат, создаем запрос на получение сообщений
     $sql = "SELECT
     message.*,
-    user.id AS u_id,
-    u_avatar,
-    u_name
+    user.id AS user_id,
+    avatar,
+    username
     FROM message
     INNER JOIN user
         ON user.id = sender_id
     WHERE (sender_id = ? AND receiver_id = ?)
         OR (receiver_id = ? AND sender_id = ?)
-    ORDER BY dt_add;";
+    ORDER BY date_add;";
     $data = [$active_user_id, $logged_user_id, $active_user_id, $logged_user_id];
     $result = fetch_sql_response($con, $sql, $data);
     if ($result && mysqli_num_rows($result)) {

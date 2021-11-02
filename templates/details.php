@@ -1,6 +1,6 @@
 <main class="page__main page__main--publication">
   <div class="container">
-    <h1 class="page__title page__title--publication"><?=$post['p_title'];?></h1>
+    <h1 class="page__title page__title--publication"><?=$post['post_title'];?></h1>
     <section class="post-details">
       <h2 class="visually-hidden">Публикация</h2>
       <div class="post-details__wrapper post-photo">
@@ -8,14 +8,14 @@
           <?= $post_content; ?>
           <div class="post__indicators">
             <div class="post__info">
-                <time class="post__time" datetime="<?= $post['dt_add'];?>" title="<?= format_date($post['dt_add']);?>"><?= generate_passed_time_text($post['dt_add']);?> назад</time>
+                <time class="post__time" datetime="<?= $post['date_add'];?>" title="<?= format_date($post['date_add']);?>"><?= generate_passed_time_text($post['date_add']);?> назад</time>
             </div>
             <span class="post__view"><?=$post['watch_count'] ?? 0; ?> просмотров</span>
           </div>
           <?php if ($hashtags): ?>
           <ul class="post__tags">
             <?php foreach ($hashtags as $hash): ?>
-            <li><a href="search.php?q=%23<?=$hash['title']?>">#<?=$hash['title']; ?></a></li>
+            <li><a href="search.php?q=%23<?=$hash['hashtag_title']?>">#<?=$hash['hashtag_title']; ?></a></li>
             <?php endforeach; ?>
           </ul>
           <?php endif; ?>
@@ -77,20 +77,20 @@
                 <li class="comments__item user">
                   <div class="comments__avatar">
                     <a class="user__avatar-link" href="/profile.php?id=<?=$comment['user_id']?>">
-                      <?php if ($comment['u_avatar']): ?>
-                      <img class="comments__picture" src="<?=$comment['u_avatar'] ;?>" alt="Аватар пользователя">
+                      <?php if ($comment['avatar']): ?>
+                      <img class="comments__picture" src="<?=$comment['avatar'] ;?>" alt="Аватар пользователя">
                       <?php endif; ?>
                     </a>
                   </div>
                   <div class="comments__info">
                     <div class="comments__name-wrapper">
                       <a class="comments__user-name" href="/profile.php?id=<?=$comment['user_id']?>">
-                        <span><?= htmlspecialchars($comment['u_name']); ?></span>
+                        <span><?= htmlspecialchars($comment['username']); ?></span>
                       </a>
-                      <time class="comments__time" datetime="<?= $comment['c_date'];?>"><?= generate_passed_time_text($comment['c_date']);?> назад</time>
+                      <time class="comments__time" datetime="<?= $comment['comment_date'];?>"><?= generate_passed_time_text($comment['comment_date']);?> назад</time>
                     </div>
                     <p class="comments__text">
-                      <?= htmlspecialchars($comment['c_content']); ?>
+                      <?= htmlspecialchars($comment['comment_text']); ?>
                     </p>
                   </div>
                 </li>
@@ -109,21 +109,21 @@
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
               <a class="post-details__avatar-link user__avatar-link" href="/profile.php?id=<?=$user['id']; ?>">
-                <?php if ($user['u_avatar']): ?>
-                <img class="post-details__picture user__picture" src="<?=$user['u_avatar'];?>" width="60" height="60" alt="Аватар пользователя">
+                <?php if ($user['avatar']): ?>
+                <img class="post-details__picture user__picture" src="<?=$user['avatar'];?>" width="60" height="60" alt="Аватар пользователя">
                 <?php endif; ?>
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
               <a class="post-details__name user__name" href="/profile.php?id=<?=$user['id']; ?>">
-                <span><?=htmlspecialchars($user['u_name']);?></span>
+                <span><?=htmlspecialchars($user['username']);?></span>
               </a>
-              <time class="post-details__time user__time" datetime="<?=$user['dt_add'];?>"><?= generate_passed_time_text($user['dt_add']);?> на сайте</time>
+              <time class="post-details__time user__time" datetime="<?=$user['date_add'];?>"><?= generate_passed_time_text($user['date_add']);?> на сайте</time>
             </div>
           </div>
           <div class="post-details__rating user__rating">
             <p class="post-details__rating-item user__rating-item user__rating-item--subscribers">
-              <span class="post-details__rating-amount user__rating-amount"><?=$user['subs_count'];?></span>
+              <span class="post-details__rating-amount user__rating-amount"><?=$user['subscriber_count'];?></span>
               <span class="post-details__rating-text user__rating-text">подписчиков</span>
             </p>
             <p class="post-details__rating-item user__rating-item user__rating-item--publications">

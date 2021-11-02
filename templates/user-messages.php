@@ -18,8 +18,8 @@
             ?>
             <a class="<?=$class; ?>" <?=$href_attribute; ?>>
             <div class="messages__avatar-wrapper">
-                <?php if ($user['u_avatar']): ?>
-                <img class="messages__avatar" src="<?=$user['u_avatar']; ?>" width="60" height="60" alt="Аватар пользователя">
+                <?php if ($user['avatar']): ?>
+                <img class="messages__avatar" src="<?=$user['avatar']; ?>" width="60" height="60" alt="Аватар пользователя">
                 <?php endif;
                   if ($user['new_count']): ?>
                 <i class="messages__indicator"><?=$user['new_count']; ?></i>
@@ -27,19 +27,17 @@
             </div>
             <div class="messages__info">
                 <span class="messages__contact-name">
-                <?=htmlspecialchars($user['u_name']); ?>
+                <?=htmlspecialchars($user['username']); ?>
                 </span>
                 <div class="messages__preview">
                 <p class="messages__preview-text">
                     <?php if ($logged_user['id'] == $user['sender_id']) {
                       echo 'Вы: ';
                   }
-                     echo htmlspecialchars(cut_excerpt($user['m_content'], 25));
+                     echo htmlspecialchars(cut_excerpt($user['message_text'], 25));
                     ?>
                 </p>
-                <time class="messages__preview-time" datetime="<?=$user['dt_add']?>">
-                    <?=$user['format_dt']; ?>
-                </time>
+                <time class="messages__preview-time" datetime="<?=$user['date_add']?>"><?=$user['format_date']; ?></time>
                 </div>
             </div>
             </a>
@@ -51,29 +49,29 @@
         <div class="messages__chat-wrapper">
         <ul class="messages__list tabs__content tabs__content--active">
             <?php foreach ($messages as $message): ?>
-            <li class="messages__item <?php if ($logged_user['id'] == $message['u_id']) {
+            <li class="messages__item <?php if ($logged_user['id'] == $message['user_id']) {
                         echo ' messages__item--my';
                     } ?>">
             <div class="messages__info-wrapper">
                 <div class="messages__item-avatar">
-                <a class="messages__author-link" href="/profile.php?id=<?=$message['u_id']; ?>">
-                    <?php if ($message['u_avatar']): ?>
-                    <img class="messages__avatar" src="<?=$message['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
+                <a class="messages__author-link" href="/profile.php?id=<?=$message['user_id']; ?>">
+                    <?php if ($message['avatar']): ?>
+                    <img class="messages__avatar" src="<?=$message['avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
                     <?php endif; ?>
                 </a>
                 </div>
                 <div class="messages__item-info">
-                <a class="messages__author" href="/profile.php?id=<?=$message['u_id']; ?>">
-                    <?=htmlspecialchars($message['u_name']); ?>
+                <a class="messages__author" href="/profile.php?id=<?=$message['user_id']; ?>">
+                    <?=htmlspecialchars($message['username']); ?>
                 </a>
                 <time class="messages__time" datetime="
-                <?=$message['dt_add']; ?>">
-                    <?= generate_passed_time_text($message['dt_add']);?> назад
+                <?=$message['date_add']; ?>">
+                    <?= generate_passed_time_text($message['date_add']);?> назад
                 </time>
                 </div>
             </div>
             <p class="messages__text">
-                <?=htmlspecialchars($message['m_content']); ?>
+                <?=htmlspecialchars($message['message_text']); ?>
             </p>
             </li>
             <?php endforeach; ?>
@@ -84,8 +82,8 @@
         <form class="comments__form form" action="/messages.php?id=<?=$active_user_id; ?>" method="post">
             <input type="hidden" name="active-user-id" value="<?=$active_user_id; ?>">
             <div class="comments__my-avatar">
-            <?php if ($logged_user['u_avatar']): ?>
-                <img class="comments__picture" src="<?=$logged_user['u_avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
+            <?php if ($logged_user['avatar']): ?>
+                <img class="comments__picture" src="<?=$logged_user['avatar']; ?>" width="40" height="40" alt="Аватар пользователя">
             <?php endif; ?>
             </div>
             <div class="form__input-section <?php if (isset($errors['message'])) {

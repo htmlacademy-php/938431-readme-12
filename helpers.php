@@ -1,27 +1,6 @@
 <?php
 
 error_reporting(E_ALL);
-/**
- * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
- *
- * Примеры использования:
- * is_date_valid('2019-01-01'); // true
- * is_date_valid('2016-02-29'); // true
- * is_date_valid('2019-04-31'); // false
- * is_date_valid('10.10.2010'); // false
- * is_date_valid('10/10/2010'); // false
- *
- * @param string $date Дата в виде строки
- *
- * @return bool true при совпадении с форматом 'ГГГГ-ММ-ДД', иначе false
- */
-function is_date_valid(string $date): bool
-{
-    $format_to_check = 'Y-m-d';
-    $dateTimeObj = date_create_from_format($format_to_check, $date);
-
-    return $dateTimeObj !== false && array_sum(date_get_last_errors()) === 0;
-}
 
 /**
  * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
@@ -461,10 +440,10 @@ function fetch_sql_response($link, $sql, $data)
  */
 function fetch_hashtags($link, $post_id)
 {
-    $sql = "SELECT title
+    $sql = "SELECT hashtag_title
     FROM hashtag
     INNER JOIN post_hashtag
-    ON hashtag.id = hash_id
+    ON hashtag.id = hashtag_id
     AND post_id = ?;";
 
     $result = fetch_sql_response($link, $sql, [$post_id]);
@@ -490,21 +469,21 @@ function include_footer($footer_class = '')
 function choose_post_template($post)
 {
     $result = '';
-    switch ($post['p_type']) {
+    switch ($post['type_class']) {
         case 'link':
-            $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
+            $result = include_template('details-link.php', ['title' => $post['post_title'], 'url' => $post['post_url']]);
             break;
         case 'photo':
-            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
+            $result = include_template('details-photo.php', ['img_url' => $post['post_url']]);
             break;
         case 'quote':
-            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
+            $result = include_template('details-quote.php', ['text' => $post['post_text'], 'author' => $post['quote_author']]);
             break;
         case 'text':
-            $result = include_template('details-text.php', ['text' => $post['p_text']]);
+            $result = include_template('details-text.php', ['text' => $post['post_text']]);
             break;
         case 'video':
-            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
+            $result = include_template('details-video.php', ['youtube_url' => $post['post_url']]);
             break;
     };
 
@@ -518,7 +497,7 @@ function choose_post_template($post)
  */
 function generate_post_template($post)
 {
-    $type = $post['p_type'];
+    $type = $post['type_class'];
     $result = '';
     switch ($type) {
         case 'link':
@@ -662,7 +641,7 @@ function validate_image_file($path)
 function validate_file($file)
 {
     $message = null;
-    if (isset($file['name'])) {
+    if (!empty($file['name'])) {
         $file_path = $file['tmp_name'];
         $message = validate_image_file($file_path);
         if (!$message) {
@@ -747,15 +726,15 @@ function authorize_user($form, $link)
         $user = $result ? mysqli_fetch_array($result, MYSQLI_ASSOC) : null;
         if ($user) {
             // Проверяем пароль и открываем сессию
-            if (password_verify($form['password'], $user['u_password'])) {
+            if (password_verify($form['password'], $user['password'])) {
                 // Создаем запрос на количество непрочитанных сообщений
                 $user_id = $user['id'];
-                $sql = "SELECT COUNT(id) AS m_count
+                $sql = "SELECT COUNT(id) AS message_count
                         FROM message
                         WHERE receiver_id = '$user_id'
                             AND is_new = TRUE";
                 $result = mysqli_query($link, $sql);
-                $user['m_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
+                $user['message_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
                 $_SESSION['user'] = $user;
             } else {
                 $errors['password'] = 'Неверный пароль';
@@ -844,4 +823,20 @@ function rename_key($old_keys, $new_key, $arr)
         }
     }
     return $arr;
+}
+
+/**
+ * Отображает массив
+ *
+ * @param $var
+ */
+function array_view($var)
+{
+    ?>
+
+	<div style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
+		<pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var, true)?></pre>
+	</div>
+
+<?php
 }

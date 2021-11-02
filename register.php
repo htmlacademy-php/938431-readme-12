@@ -65,16 +65,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $avatar = $path ?? null;
         $sql = "INSERT INTO user (
             email,
-            u_password,
-            u_avatar,
-            u_name
+            password,
+            avatar,
+            username
         )
         VALUES (?, ?, ?, ?);";
         $stmt = db_get_prepare_stmt($con, $sql, [$email, $password, $avatar, $login]);
         $result = mysqli_stmt_execute($stmt);
 
         if ($result) {
-            header("Location: /");
+            // Записываем данные нового пользователя в сессию
+            $new_user_id = mysqli_insert_id($con);
+            $sql = "SELECT * FROM user WHERE id = ?";
+            $result = fetch_sql_response($con, $sql, [$new_user_id]);
+            if ($result && mysqli_num_rows($result)) {
+                $new_user = mysqli_fetch_assoc($result);
+                $new_user['message_count'] = 0;
+                $_SESSION['user'] = $new_user;
+                header("Location: /");
+            }
         } else {
             $errors['mysql'] = 'Не удалось зарегистрировать аккаунт';
         }
@@ -86,6 +95,7 @@ $label = [
     'password' => 'Пароль',
     'password-repeat' => 'Повтор пароля',
     'file' => 'Загрузка фото',
+    'mysql' => 'Ошибка сохранения на сервер'
 ];
 $invalid_block = '';
 

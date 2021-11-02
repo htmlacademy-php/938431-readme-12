@@ -5,13 +5,13 @@
       <div class="profile__user user container">
         <div class="profile__user-info user__info">
           <div class="profile__avatar user__avatar">
-            <?php if ($user['u_avatar']): ?>
-            <img class="profile__picture user__picture" src="<?=$user['u_avatar']; ?>" width="100" height="auto" alt="Аватар пользователя">
+            <?php if ($user['avatar']): ?>
+            <img class="profile__picture user__picture" src="<?=$user['avatar']; ?>" width="100" height="auto" alt="Аватар пользователя">
             <?php endif; ?>
           </div>
           <div class="profile__name-wrapper user__name-wrapper">
-            <span class="profile__name user__name"><?=$user['u_name']?></span>
-            <time class="profile__user-time user__time" datetime="<?=$user['dt_add'];?>"><?= generate_passed_time_text($user['dt_add']);?> на сайте</time>
+            <span class="profile__name user__name"><?=$user['username']?></span>
+            <time class="profile__user-time user__time" datetime="<?=$user['date_add'];?>"><?= generate_passed_time_text($user['date_add']);?> на сайте</time>
             </div>
           </div>
           <div class="profile__rating user__rating">
@@ -20,7 +20,7 @@
             <span class="profile__rating-text user__rating-text">публикаций</span>
             </p>
             <p class="profile__rating-item user__rating-item user__rating-item--subscribers">
-            <span class="user__rating-amount"><?=$user['subs_count'];?></span>
+            <span class="user__rating-amount"><?=$user['subscriber_count'];?></span>
             <span class="profile__rating-text user__rating-text">подписчиков</span>
             </p>
           </div>
@@ -41,16 +41,16 @@
           <b class="profile__tabs-caption filters__caption">Показать:</b>
           <ul class="profile__tabs-list filters__list tabs__list">
             <?php
-            $link_cls = 'profile__tabs-link filters__button tabs__item button';
-            $cls_active = $link_cls . ' filters__button--active tabs__item--active';
+            $link_class = 'profile__tabs-link filters__button tabs__item button';
+            $class_active = $link_class . ' filters__button--active tabs__item--active';
 
             foreach ($tab_types as $key => $value): ?>
             <li class="profile__tabs-item filters__item">
             <?php if ($key == $active_tab) {
-                $class = $cls_active;
+                $class = $class_active;
                 $href = '';
             } else {
-                $class = $link_cls;
+                $class = $link_class;
                 $href = ' href="' . update_query_params('tab', $key) . '"';
             } ?>
               <a class="<?=$class; ?>"<?=$href; ?>><?=$value?></a>
