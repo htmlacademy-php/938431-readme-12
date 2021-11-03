@@ -218,33 +218,6 @@ function extract_youtube_id($youtube_url)
     return $id;
 }
 
-/**
- * @param $index
- * @return false|string
- */
-function generate_random_date($index)
-{
-    $deltas = [['minutes' => 59], ['hours' => 23], ['days' => 6], ['weeks' => 4], ['months' => 11]];
-    $dcnt = count($deltas);
-
-    if ($index < 0) {
-        $index = 0;
-    }
-
-    if ($index >= $dcnt) {
-        $index = $dcnt - 1;
-    }
-
-    $delta = $deltas[$index];
-    $timeval = rand(1, current($delta));
-    $timename = key($delta);
-
-    $ts = strtotime("$timeval $timename ago");
-    $dt = date('Y-m-d H:i:s', $ts);
-
-    return $dt;
-}
-
 //         ******  Мои функции  ******
 
 define('MB', 1048576); // 1Мб в байтах
@@ -290,18 +263,6 @@ function text_template($text, $max_length = 300)
 
     return $result;
 };
-
-/**
- * Добавляет всем элементам массива новое поле с ключом "date" и значением - случайной датой
- * @param array $elements - Исходный массив
-*/
-function add_dates($elements)
-{
-    foreach ($elements as $key => $element) {
-        $elements[$key]['date_add'] = generate_random_date($key);
-    }
-    return $elements;
-}
 
 /**
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
@@ -462,64 +423,22 @@ function include_footer($footer_class = '')
 }
 
 /**
- * Выбирает html шаблон в зависимости от полученного типа поста
- * @param array $post  Массив с данными о посте
- * @return string Итоговый HTML
- */
-function choose_post_template($post)
-{
-    $result = '';
-    switch ($post['type_class']) {
-        case 'link':
-            $result = include_template('details-link.php', ['title' => $post['post_title'], 'url' => $post['post_url']]);
-            break;
-        case 'photo':
-            $result = include_template('details-photo.php', ['img_url' => $post['post_url']]);
-            break;
-        case 'quote':
-            $result = include_template('details-quote.php', ['text' => $post['post_text'], 'author' => $post['quote_author']]);
-            break;
-        case 'text':
-            $result = include_template('details-text.php', ['text' => $post['post_text']]);
-            break;
-        case 'video':
-            $result = include_template('details-video.php', ['youtube_url' => $post['post_url']]);
-            break;
-    };
-
-    return $result;
-};
-
-/**
- * Генерирует html разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * Возвращает шаблон для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
  * @param $post array Массив с данными о посте
  * @return string Итоговый HTML
  */
 function generate_post_template($post)
 {
+    $templates = [
+        'link' => 'post-link.php',
+        'photo' => 'post-photo.php',
+        'text' => 'post-text.php',
+        'quote' => 'post-quote.php',
+        'video' => 'post-video.php',
+    ];
     $type = $post['type_class'];
-    $result = '';
-    switch ($type) {
-        case 'link':
-            $template = 'post-link.php';
-        break;
-        case 'photo':
-            $template = 'post-photo.php';
-        break;
-        case 'text':
-            $template = 'post-text.php';
-        break;
-        case 'quote':
-            $template = 'post-quote.php';
-        break;
-        case 'video':
-            $template = 'post-video.php';
-        break;
-    }
-    if ($template) {
-        $result = include_template($template, ['post' => $post]);
-    }
-    return $result;
+
+    return $templates[$type] ?? '' ;
 }
 
 /**
