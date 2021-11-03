@@ -10,6 +10,10 @@ if ($user) {
 
 require_once('helpers.php');
 
+define('LOGIN_MAX_LENGTH', 50);
+define('PASSWORD_MAX_LENGTH', 100);
+define('PASSWORD_MIN_LENGTH', 8);
+
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -18,6 +22,16 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $form = $_POST;
     $required = ['email', 'login', 'password', 'password-repeat'];
+    $rules = [
+        'login' => function ($login) {
+            return validate_max_length($login, LOGIN_MAX_LENGTH);
+        },
+        'password' => function ($password) {
+            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length($password, PASSWORD_MAX_LENGTH);
+            return $message;
+        },
+    ];
+
 
     // Проверяем заполненность обязательных полей
     foreach ($required as $field) {
@@ -26,24 +40,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     // Проверяем, что в базе нет пользователя с введенным email
-    if (empty($errors)) {
-        $email = filter_var($form['email'], FILTER_VALIDATE_EMAIL);
-        if ($email) {
-            $sql = "SELECT id FROM user WHERE email = '$email';";
-            $result = mysqli_query($con, $sql);
-            if (mysqli_num_rows($result) > 0) {
-                $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
-            }
-        } else {
-            $errors['email'] = 'Введен некорректный email';
+    if (empty($errors['email'])) {
+        $error = validate_email_unique($form['email'], $con);
+        if ($error) {
+            $errors['email'] = $error;
         }
+    }
+    // Проверяем длину полей
+    if (empty($errors)) {
+        foreach ($rules as $key => $rule) {
+            $errors[$key] = $rule($form[$key]);
+        }
+        $errors = array_diff($errors, array(''));
     }
 
     // Проверяем, что пароль и его повтор совпадают
     if (empty($errors)) {
         if ($form['password'] != $form['password-repeat']) {
-            $errors['password'] = 'Введенные пароли не совпадают';
+            $errors['password-repeat'] = 'Введенные пароли не совпадают';
         }
+        $errors = array_diff($errors, array(''));
     }
     // Проверяем тип и размер загруженного файла
     if (empty($errors) and !empty($_FILES['file']['name'])) {
@@ -54,11 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    if (empty($errors)) {
+    if (empty($errors) and !empty($_FILES['file']['name'])) {
         // Если загружен файл перемещаем его в папку uploads
-        if (!empty($_FILES['file']['name'])) {
-            $path = replace_file_to_uploads($_FILES['file']);
-        }
+        $path = replace_file_to_uploads($_FILES['file']);
         // Создаем запрос на запись нового пользователя
         $login = filter_var($form['login'], FILTER_DEFAULT);
         $password = password_hash($form['password'], PASSWORD_DEFAULT);
@@ -89,6 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+$errors = array_diff($errors, array(''));
+
 $label = [
     'email' => 'Электронная почта',
     'login' => 'Логин',

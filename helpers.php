@@ -394,7 +394,7 @@ function fetch_sql_response($link, $sql, $data)
 
 /**
  * Отправляет запрос на получение хэштегов к посту с заданным id
- * @param $link mysqli Ресурс соединения
+ * @param  mysqli $link Ресурс соединения
  * @param int $post_id  id поста
  *
  * @return array $hashtags Массив хэштегов
@@ -423,12 +423,13 @@ function include_footer($footer_class = '')
 }
 
 /**
- * Возвращает шаблон для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
- * @param $post array Массив с данными о посте
+ * Генерирует html-разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * @param array $post  Массив с данными о посте
  * @return string Итоговый HTML
  */
 function generate_post_template($post)
 {
+    $markup = '';
     $templates = [
         'link' => 'post-link.php',
         'photo' => 'post-photo.php',
@@ -438,7 +439,11 @@ function generate_post_template($post)
     ];
     $type = $post['type_class'];
 
-    return $templates[$type] ?? '' ;
+    $template = $templates[$type] ?? null;
+    if (isset($template)) {
+        $markup = include_template($template, ['post' => $post]);
+    }
+    return $markup;
 }
 
 /**
@@ -495,17 +500,59 @@ function validate_filled($value)
 }
 
 /**
- * Функция - валидатор длины текста в поле
+ * Функция - валидатор минимальной длины текста в поле
  * @param string $value Значение поля формы
- * @return string|null Текст сообщения об ошибке
+ * @return string|null $message Текст сообщения об ошибке
  */
 function validate_min_length($value, $min)
 {
+    $message = null;
     $length = mb_strlen($value);
     if ($length < $min) {
-        return "Длина текста должна быть не менее $min символов";
+        $message = "Длина должна быть не менее $min символов";
     }
+    return $message;
 }
+
+/**
+ * Функция - валидатор максимальной длины текста в поле
+ * @param string $value Значение поля формы
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_max_length($value, $max)
+{
+    $message = null;
+    $value = trim($value);
+    $length = mb_strlen($value);
+    if ($length > $max) {
+        $message = "Превышена допустимая длина поля: введите не более $max символов";
+    }
+    return $message;
+}
+
+
+/**
+ * Проверяет корректность email и наличие в Базе данных пользователя с переданным email
+ * @param string $email Email
+ * @param  mysqli $link Ресурс соединения
+ * @return string|null $message Текст сообщения о существовании пользователя с таким email
+ */
+function validate_email_unique($email_value, $link)
+{
+    $email = filter_var($email_value, FILTER_VALIDATE_EMAIL);
+    $message = null;
+    if ($email) {
+        $sql = "SELECT id FROM user WHERE email = '$email';";
+        $result = mysqli_query($link, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            $message = 'Пользователь с этим email уже зарегистрирован';
+        }
+    } else {
+        $message = 'Введен некорректный email';
+    }
+    return $message;
+}
+
 
 /**
  * Функция - валидатор поля ввода хэштегов
