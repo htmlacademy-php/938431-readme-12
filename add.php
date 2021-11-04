@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form_options = [
         'link' => [
             'required' => ['post-link'],
-            'filters' =>['post-link']
+            'filters' => ['post-link']
         ],
         'photo' => [
             'required' => [],
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Определяем id активного типа поста и добавляем его в массив $post
         foreach ($types as $value) {
             if ($value['type_class'] === $active_type) {
-                $type_id = (int) $value['id'];
+                $type_id = (int)$value['id'];
                 break;
             }
         }
@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($result && mysqli_num_rows($result)) {
                     $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-                    $text_message = 'Пользователь ' . $user['username'] .'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
+                    $text_message = 'Пользователь ' . $user['username'] . 'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
                     $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
 
                     foreach ($subscribers as $subscriber) {

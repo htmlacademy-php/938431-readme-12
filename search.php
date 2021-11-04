@@ -55,7 +55,7 @@ if ($search) {
             $posts_ids = array_column($posts_ids, 'post_id');
             $comma_separated_ids = implode(',', $posts_ids);
 
-            $where_condition = ' WHERE post.id IN ('. $comma_separated_ids .')
+            $where_condition = ' WHERE post.id IN (' . $comma_separated_ids . ')
             ORDER BY post_date DESC';
             $data = [];
             $sql = $sql_posts . $where_condition;
@@ -80,7 +80,7 @@ if ($search) {
         $content = include_template('no-results.php', ['search' => $search]);
     } else {
         $content = include_template('search-results.php', [
-            'current_user_id' => (int) $user['id'],
+            'current_user_id' => (int)$user['id'],
             'posts' => $posts,
             'search' => $search,
         ]);

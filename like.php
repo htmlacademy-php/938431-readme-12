@@ -29,7 +29,7 @@ $post = mysqli_fetch_assoc($result);
 // Если пост существует, создаем или удаляем запись в таблице связей post_like
 if (!empty($post)) {
     // Если залогиненный пользователь пытается поставить лайк собственному посту, не делаем записей, возвращаемся на страницу
-    $user_id = (int) $user['id'];
+    $user_id = (int)$user['id'];
 
     if ($user_id === $post['user_id']) {
         header("Location: {$_SERVER['HTTP_REFERER']}");
@@ -44,7 +44,7 @@ if (!empty($post)) {
     $data = [$post_id, $user_id];
     $result = fetch_sql_response($con, $sql, $data);
     $likes = mysqli_fetch_assoc($result);
-    $is_like = (bool) $likes['like_count'];
+    $is_like = (bool)$likes['like_count'];
 
     if ($is_like) {
         // Если есть записи - удаляем их, снимаем лайк

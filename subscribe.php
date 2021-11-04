@@ -57,7 +57,7 @@ if (empty($bind)) {
                 $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
                 $message->setTo($recipient);
                 $message->setSubject('У вас новый подписчик');
-                $text_message = 'На вас подписался новый пользователь ' .$user['username'] . '. Вот ссылка на его профиль: ';
+                $text_message = 'На вас подписался новый пользователь ' . $user['username'] . '. Вот ссылка на его профиль: ';
 
                 $message_content = include_template('subscriber-email.php', [
                     'recipient_name' => $profile_user['username'],

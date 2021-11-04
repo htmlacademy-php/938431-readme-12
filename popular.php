@@ -86,8 +86,8 @@ FROM post
         ON user_id = user.id
     INNER JOIN post_type
         ON type_id = post_type.id"
-. $where_condition
-. " ORDER BY " . $order_param . " DESC
+    . $where_condition
+    . " ORDER BY " . $order_param . " DESC
 LIMIT ? OFFSET ?";
 
 // Получаем результат
@@ -99,7 +99,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $title = 'readme: популярное';
 
 $content = include_template('user-popular.php', [
-    'current_user_id' => (int) $user['id'],
+    'current_user_id' => (int)$user['id'],
     'page' => $page,
     'posts' => $posts,
     'types' => $types,

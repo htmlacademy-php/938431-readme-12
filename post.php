@@ -56,7 +56,7 @@ FROM comment
         ON user.id = comment.user_id
 WHERE post_id = ?
 ORDER BY comment_date DESC"
-. $constraint;
+    . $constraint;
 
 // Создаем запрос на получение данных о пользователе
 $sql_user = "SELECT
@@ -101,9 +101,9 @@ $post_author = mysqli_fetch_assoc($result);
 
 // Отправляем запрос на существование у текущего пользователя подписки на автора поста
 $result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
-$is_subscribed = (bool) mysqli_num_rows($result);
+$is_subscribed = (bool)mysqli_num_rows($result);
 
-$is_current_user = (int) $user['id'] === $user_id;
+$is_current_user = (int)$user['id'] === $user_id;
 
 $templates = [
     'link' => 'details-link.php',

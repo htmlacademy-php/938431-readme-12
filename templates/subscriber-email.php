@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 </head>
 <body>
-    <h1>Здравствуйте, <?=$recipient_name; ?>.</h1>
+<h1>Здравствуйте, <?= $recipient_name; ?>.</h1>
 
-    <p><?=$text; ?> <a href="<?=$url;?>"><?=$url;?></a></p>
+<p><?= $text; ?> <a href="<?= $url; ?>"><?= $url; ?></a></p>
 </body>
 </html>

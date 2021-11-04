@@ -134,7 +134,9 @@ function compare_date($left, $right)
         return 0;
     }
     return ($left['date_add'] > $right['date_add']) ? -1 : 1;
-};
+}
+
+;
 
 usort($recipients, 'compare_date');
 
@@ -200,7 +202,7 @@ if (empty($recipients) or !in_array($active_user_id, array_column($recipients, '
 
 
 $content = include_template('user-messages.php', [
-    'active_user_id' => (int) $active_user_id,
+    'active_user_id' => (int)$active_user_id,
     'errors' => $errors,
     'logged_user' => $user,
     'messages' => $messages,

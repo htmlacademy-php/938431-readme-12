@@ -230,7 +230,7 @@ define('MIN_COMMENT_LENGTH', 4); // Минимальная длина комме
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
-*/
+ */
 function cut_excerpt($text, $max_length)
 {
     $new_text = trim($text);
@@ -253,7 +253,7 @@ function cut_excerpt($text, $max_length)
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
-*/
+ */
 function text_template($text, $max_length = 300)
 {
     if (mb_strlen($text) <= $max_length) {
@@ -264,12 +264,14 @@ function text_template($text, $max_length = 300)
     }
 
     return $result;
-};
+}
+
+;
 
 /**
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
-*/
+ */
 function format_date($date)
 {
     $date = date_create($date);
@@ -280,7 +282,7 @@ function format_date($date)
 /**
  * Возвращает интервал времени между текущей датой и заданной
  * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
-*/
+ */
 function calc_time_interval($date_str)
 {
     $target_date = date_create('now');
@@ -292,7 +294,7 @@ function calc_time_interval($date_str)
  * Увеличивает первый параметр на единицу, если второй параметр - истиный
  * @param int $number Исходное число
  * @param bool $condition
-*/
+ */
 function increment_by_condition($number, $condition)
 {
     if ($condition) {
@@ -308,16 +310,16 @@ function increment_by_condition($number, $condition)
  * Пример: если временной интервал равен 1 час 0 минут 45 секунд - результат будет "1 час назад"
  * @param object $interval Экземпляр DateInterval
  * @return string Временной интервал в человекочитаемом виде
-*/
+ */
 function generate_interval_text($interval)
 {
     $week = 7; // 7 суток
-    $passed_seconds = $interval -> s;
-    $passed_minutes = $interval -> i;
-    $passed_hours = $interval -> h;
-    $passed_days = $interval -> d % $week;
-    $passed_weeks = intdiv($interval -> d, $week);
-    $passed_months = $interval -> m;
+    $passed_seconds = $interval->s;
+    $passed_minutes = $interval->i;
+    $passed_hours = $interval->h;
+    $passed_days = $interval->d % $week;
+    $passed_weeks = intdiv($interval->d, $week);
+    $passed_months = $interval->m;
 
     if (!$passed_months and !$passed_weeks and !$passed_days and !$passed_hours) {
         $result = increment_by_condition($passed_minutes, $passed_seconds);
@@ -338,13 +340,15 @@ function generate_interval_text($interval)
     }
 
     return $result;
-};
+}
+
+;
 
 /**
  * Возвращает строку вида "5 минут назад" на основании переданной даты в прошлом
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
  * @return string
-*/
+ */
 function generate_passed_time_text($date)
 {
     $interval = calc_time_interval($date);
@@ -396,8 +400,8 @@ function fetch_sql_response($link, $sql, $data)
 
 /**
  * Отправляет запрос на получение хэштегов к посту с заданным id
- * @param  mysqli $link Ресурс соединения
- * @param int $post_id  id поста
+ * @param mysqli $link Ресурс соединения
+ * @param int $post_id id поста
  *
  * @return array $hashtags Массив хэштегов
  */
@@ -426,7 +430,7 @@ function include_footer($footer_class = '')
 
 /**
  * Генерирует html-разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
- * @param array $post  Массив с данными о посте
+ * @param array $post Массив с данными о посте
  * @return string Итоговый HTML
  */
 function generate_post_template($post)
@@ -466,7 +470,9 @@ function update_query_params($key, $value)
     $query = http_build_query($params);
     $url = "?" . $query;
     return $url;
-};
+}
+
+;
 
 /**
  * Возвращает значение поля формы
@@ -536,7 +542,7 @@ function validate_max_length($value, $max)
 /**
  * Проверяет корректность email и наличие в Базе данных пользователя с переданным email
  * @param string $email Email
- * @param  mysqli $link Ресурс соединения
+ * @param mysqli $link Ресурс соединения
  * @return string|null $message Текст сообщения о существовании пользователя с таким email
  */
 function validate_email_unique($email_value, $link)
@@ -592,7 +598,8 @@ function validate_comment($comment)
     $errors = [];
     $errors['comment'] = validate_filled($comment);
     if (!$errors['comment']) {
-        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length($comment, MAX_COMMENT_LENGTH);
+        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length($comment,
+                MAX_COMMENT_LENGTH);
     }
     return array_diff($errors, array(''));
 }
@@ -600,7 +607,7 @@ function validate_comment($comment)
 /**
  * Отправляет запрос на запись нового комментария к посту с заданным id, если такой существует
  * @param mysqli $link Ресурс соединения
- * @param int $post_id  id поста
+ * @param int $post_id id поста
  * @param int $user_id id Автора комментария
  * $param string $comment Текст комментария
  *
@@ -671,8 +678,9 @@ function process_comment_add($current_user_id, $link)
 function get_file_ext($file_type)
 {
     $type_parts = explode('/', $file_type);
-    return  '.' . array_pop($type_parts);
+    return '.' . array_pop($type_parts);
 }
+
 /**
  * Функция - валидатор файла изображения. (Проверяет, что файл является изображением)
  * @param string $path Путь к файлу
@@ -891,9 +899,10 @@ function array_view($var)
 {
     ?>
 
-	<div style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
-		<pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var, true)?></pre>
-	</div>
+    <div
+        style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
+        <pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var, true) ?></pre>
+    </div>
 
-<?php
+    <?php
 }

@@ -61,8 +61,8 @@ ON type_id = post_type.id
 WHERE post.user_id IN
     (SELECT user_id FROM subscription
         WHERE subscriber_id = ?)"
-. $constraint
-. " ORDER BY post.date_add ASC;";
+    . $constraint
+    . " ORDER BY post.date_add ASC;";
 
 $data = array($user['id']);
 $result = fetch_sql_response($con, $sql, $data);

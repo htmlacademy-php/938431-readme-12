@@ -27,7 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return validate_max_length($login, LOGIN_MAX_LENGTH);
         },
         'password' => function ($password) {
-            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length($password, PASSWORD_MAX_LENGTH);
+            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length($password,
+                    PASSWORD_MAX_LENGTH);
             return $message;
         },
     ];

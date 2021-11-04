@@ -1,5 +1,5 @@
 <h2>
-    <a href="<?="/post.php?id=" . $post['id']?>">
+    <a href="<?= "/post.php?id=" . $post['id'] ?>">
         <?= htmlspecialchars($post['post_title']); ?>
     </a>
 </h2>

@@ -115,8 +115,8 @@ switch ($tab) {
         break;
 
     case 'subscriptions':
-    // Вкладка ПОДПИСКИ
-    // Создаем запрос на получение данных о подписках
+        // Вкладка ПОДПИСКИ
+        // Создаем запрос на получение данных о подписках
         $sql = "SELECT
             subscription.user_id,
             avatar,
@@ -151,11 +151,12 @@ switch ($tab) {
 
         // В данные о подписках добавим поле с флагом подписан ли залогиненный пользователь на этого автора
         foreach ($subscriptions as &$subscription) {
-            $subscription['is_logged_user_subscribed'] = in_array($subscription['user_id'], $logged_user_subscriptions) ? 1 : 0;
+            $subscription['is_logged_user_subscribed'] = in_array($subscription['user_id'],
+                $logged_user_subscriptions) ? 1 : 0;
         }
         unset($subscription);
         $tab_params = [
-            'current_user_id' => (int) $user['id'],
+            'current_user_id' => (int)$user['id'],
             'users' => $subscriptions
         ];
         $template = 'tab-subscriptions.php';
@@ -211,7 +212,7 @@ switch ($tab) {
                 INNER JOIN user
                     ON user.id = user_id
                 WHERE post_id = ?"
-                . $constraint;
+                    . $constraint;
 
                 $result = fetch_sql_response($con, $sql_comments, [$post['id']]);
                 $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -220,16 +221,16 @@ switch ($tab) {
         }
         unset($post);
 
-    $tab_params = [
-        'current_user_avatar' => $user['avatar'],
-        'errors' => $errors,
-        'posts' => $posts
-     ];
-    $template = 'tab-posts.php';
-    break;
+        $tab_params = [
+            'current_user_avatar' => $user['avatar'],
+            'errors' => $errors,
+            'posts' => $posts
+        ];
+        $template = 'tab-posts.php';
+        break;
 }
 
-$is_own_profile = $user_profile['id'] === (int) $user['id'];
+$is_own_profile = $user_profile['id'] === (int)$user['id'];
 $tab_params['is_own_profile'] = $is_own_profile;
 
 $tab_content = include_template($template, $tab_params);
