@@ -72,7 +72,7 @@
         </li>
         <?php foreach ($types as $type): ?>
         <li class="feed__filters-item filters__item">
-            <a class="filters__button filters__button--<?=$type['type_class']?> <?php if ($filter == $type['id']) {
+            <a class="filters__button filters__button--<?=$type['type_class']?> <?php if ($filter === $type['id']) {
     echo 'filters__button--active';
 } ?> button" href="/feed.php?filter=<?=$type['id']?>">
             <span class="visually-hidden"><?=$type['type_title']?></span>

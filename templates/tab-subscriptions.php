@@ -29,7 +29,7 @@
             </p>
         </div>
         <div class="post-mini__user-buttons user__buttons">
-            <?php if ($current_user_id == $user['user_id']): ?>
+            <?php if ($current_user_id === $user['user_id']): ?>
             <a class="post-mini__user-button user__button user__button--subscription button button--quartz">. . .</a>
             <?php else: ?>
             <a class="post-mini__user-button user__button user__button--subscription button <?=$user['is_logged_user_subscribed'] ? 'button--quartz' : 'button--main'; ?>" href="/subscribe.php?id=<?=$user['user_id']?>">

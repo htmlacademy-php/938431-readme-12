@@ -37,7 +37,7 @@ if ($search) {
     INNER JOIN post_type
     ON type_id = post_type.id";
 
-    $is_hashtag = substr($search, 0, 1) == '#';
+    $is_hashtag = substr($search, 0, 1) === '#';
     if ($is_hashtag) {
         // Поиск по хэштегу. Создаем запрос на получение постов с искомым хэштегом
         $sql_hash = "SELECT

@@ -205,11 +205,11 @@ function extract_youtube_id($youtube_url)
     $parts = parse_url($youtube_url);
 
     if ($parts) {
-        if ($parts['path'] == '/watch') {
+        if ($parts['path'] === '/watch') {
             parse_str($parts['query'], $vars);
             $id = $vars['v'] ?? null;
         } else {
-            if ($parts['host'] == 'youtu.be') {
+            if ($parts['host'] === 'youtu.be') {
                 $id = substr($parts['path'], 1);
             }
         }
@@ -843,7 +843,7 @@ function validate_video_url($value)
     $message = validate_url($value);
     if (!$message) {
         $result = check_youtube_url($value);
-        if (gettype($result) == 'string') {
+        if (gettype($result) === 'string') {
             $message = $result;
         }
     }

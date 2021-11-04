@@ -46,7 +46,7 @@
 
             foreach ($tab_types as $key => $value): ?>
             <li class="profile__tabs-item filters__item">
-            <?php if ($key == $active_tab) {
+            <?php if ($key === $active_tab) {
                 $class = $class_active;
                 $href = '';
             } else {

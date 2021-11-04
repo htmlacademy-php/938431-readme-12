@@ -16,7 +16,7 @@ $con = set_connection();
 
 $errors = [];
 // Проверяем был ли отправлено сообщение
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filters = ['active-user-id' => FILTER_DEFAULT, 'message' => FILTER_DEFAULT];
     $m_post = filter_input_array(INPUT_POST, $filters, true);
     // Проверяем поле с текстом сообщения на заполненность
@@ -128,7 +128,7 @@ unset($recipient);
 // Отсортируем полученный массив по полю с датой последнего сообщения
 function compare_date($left, $right)
 {
-    if ($left['date_add'] == $right['date_add']) {
+    if ($left['date_add'] === $right['date_add']) {
         return 0;
     }
     return ($left['date_add'] > $right['date_add']) ? -1 : 1;
@@ -198,7 +198,7 @@ if (empty($recipients) or !in_array($active_user_id, array_column($recipients, '
 
 
 $content = include_template('user-messages.php', [
-    'active_user_id' => $active_user_id,
+    'active_user_id' => (int) $active_user_id,
     'errors' => $errors,
     'logged_user' => $user,
     'messages' => $messages,

@@ -46,7 +46,7 @@ unset($type);
 
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Для каждого типа поста определим опции: обязательные поля формы и применяемые фильтры
     $form_options = [
         'link' => [
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if (isset($rules[$key])) {
             $rule = $rules[$key];
-            if ($key == 'photo-url') {
+            if ($key === 'photo-url') {
                 $errors['file'] = validate_file($_FILES['file']);
                 $errors[$key] = $rule($value);
             } elseif (!empty($value)) {
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errors = array_diff($errors, array(''));
 
     if (!$errors) {
-        if ($active_type == 'photo') {
+        if ($active_type === 'photo') {
             // Если загружен файл и нет ошибок, сохраняем его в папку uploads
             if (!empty($_FILES['file']['name'])) {
                 $file_photo = $_FILES['file'];
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         // Определяем id активного типа поста и добавляем его в массив $post
         foreach ($types as $value) {
-            if ($value['type_class'] == $active_type) {
+            if ($value['type_class'] === $active_type) {
                 $type_id = (int) $value['id'];
                 break;
             }

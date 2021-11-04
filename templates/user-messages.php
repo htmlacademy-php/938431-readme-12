@@ -11,7 +11,7 @@
             <?php
                 $class = 'messages__contacts-tab tabs__item';
                 $href_attribute = 'href="' . update_query_params('id', $user['id']) . '"';
-                if ($active_user_id == $user['id']) {
+                if ($active_user_id === $user['id']) {
                     $class = $class . ' messages__contacts-tab--active tabs__item--active';
                     $href_attribute = '';
                 }
@@ -31,7 +31,7 @@
                 </span>
                 <div class="messages__preview">
                 <p class="messages__preview-text">
-                    <?php if ($logged_user['id'] == $user['sender_id']) {
+                    <?php if ((int) $logged_user['id'] === $user['sender_id']) {
                       echo 'Вы: ';
                   }
                      echo htmlspecialchars(cut_excerpt($user['message_text'], 25));
@@ -49,7 +49,7 @@
         <div class="messages__chat-wrapper">
         <ul class="messages__list tabs__content tabs__content--active">
             <?php foreach ($messages as $message): ?>
-            <li class="messages__item <?php if ($logged_user['id'] == $message['user_id']) {
+            <li class="messages__item <?php if ((int) $logged_user['id'] === $message['user_id']) {
                         echo ' messages__item--my';
                     } ?>">
             <div class="messages__info-wrapper">

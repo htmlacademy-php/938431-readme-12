@@ -24,7 +24,7 @@ define('MAX_TEXT_LENGTH', 255);
 
 $errors = [];
 // Проверяем был ли отправлен комментарий к посту
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = process_comment_add($user['id'], $con);
 }
 

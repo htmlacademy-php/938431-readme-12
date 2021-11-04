@@ -43,7 +43,7 @@
                     $class_active = $link_class . ' header__page-link--active';
                     ?>
                     <li class="header__my-page header__my-page--popular">
-                        <?php if ($_SERVER['PHP_SELF'] == '/popular.php') {
+                        <?php if ($_SERVER['PHP_SELF'] === '/popular.php') {
                         $class = $class_active;
                         $href = '';
                     } else {
@@ -55,7 +55,7 @@
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--feed">
-                        <?php if ($_SERVER['PHP_SELF'] == '/feed.php') {
+                        <?php if ($_SERVER['PHP_SELF'] === '/feed.php') {
                         $class = $class_active;
                         $href = '';
                     } else {
@@ -132,7 +132,7 @@
                 <ul class="header__user-nav">
                     <?php
                     $button_active_class = 'header__user-button--active';
-                    if ($_SERVER['PHP_SELF'] == '/login.php') {
+                    if ($_SERVER['PHP_SELF'] === '/login.php') {
                         $active_class = $button_active_class;
                         $href = '';
                     } else {
@@ -143,7 +143,7 @@
                     <li class="header__authorization">
                         <a class="header__user-button <?=$active_class; ?> header__authorization-button button" <?=$href; ?>>Вход</a>
                     </li>
-                    <?php if ($_SERVER['PHP_SELF'] == '/register.php') {
+                    <?php if ($_SERVER['PHP_SELF'] === '/register.php') {
                         $active_class = $button_active_class;
                         $href = '';
                     } else {

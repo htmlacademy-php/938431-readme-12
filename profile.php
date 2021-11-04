@@ -155,7 +155,7 @@ switch ($tab) {
         }
         unset($subscription);
         $tab_params = [
-            'current_user_id' => $user['id'],
+            'current_user_id' => (int) $user['id'],
             'users' => $subscriptions
         ];
         $template = 'tab-subscriptions.php';
@@ -165,7 +165,7 @@ switch ($tab) {
     default:
         $errors = [];
         // Проверяем был ли отправлен комментарий к посту
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Если нет ошибок, записываем комментарий в базу
             $errors = process_comment_add($user['id'], $con);
         }
