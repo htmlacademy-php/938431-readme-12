@@ -229,7 +229,7 @@ switch ($tab) {
     break;
 }
 
-$is_own_profile = $user_profile['id'] == $user['id'];
+$is_own_profile = $user_profile['id'] === (int) $user['id'];
 $tab_params['is_own_profile'] = $is_own_profile;
 
 $tab_content = include_template($template, $tab_params);

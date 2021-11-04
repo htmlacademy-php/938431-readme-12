@@ -79,7 +79,11 @@ if ($search) {
     if (empty($posts)) {
         $content = include_template('no-results.php', ['search' => $search]);
     } else {
-        $content = include_template('search-results.php', ['posts' => $posts,'search' => $search]);
+        $content = include_template('search-results.php', [
+            'current_user_id' => (int) $user['id'],
+            'posts' => $posts,
+            'search' => $search,
+        ]);
     }
 
     $title = 'readme: страница результатов поиска';

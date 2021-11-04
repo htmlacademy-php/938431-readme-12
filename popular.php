@@ -99,6 +99,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $title = 'readme: популярное';
 
 $content = include_template('user-popular.php', [
+    'current_user_id' => (int) $user['id'],
     'page' => $page,
     'posts' => $posts,
     'types' => $types,

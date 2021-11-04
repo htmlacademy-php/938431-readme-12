@@ -103,7 +103,7 @@ $post_author = mysqli_fetch_assoc($result);
 $result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
 $is_subscribed = (bool) mysqli_num_rows($result);
 
-$is_current_user = $user['id'] == $user_id;
+$is_current_user = (int) $user['id'] === $user_id;
 
 $templates = [
     'link' => 'details-link.php',

@@ -21,7 +21,10 @@
           <?php endif; ?>
           <div class="post__indicators">
             <div class="post__buttons">
-              <a class="post__indicator post__indicator--likes button" href="/like.php?id=<?=$post['id']?>" title="Лайк">
+              <?php
+              $href = $is_current_user ? '' : 'href="/like.php?id=' . $post['id'] .'"';
+              ?>
+              <a class="post__indicator post__indicator--likes button" <?=$href; ?> title="Лайк">
                 <svg class="post__indicator-icon" width="20" height="17">
                   <use xlink:href="#icon-heart"></use>
                 </svg>
@@ -57,8 +60,8 @@
                 <?php endif; ?>
               </div>
               <div class="form__input-section <?php if (!empty($errors['comment'])) {
-    echo 'form__input-section--error';
-} ?>">
+                  echo 'form__input-section--error';
+              } ?>">
                 <textarea class="comments__textarea form__textarea form__input"
                 id="comment" name="comment" placeholder="Ваш комментарий"><?=get_post_value('comment'); ?></textarea>
                 <label class="visually-hidden" for="comment">Ваш комментарий</label>
