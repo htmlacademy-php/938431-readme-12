@@ -128,23 +128,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $errors = array_diff($errors, array(''));
 
-    if (!$errors) {
-        if ($active_type === 'photo') {
-            // Если загружен файл и нет ошибок, сохраняем его в папку uploads
-            if (!empty($_FILES['file']['name'])) {
-                $file_photo = $_FILES['file'];
-                $path = replace_file_to_uploads($file_photo);
-                $post['photo-url'] = $path;
-            } else {
-                // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
-                $tmp_path = save_file_to_uploads($value);
-                $file_type = mime_content_type($tmp_path);
-                $file_ext = get_file_ext($file_type);
-                $path = $tmp_path . $file_ext;
-                rename($tmp_path, $path);
-                $post['photo-url'] = $path;
-            }
+    if (empty($errors) && $active_type === 'photo') {
+        // Если загружен файл и нет ошибок, сохраняем его в папку uploads
+        if (!empty($_FILES['file']['name'])) {
+            $file_photo = $_FILES['file'];
+            $path = replace_file_to_uploads($file_photo);
+            $post['photo-url'] = $path;
+        } else {
+            // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
+            $tmp_path = save_file_to_uploads($value);
+            $file_type = mime_content_type($tmp_path);
+            $file_ext = get_file_ext($file_type);
+            $path = $tmp_path . $file_ext;
+            rename($tmp_path, $path);
+            $post['photo-url'] = $path;
         }
+    }
+
+    if (empty($errors)) {
         // Определяем id активного типа поста и добавляем его в массив $post
         foreach ($types as $value) {
             if ($value['type_class'] === $active_type) {

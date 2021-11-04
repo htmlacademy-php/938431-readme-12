@@ -50,7 +50,7 @@
                       </div>
                       <?=$tags_field ?>
                     </div>
-                    <?=$invalid_block ?>>
+                    <?=$invalid_block ?>
                   </div>
                   <div class="adding-post__input-file-container form__input-container form__input-container--file">
                     <div class="adding-post__input-file-button form__input-file-button form__input-file-button--photo button">

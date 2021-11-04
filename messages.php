@@ -35,21 +35,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [$message_post['active-user-id']];
         $result = fetch_sql_response($con, $sql, $data);
         if (mysqli_num_rows($result) === 0) {
-            $errors['message'] = 'Пост не найден. Не удалось записать комментарий';
+            $errors['message'] = 'Пользователь не найден';
+        }
+    }
+    if (empty($errors)) {
+        // Создаем запрос на запись сообщения в базу данных
+        $sql_message = "INSERT INTO message (message_text, sender_id, receiver_id)
+            VALUES (?,?,?);";
+        $data_message = array($message, $user['id'], $message_post['active-user-id']);
+
+        $stmt = db_get_prepare_stmt($con, $sql_message, $data_message);
+        $result = mysqli_stmt_execute($stmt);
+
+        if (!$result) {
+            $errors['message'] = 'Не удалось сохранить ваше сообщение.';
         } else {
-            // Создаем запрос на запись сообщения в базу данных
-            $sql_message = "INSERT INTO message (message_text, sender_id, receiver_id)
-                VALUES (?,?,?);";
-            $data_message = array($message, $user['id'], $message_post['active-user-id']);
-
-            $stmt = db_get_prepare_stmt($con, $sql_message, $data_message);
-            $result = mysqli_stmt_execute($stmt);
-
-            if (!$result) {
-                $errors['message'] = 'Не удалось сохранить ваш комментарий.';
-            } else {
-                header("Location: http://readme/messages.php?id=" . $receiver_id);
-            }
+            header("Location: http://readme/messages.php?id=" . $receiver_id);
         }
     }
 }
