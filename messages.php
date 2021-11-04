@@ -10,6 +10,7 @@ if (!$user) {
 
 require_once('helpers.php');
 require_once('mail-init.php');
+define('MAX_TEXT_LENGTH', 65535);
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -18,20 +19,20 @@ $errors = [];
 // Проверяем был ли отправлено сообщение
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filters = ['active-user-id' => FILTER_DEFAULT, 'message' => FILTER_DEFAULT];
-    $m_post = filter_input_array(INPUT_POST, $filters, true);
+    $message_post = filter_input_array(INPUT_POST, $filters, true);
     // Проверяем поле с текстом сообщения на заполненность
-    $message = trim($m_post['message']);
-    $errors['message'] = validate_filled($message);
+    $message = trim($message_post['message']);
+    $errors['message'] = validate_filled($message) ?? validate_max_length($message, MAX_TEXT_LENGTH);
     $errors = array_diff($errors, array(''));
-    $receiver_id = $m_post['active-user-id'];
+    $receiver_id = $message_post['active-user-id'];
 
     // Если нет ошибок валидации, проверяем, что пользователь, которому адресовано сообщение есть в базе и не равен автору сообщения
-    if (empty($errors) and $m_post['active-user-id'] === $user['id']) {
+    if (empty($errors) and $message_post['active-user-id'] === $user['id']) {
         $errors['message'] = 'Невозможно отправить сообщение самому себе.';
     }
     if (empty($errors)) {
         $sql = "SELECT * FROM user WHERE id = ?;";
-        $data = [$m_post['active-user-id']];
+        $data = [$message_post['active-user-id']];
         $result = fetch_sql_response($con, $sql, $data);
         if (mysqli_num_rows($result) === 0) {
             $errors['message'] = 'Пост не найден. Не удалось записать комментарий';
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Создаем запрос на запись сообщения в базу данных
             $sql_message = "INSERT INTO message (message_text, sender_id, receiver_id)
                 VALUES (?,?,?);";
-            $data_message = array($message, $user['id'], $m_post['active-user-id']);
+            $data_message = array($message, $user['id'], $message_post['active-user-id']);
 
             $stmt = db_get_prepare_stmt($con, $sql_message, $data_message);
             $result = mysqli_stmt_execute($stmt);

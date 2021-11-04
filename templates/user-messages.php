@@ -89,7 +89,7 @@
             <div class="form__input-section <?php if (isset($errors['message'])) {
                         echo 'form__input-section--error';
                     } ?>">
-            <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваше сообщение"></textarea>
+            <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваше сообщение"><?=get_post_value('message'); ?></textarea>
             <label class="visually-hidden">Ваше сообщение</label>
             <button class="form__error-button button" type="button">!</button>
             <div class="form__error-text">
