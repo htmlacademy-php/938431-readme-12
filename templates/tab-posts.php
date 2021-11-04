@@ -55,7 +55,7 @@
         <?php endforeach; ?>
       </ul>
     </footer>
-    <?php if (isset($post['comments'])): ?>
+    <?php if (array_key_exists('comments', $post)): ?>
     <div class="comments">
       <div class="comments__list-wrapper">
         <ul class="comments__list">
@@ -89,8 +89,9 @@
         <?php endif; ?>
       </div>
     </div>
+    <?php if (!$is_own_profile): ?>
     <form class="comments__form form" action="" method="post">
-    <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
+      <input type="hidden" name="post-id" value="<?=$post['id']; ?>">
       <div class="comments__my-avatar">
         <?php if ($current_user_avatar): ?>
         <img class="comments__picture" src="<?=$current_user_avatar; ?>" alt="Аватар пользователя">
@@ -104,14 +105,15 @@
         <label class="visually-hidden" for="comment">Ваш комментарий</label>
         <button class="form__error-button button" type="button">!</button>
         <div class="form__error-text">
-          <h3 class="form__error-title">Ошибка валидации</h3>
+          <h3 class="form__error-title">Ошибка: </h3>
           <p class="form__error-desc"><?=$errors['comment'];?></p>
         </div>
       </div>
       <button class="comments__submit button button--green" type="submit">Отправить</button>
     </form>
+    <?php endif; ?>
     <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], '')?>">Скрыть комментарии</a>
-    <?php else: ?>
+    <?php elseif ($post['comment_count'] || !$is_own_profile): ?>
     <div class="comments">
       <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], 'comments')?>">Показать комментарии</a>
     </div>
