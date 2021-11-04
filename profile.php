@@ -163,6 +163,13 @@ switch ($tab) {
 
     // Вкладка ПОСТЫ
     default:
+        $errors = [];
+        // Проверяем был ли отправлен комментарий к посту
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Если нет ошибок, записываем комментарий в базу
+            $errors = process_comment_add($user['id'], $con);
+        }
+
         $sql = 'SELECT
             post.*,
             (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count,
@@ -195,10 +202,7 @@ switch ($tab) {
             // Добавляем полученные данные в массив $post
             $query_param = 'post' . $post['id'];
             if (array_key_exists($query_param, $get_params)) {
-                $constraint = ' LIMIT 2';
-                if ($get_params[$query_param] === 'comments_all') {
-                    $constraint = '';
-                }
+                $constraint = ($get_params[$query_param] === 'comments_all') ? '' : ' LIMIT 2';
                 $sql_comments = "SELECT
                     comment.*,
                     avatar,
@@ -216,48 +220,6 @@ switch ($tab) {
         }
         unset($post);
 
-        $errors = [];
-    // Проверяем был ли отправлен комментарий к посту
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
-        $c_post = filter_input_array(INPUT_POST, $filters, true);
-        // Проверяем поле с текстом комментария на заполненность и на длину текста
-        $comment = trim($c_post['comment']);
-        $errors['comment'] = validate_filled($comment);
-        if (!$errors['comment']) {
-            $errors['comment'] = validate_min_length($comment, 4);
-            $errors = array_diff($errors, array(''));
-        }
-        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
-        if (empty($errors)) {
-            $sql = "SELECT user_id FROM post WHERE id = ?;";
-            $post_id = $c_post['post-id'];
-            $result = fetch_sql_response($con, $sql, [$post_id]);
-
-            if (mysqli_num_rows($result)) {
-                // Если пост найден, сохраняем автора поста
-                $author = mysqli_fetch_assoc($result);
-                $author_id = $author['user_id'];
-
-                // Создаем запрос на запись комментария в базу данных
-                $sql_comment = "INSERT INTO comment (comment_text, user_id, post_id)
-                    VALUES (?,?,?);";
-                $data_com = array($comment, $user['id'], $post_id);
-
-                $stmt = db_get_prepare_stmt($con, $sql_comment, $data_com);
-                $result = mysqli_stmt_execute($stmt);
-
-                if (!$result) {
-                    $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
-                } else {
-                    header("Location: http://readme/profile.php?id=" . $author_id);
-                }
-            } else {
-                $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
-            }
-        }
-    }
-
     $tab_params = [
         'current_user_avatar' => $user['avatar'],
         'errors' => $errors,
@@ -268,6 +230,7 @@ switch ($tab) {
 }
 
 $is_own_profile = $user_profile['id'] == $user['id'];
+$tab_params['is_own_profile'] = $is_own_profile;
 
 $tab_content = include_template($template, $tab_params);
 

@@ -11,6 +11,12 @@ if (!$user) {
 require_once('helpers.php');
 require_once('mail-init.php');
 
+define('MAX_TITLE_LENGTH', 100);
+define('MAX_QUOTE_LENGTH', 100);
+define('MAX_NAME_LENGTH', 100);
+define('MAX_TEXT_LENGTH', 65535);
+define('MAX_URL_LENGTH', 255);
+
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -74,18 +80,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Определяем правила валидации полей формы
     $rules = [
+        'title' => function ($value) {
+            return validate_max_length($value, MAX_TITLE_LENGTH);
+        },
         'photo-url' => function ($value) {
-            return validate_photo_url($value);
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_photo_url($value);
         },
         'post-link' => function ($value) {
-            return validate_url($value);
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_url($value);
+        },
+        'post-text' => function ($value) {
+            return validate_max_length($value, MAX_TEXT_LENGTH);
+        },
+        'quote-text' => function ($value) {
+            return validate_max_length($value, MAX_QUOTE_LENGTH);
+        },
+        'quote-author' => function ($value) {
+            return validate_max_length($value, MAX_NAME_LENGTH);
+        },
+        'video-url' => function ($value) {
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_video_url($value);
         },
         'tags' => function ($value) {
             return validate_hashtag($value);
         },
-        'video-url' => function ($value) {
-            return validate_video_url($value);
-        }
     ];
 
     $active_type = get_post_value('post-type');

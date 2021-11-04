@@ -20,42 +20,12 @@ if (!$post_id) {
 }
 
 define('SHOWED_COMMENTS_ON_START', 2);
+define('MAX_TEXT_LENGTH', 255);
 
 $errors = [];
 // Проверяем был ли отправлен комментарий к посту
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
-    $comment_post = filter_input_array(INPUT_POST, $filters, true);
-    // Проверяем поле с текстом комментария на заполненность и на длину текста
-    $comment = trim($comment_post['comment']);
-    $errors['comment'] = validate_filled($comment);
-    if (!$errors['comment']) {
-        $errors['comment'] = validate_min_length($comment, 4);
-        $errors = array_diff($errors, array(''));
-    }
-    // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
-    if (empty($errors)) {
-        $sql = "SELECT COUNT(id) as count FROM post WHERE id = ?;";
-        $data = [$comment_post['post-id']];
-        $result = fetch_sql_response($con, $sql, $data);
-        if (mysqli_num_rows($result) === 0) {
-            $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
-        } else {
-            // Создаем запрос на запись комментария в базу данных
-            $sql_com = "INSERT INTO comment (comment_text, user_id, post_id)
-                VALUES (?,?,?);";
-            $data_com = array($comment, $user['id'], $post_id);
-
-            $stmt = db_get_prepare_stmt($con, $sql_com, $data_com);
-            $result = mysqli_stmt_execute($stmt);
-
-            if (!$result) {
-                $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
-            } else {
-                header("Location: http://readme/profile.php?id=" . $user_id);
-            }
-        }
-    }
+    $errors = process_comment_add($user['id'], $con);
 }
 
 // Проверяем параметр запроса о показе комментариев

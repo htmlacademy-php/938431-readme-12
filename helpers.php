@@ -222,7 +222,9 @@ function extract_youtube_id($youtube_url)
 
 define('MB', 1048576); // 1Мб в байтах
 define('MAX_FILE_SIZE', 2); // 2Мб
-
+define('MAX_HASHTAG_LENGTH', 50); // Максимальная длина хэштега
+define('MAX_COMMENT_LENGTH', 255); // Максимальная длина строки типа VARCHAR в MySQL
+define('MIN_COMMENT_LENGTH', 4); // Минимальная длина комментария
 /**
  * Обрезает текст до заданной длины, не обрезая слов, добавляя многоточие в конце текста.
  * @param string $text Исходный текст
@@ -569,7 +571,96 @@ function validate_hashtag($value)
             break;
         }
     }
+    if (!$message) {
+        foreach ($words as $value) {
+            if (mb_strlen($value) > MAX_HASHTAG_LENGTH) {
+                $message = "Длина хэштега не более " . MAX_HASHTAG_LENGTH . "символов";
+                break;
+            }
+        }
+    }
     return $message;
+}
+
+/**
+ * Функция - валидатор комментария
+ * @param string $comment Текст комментария
+ * @return array $errors Массив с текстом сообщения об ошибке
+ */
+function validate_comment($comment)
+{
+    $errors = [];
+    $errors['comment'] = validate_filled($comment);
+    if (!$errors['comment']) {
+        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length($comment, MAX_COMMENT_LENGTH);
+    }
+    return array_diff($errors, array(''));
+}
+
+/**
+ * Отправляет запрос на запись нового комментария к посту с заданным id, если такой существует
+ * @param mysqli $link Ресурс соединения
+ * @param int $post_id  id поста
+ * @param int $user_id id Автора комментария
+ * $param string $comment Текст комментария
+ *
+ * @return array $errors Массив сообщений об ошибках
+ */
+function add_new_comment($comment, $post_id, $user_id, $link)
+{
+    $errors = [];
+    $sql = "SELECT user_id FROM post WHERE id = ?;";
+    $result = fetch_sql_response($link, $sql, [$post_id]);
+    if ($result && mysqli_num_rows($result)) {
+        // Если пост найден, сохраняем автора поста
+        $author = mysqli_fetch_assoc($result);
+        $author_id = $author['user_id'];
+
+        // Создаем запрос на запись комментария в базу данных
+        $sql_comment = "INSERT INTO comment (comment_text, user_id, post_id)
+            VALUES (?,?,?);";
+        $data_com = array($comment, $user_id, $post_id);
+
+        $stmt = db_get_prepare_stmt($link, $sql_comment, $data_com);
+        $result = mysqli_stmt_execute($stmt);
+
+        if (!$result) {
+            $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
+        }
+    } else {
+        $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
+    }
+    if (empty($errors)) {
+        header("Location: http://readme/profile.php?id=" . $author_id);
+    }
+
+    return $errors;
+}
+
+/**
+ * Проверяет комментарий к посту, в случае успешной проверки сохраняет в базу
+ * и переводит на страницу автора поста
+ * @param int $current_user_id ID залогиненного пользователя - автора нового комментария
+ * @param mysqli $link Ресурс соединения
+ * @return array $errors Массив с сообщениями об ошибках для полей 'email', 'password'
+ */
+function process_comment_add($current_user_id, $link)
+{
+    $errors = [];
+    $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
+    $comment_post = filter_input_array(INPUT_POST, $filters, true);
+
+    $comment_text = trim($comment_post['comment']);
+    $post_id = $comment_post['post-id'];
+
+    // Проверяем поле с текстом комментария на заполненность и на длину текста
+    $errors = validate_comment($comment_text);
+
+    if (empty($errors)) {
+        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе, записываем пост в базу данных и переходим на страницу автора
+        $errors = add_new_comment($comment_text, $post_id, $current_user_id, $link);
+    }
+    return $errors;
 }
 
 /**
