@@ -34,9 +34,10 @@
                 <div class="post__indicators">
                     <div class="post__buttons">
                         <?php
-                        $href = $is_own_profile ? '' : 'href="/like.php?id=' . $post['id'] . '"';
+                        $href_like = $is_own_profile ? '' : 'href="/like.php?id=' . $post['id'] . '"';
+                        $href_repost = $is_own_profile ? '' : 'href="/repost.php?id=' . $post['id'] . '"';
                         ?>
-                        <a class="post__indicator post__indicator--likes button" <?= $href; ?> title="Лайк">
+                        <a class="post__indicator post__indicator--likes button" <?= $href_like; ?> title="Лайк">
                             <svg class="post__indicator-icon" width="20" height="17">
                                 <use xlink:href="#icon-heart"></use>
                             </svg>
@@ -47,7 +48,7 @@
                             <span class="visually-hidden">количество лайков</span>
                         </a>
                         <a class="post__indicator post__indicator--repost button"
-                           href="/repost.php?id=<?= $post['id']; ?>" title="Репост">
+                            <?= $href_repost; ?> title="Репост">
                             <svg class="post__indicator-icon" width="19" height="17">
                                 <use xlink:href="#icon-repost"></use>
                             </svg>

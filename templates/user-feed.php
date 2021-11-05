@@ -29,8 +29,12 @@
                             </div>
                             <footer class="post__footer post__indicators">
                                 <div class="post__buttons">
+                                    <?php
+                                    $href_like = ($current_user_id === $post['user_id']) ? '' : 'href="/like.php?id=' . $post['id'] . '"';
+                                    $href_repost = ($current_user_id === $post['user_id']) ? '' : 'href="/repost.php?id=' . $post['id'] . '"';
+                                    ?>
                                     <a class="post__indicator post__indicator--likes button"
-                                       href="/like.php?id=<?= $post['id']; ?>" title="Лайк">
+                                        <?= $href_like; ?> title="Лайк">
                                         <svg class="post__indicator-icon" width="20" height="17">
                                             <use xlink:href="#icon-heart"></use>
                                         </svg>
@@ -50,7 +54,7 @@
                                         <span class="visually-hidden">количество комментариев</span>
                                     </a>
                                     <a class="post__indicator post__indicator--repost button"
-                                       href="/repost.php?id=<?= $post['id']; ?>" title="Репост">
+                                        <?= $href_repost; ?> title="Репост">
                                         <svg class="post__indicator-icon" width="19" height="17">
                                             <use xlink:href="#icon-repost"></use>
                                         </svg>
@@ -80,7 +84,7 @@
                 </li>
                 <?php foreach ($types as $type): ?>
                     <li class="feed__filters-item filters__item">
-                        <a class="filters__button filters__button--<?= $type['type_class'] ?> <?php if ($filter === $type['id']) {
+                        <a class="filters__button filters__button--<?= $type['type_class'] ?> <?php if ((int)$filter === $type['id']) {
                             echo 'filters__button--active';
                         } ?> button" href="/feed.php?filter=<?= $type['id'] ?>">
                             <span class="visually-hidden"><?= $type['type_title'] ?></span>
