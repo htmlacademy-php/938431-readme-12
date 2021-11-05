@@ -20,14 +20,22 @@ if (!$post_id) {
 }
 
 define('SHOWED_COMMENTS_ON_START', 2);
+define('MAX_TEXT_LENGTH', 255);
 
+$errors = [];
+// Проверяем был ли отправлен комментарий к посту
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = process_comment_add($user['id'], $con);
+}
+
+// Проверяем параметр запроса о показе комментариев
 $showed_comments = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_SPECIAL_CHARS);
 $is_all_comments = $showed_comments === 'all';
 
 // Создаем запрос на получение поста с заданным id и его типа
 $sql_post = "SELECT
     post.*,
-    t_class AS p_type,
+    type_class,
     (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
     (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count
 FROM post
@@ -38,25 +46,25 @@ WHERE post.id = ?";
 // Запрос на получение комментариев к посту
 $constraint = $is_all_comments ? '' : ' LIMIT ' . SHOWED_COMMENTS_ON_START;
 $sql_comments = "SELECT
-    comment.dt_add AS c_date,
-    c_content,
-    u_name,
-    u_avatar,
+    comment.date_add AS comment_date,
+    comment_text,
+    username,
+    avatar,
     user_id
 FROM comment
     INNER JOIN user
         ON user.id = comment.user_id
 WHERE post_id = ?
-ORDER BY c_date DESC"
-. $constraint;
+ORDER BY comment_date DESC"
+    . $constraint;
 
 // Создаем запрос на получение данных о пользователе
 $sql_user = "SELECT
     user.id,
-    dt_add,
-    u_name,
-    u_avatar,
-    (SELECT COUNT(id) FROM subscription WHERE user_id = user.id) AS subs_count,
+    date_add,
+    username,
+    avatar,
+    (SELECT COUNT(id) FROM subscription WHERE user_id = user.id) AS subscriber_count,
     (SELECT COUNT(id) FROM post WHERE user_id = user.id) AS posts_count
 FROM user
 WHERE user.id = ?";
@@ -89,62 +97,36 @@ $user_id = $post['user_id'];
 $data_user = [];
 $data_user[] = $user_id;
 $result = fetch_sql_response($con, $sql_user, $data_user);
-$p_user = mysqli_fetch_assoc($result);
+$post_author = mysqli_fetch_assoc($result);
 
 // Отправляем запрос на существование у текущего пользователя подписки на автора поста
 $result = fetch_sql_response($con, $sql, [$user['id'], $user_id]);
-$is_subscribed = (bool) mysqli_num_rows($result);
+$is_subscribed = (bool)mysqli_num_rows($result);
 
-$errors = [];
-// Проверяем был ли отправлен комментарий к посту
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
-    $c_post = filter_input_array(INPUT_POST, $filters, true);
-    // Проверяем поле с текстом комментария на заполненность и на длину текста
-    $comment = trim($c_post['comment']);
-    $errors['comment'] = validate_filled($comment);
-    if (!$errors['comment']) {
-        $errors['comment'] = validate_min_length($comment, 4);
-        $errors = array_diff($errors, array(''));
-    }
-    // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
-    if (empty($errors)) {
-        $sql = "SELECT COUNT(id) as count FROM post WHERE id = ?;";
-        $data = [$c_post['post-id']];
-        $result = fetch_sql_response($con, $sql, $data);
-        if (mysqli_num_rows($result) === 0) {
-            $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
-        } else {
-            // Создаем запрос на запись комментария в базу данных
-            $sql_com = "INSERT INTO comment (c_content, user_id, post_id)
-                VALUES (?,?,?);";
-            $data_com = array($comment, $user['id'], $post_id);
+$is_current_user = (int)$user['id'] === $user_id;
 
-            $stmt = db_get_prepare_stmt($con, $sql_com, $data_com);
-            $result = mysqli_stmt_execute($stmt);
+$templates = [
+    'link' => 'details-link.php',
+    'photo' => 'details-photo.php',
+    'text' => 'details-text.php',
+    'quote' => 'details-quote.php',
+    'video' => 'details-video.php',
+];
 
-            if (!$result) {
-                $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
-            } else {
-                header("Location: http://readme/profile.php?id=" . $user_id);
-            }
-        }
-    }
-}
+$template = $templates[$post['type_class']] ?? '';
 
-$is_current_user = $user['id'] == $user_id;
+$post_content = include_template($template, ['post' => $post]);
 
-$post_content = choose_post_template($post);
 $content = include_template('details.php', [
     'comments' => $comments,
-    'current_user_avatar' => $user['u_avatar'],
+    'current_user_avatar' => $user['avatar'],
     'errors' => $errors,
     'hashtags' => $hashtags,
     'is_current_user' => $is_current_user,
     'is_subscribed' => $is_subscribed,
     'post' => $post,
     'post_content' => $post_content,
-    'user' => $p_user,
+    'user' => $post_author,
 ]);
 
 $title = 'readme: публикация';

@@ -51,16 +51,16 @@ if (empty($bind)) {
                 // Отправляем сообщение пользователю о новом подписчике
                 $subscriber_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
                 $recipient = [];
-                $recipient[$profile_user['email']] = $profile_user['u_name'];
+                $recipient[$profile_user['email']] = $profile_user['username'];
 
                 $message = new Swift_Message();
                 $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
                 $message->setTo($recipient);
                 $message->setSubject('У вас новый подписчик');
-                $text_message = 'На вас подписался новый пользователь ' .$user['u_name'] . '. Вот ссылка на его профиль: ';
+                $text_message = 'На вас подписался новый пользователь ' . $user['username'] . '. Вот ссылка на его профиль: ';
 
                 $message_content = include_template('subscriber-email.php', [
-                    'recipient_name' => $profile_user['u_name'],
+                    'recipient_name' => $profile_user['username'],
                     'text' => $text_message,
                     'url' => $subscriber_url,
                 ]);
@@ -79,6 +79,10 @@ if (empty($bind)) {
 
     $stmt = db_get_prepare_stmt($con, $sql, $bind);
     $result = mysqli_stmt_execute($stmt);
+}
+
+if (empty($_SERVER['HTTP_REFERER'])) {
+    header("Location: http://readme/profile.php?id=" . $profile_id);
 }
 
 header("Location: {$_SERVER['HTTP_REFERER']}");

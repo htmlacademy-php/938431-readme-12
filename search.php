@@ -19,15 +19,15 @@ if ($search) {
     // Создаем запрос на получение постов
     $sql_posts = "SELECT
         post.id,
-        p_title,
-        post.dt_add AS p_date,
-        p_url,
-        p_text,
+        post_title,
+        post.date_add AS post_date,
+        post_url,
+        post_text,
         quote_author,
         user_id,
-        u_name,
-        u_avatar,
-        t_class AS p_type,
+        username,
+        avatar,
+        type_class,
         type_id,
         (SELECT COUNT(id) FROM comment WHERE comment.post_id = post.id) AS comment_count,
         (SELECT COUNT(id) FROM post_like l WHERE l.post_id = post.id) AS like_count
@@ -37,15 +37,15 @@ if ($search) {
     INNER JOIN post_type
     ON type_id = post_type.id";
 
-    $is_hashtag = substr($search, 0, 1) == '#';
+    $is_hashtag = substr($search, 0, 1) === '#';
     if ($is_hashtag) {
         // Поиск по хэштегу. Создаем запрос на получение постов с искомым хэштегом
         $sql_hash = "SELECT
         post_id
         FROM post_hashtag
         INNER JOIN hashtag
-        ON hashtag.id = post_hashtag.hash_id
-        WHERE title = ?";
+        ON hashtag.id = hashtag_id
+        WHERE hashtag_title = ?";
 
         $hash = substr($search, 1);
         $result = fetch_sql_response($con, $sql_hash, [$hash]);
@@ -55,8 +55,8 @@ if ($search) {
             $posts_ids = array_column($posts_ids, 'post_id');
             $comma_separated_ids = implode(',', $posts_ids);
 
-            $where_condition = ' WHERE post.id IN ('. $comma_separated_ids .')
-            ORDER BY p_date DESC;';
+            $where_condition = ' WHERE post.id IN (' . $comma_separated_ids . ')
+            ORDER BY post_date DESC';
             $data = [];
             $sql = $sql_posts . $where_condition;
         } else {
@@ -65,7 +65,7 @@ if ($search) {
         }
     } else {
         // Полнотекстовый поиск
-        $where_condition = ' WHERE MATCH (p_title, p_text) AGAINST (?);';
+        $where_condition = ' WHERE MATCH (post_title, post_text) AGAINST (?)';
         $data = [$search];
         $sql = $sql_posts . $where_condition;
     }
@@ -79,7 +79,11 @@ if ($search) {
     if (empty($posts)) {
         $content = include_template('no-results.php', ['search' => $search]);
     } else {
-        $content = include_template('search-results.php', ['posts' => $posts,'search' => $search]);
+        $content = include_template('search-results.php', [
+            'current_user_id' => (int)$user['id'],
+            'posts' => $posts,
+            'search' => $search,
+        ]);
     }
 
     $title = 'readme: страница результатов поиска';
@@ -89,6 +93,9 @@ if ($search) {
         'user' => $user,
     ]);
     print($layout);
+} elseif (empty($_SERVER['HTTP_REFERER'])) {
+    http_response_code(404);
+    exit;
 } else {
     header("Location: {$_SERVER['HTTP_REFERER']}");
     exit;

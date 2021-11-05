@@ -11,6 +11,12 @@ if (!$user) {
 require_once('helpers.php');
 require_once('mail-init.php');
 
+define('MAX_TITLE_LENGTH', 100);
+define('MAX_QUOTE_LENGTH', 100);
+define('MAX_NAME_LENGTH', 100);
+define('MAX_TEXT_LENGTH', 65535);
+define('MAX_URL_LENGTH', 255);
+
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -34,18 +40,18 @@ $active_type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING) ?? 'text'
 
 // Добавляем каждому типу поста ключ "url" для атрибута href ссылки
 foreach ($types as &$type) {
-    $type['url'] = update_query_params('type', $type['t_class']);
+    $type['url'] = update_query_params('type', $type['type_class']);
 };
 unset($type);
 
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Для каждого типа поста определим опции: обязательные поля формы и применяемые фильтры
     $form_options = [
         'link' => [
             'required' => ['post-link'],
-            'filters' =>['post-link']
+            'filters' => ['post-link']
         ],
         'photo' => [
             'required' => [],
@@ -74,18 +80,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Определяем правила валидации полей формы
     $rules = [
+        'title' => function ($value) {
+            return validate_max_length($value, MAX_TITLE_LENGTH);
+        },
         'photo-url' => function ($value) {
-            return validate_photo_url($value);
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_photo_url($value);
         },
         'post-link' => function ($value) {
-            return validate_url($value);
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_url($value);
+        },
+        'post-text' => function ($value) {
+            return validate_max_length($value, MAX_TEXT_LENGTH);
+        },
+        'quote-text' => function ($value) {
+            return validate_max_length($value, MAX_QUOTE_LENGTH);
+        },
+        'quote-author' => function ($value) {
+            return validate_max_length($value, MAX_NAME_LENGTH);
+        },
+        'video-url' => function ($value) {
+            return validate_max_length($value, MAX_URL_LENGTH) ?? validate_video_url($value);
         },
         'tags' => function ($value) {
             return validate_hashtag($value);
         },
-        'video-url' => function ($value) {
-            return validate_video_url($value);
-        }
     ];
 
     $active_type = get_post_value('post-type');
@@ -100,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if (isset($rules[$key])) {
             $rule = $rules[$key];
-            if ($key == 'photo-url') {
+            if ($key === 'photo-url') {
                 $errors['file'] = validate_file($_FILES['file']);
                 $errors[$key] = $rule($value);
             } elseif (!empty($value)) {
@@ -109,27 +127,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     $errors = array_diff($errors, array(''));
-    if (!$errors) {
-        if ($active_type == 'photo') {
-            // Если загружен файл и нет ошибок его сохраняем в папку uploads
-            if (isset($_FILES['file']['name'])) {
-                $file_photo = $_FILES['file'];
-                $path = replace_file_to_uploads($file_photo);
-                $post['photo-url'] = $path;
-            } else {
-                // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
-                $tmp_path = save_file_to_uploads($value);
-                $file_type = mime_content_type($tmp_path);
-                $file_ext = get_file_ext($file_type);
-                $path = $tmp_path . $file_ext;
-                rename($tmp_path, $path);
-                $post['photo-url'] = $path;
-            }
+
+    if (empty($errors) && $active_type === 'photo') {
+        // Если загружен файл и нет ошибок, сохраняем его в папку uploads
+        if (!empty($_FILES['file']['name'])) {
+            $file_photo = $_FILES['file'];
+            $path = replace_file_to_uploads($file_photo);
+            $post['photo-url'] = $path;
+        } else {
+            // Если есть интернет-ссылка, скачиваем файл и сохраняем в папку uploads
+            $tmp_path = save_file_to_uploads($value);
+            $file_type = mime_content_type($tmp_path);
+            $file_ext = get_file_ext($file_type);
+            $path = $tmp_path . $file_ext;
+            rename($tmp_path, $path);
+            $post['photo-url'] = $path;
         }
+    }
+
+    if (empty($errors)) {
         // Определяем id активного типа поста и добавляем его в массив $post
         foreach ($types as $value) {
-            if ($value['t_class'] == $active_type) {
-                $type_id = (int) $value['id'];
+            if ($value['type_class'] === $active_type) {
+                $type_id = (int)$value['id'];
                 break;
             }
         }
@@ -153,9 +173,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Создаем запрос на запись нового поста
         $sql_add_post = "INSERT INTO post (
-            p_title,
-            p_url,
-            p_text,
+            post_title,
+            post_url,
+            post_text,
             quote_author,
             watch_count,
             user_id,
@@ -172,15 +192,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hashtags = $hash_str ? explode(' ', str_replace('#', '', $hash_str)) : [];
             // Запрос на получение id хэштега
             $sql_get_hashid = "SELECT id FROM hashtag
-            WHERE title = ?;";
+            WHERE hashtag_title = ?";
 
             // Запрос на запись нового хэштега
             $sql_add_hash = "INSERT INTO hashtag
-            SET title = ?;";
+            SET hashtag_title = ?";
 
             // Запрос на запись связи пост - хэштег
             $sql_add_bond = "INSERT INTO post_hashtag
-            SET post_id = ?, hash_id = ?;";
+            SET post_id = ?, hashtag_id = ?;";
 
             foreach ($hashtags as $hash) {
                 $data_hash = array($hash);
@@ -209,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $transport->start();
                 $sql = "SELECT
                     subscriber_id,
-                    u_name,
+                    username,
                     email
                 FROM subscription
                 INNER JOIN user
@@ -221,19 +241,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($result && mysqli_num_rows($result)) {
                     $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-                    $text_message = 'Пользователь ' . $user['u_name'] .'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
+                    $text_message = 'Пользователь ' . $user['username'] . 'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
                     $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
 
                     foreach ($subscribers as $subscriber) {
                         $recipient = [];
-                        $recipient[$subscriber['email']] = $subscriber['u_name'];
+                        $recipient[$subscriber['email']] = $subscriber['username'];
                         $message = new Swift_Message();
                         $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
                         $message->setTo($recipient);
-                        $message->setSubject('Новая публикация от пользователя' . $user['u_name']);
+                        $message->setSubject('Новая публикация от пользователя' . $user['username']);
 
                         $message_content = include_template('subscriber-email.php', [
-                            'recipient_name' => $subscriber['u_name'],
+                            'recipient_name' => $subscriber['username'],
                             'text' => $text_message,
                             'url' => $author_url
                         ]);
@@ -249,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: http://readme/post.php?id=" . $post_id);
             exit;
         } else {
-            $errors[] = "Ошибка на сервере. Не удалось сохранить ваш пост";
+            $errors['mysql'] = "Не удалось сохранить ваш пост";
         }
     }
 }
@@ -263,7 +283,8 @@ $label = [
     'tags' => 'Теги',
     'title' => 'Заголовок',
     'file' => 'Загрузка фото',
-    'video-url' => 'Ссылка youtube'
+    'video-url' => 'Ссылка youtube',
+    'mysql' => 'Ошибка на сервере'
 ];
 
 $title_field = include_template('field-title.php', [

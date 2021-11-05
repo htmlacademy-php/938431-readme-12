@@ -15,7 +15,7 @@ $con = set_connection();
 
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form = $_POST;
     $errors = authorize_user($form, $con);
     if (empty($errors)) {

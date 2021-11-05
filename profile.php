@@ -22,15 +22,15 @@ if (!$profile_id) {
 
 // Создаем запрос на получение данных пользователя с полученным id
 $sql = 'SELECT
-    user.*,
-    (SELECT COUNT(id)
-        FROM subscription
-        WHERE user_id = user.id) AS subs_count,
-    (SELECT COUNT(id)
-        FROM post
-        WHERE user_id = user.id) AS post_count
-FROM user
-WHERE id = ?;';
+            user.*,
+            (SELECT COUNT(id)
+                FROM subscription
+                WHERE user_id = user.id) AS subscriber_count,
+            (SELECT COUNT(id)
+                FROM post
+                WHERE user_id = user.id) AS post_count
+        FROM user
+        WHERE id = ?';
 
 // Создаем подготовленное выражение и отправляем запрос
 $result = fetch_sql_response($con, $sql, [$profile_id]);
@@ -65,24 +65,24 @@ switch ($tab) {
     case 'likes':
         // Создаем запрос на получение постов пользователя у которых есть лайки
         $sql = "SELECT
-            post.id,
-            p_url,
-            t_class AS p_type,
-            t_title,
-            height,
-            width,
-            last_dt
-        FROM post
-        INNER JOIN post_type
-            ON type_id = post_type.id
-        INNER JOIN (
-            SELECT DISTINCT MAX(dt_add) AS last_dt, post_id
-            FROM post_like
-                GROUP BY post_id
-            ) AS last_likes
-            ON last_likes.post_id = post.id
-        WHERE user_id = ?
-        ORDER BY last_dt DESC;";
+                    post.id,
+                    post_url,
+                    type_class,
+                    type_title,
+                    height,
+                    width,
+                    last_like_date
+                FROM post
+                INNER JOIN post_type
+                    ON type_id = post_type.id
+                INNER JOIN (
+                    SELECT DISTINCT MAX(date_add) AS last_like_date, post_id
+                    FROM post_like
+                        GROUP BY post_id
+                    ) AS last_likes
+                    ON last_likes.post_id = post.id
+                WHERE user_id = ?
+                ORDER BY last_like_date DESC";
 
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -90,16 +90,16 @@ switch ($tab) {
         // Для каждого поста получаем данные о последнем лайке и добавляем в массив $post
         foreach ($posts as &$post) {
             $sql_like = "SELECT
-                post_like.dt_add AS l_dt,
-                user_id AS l_user,
-                u_avatar,
-                u_name
-            FROM post_like
-            INNER JOIN user
-                ON user.id = user_id
-            WHERE post_id = ?
-            ORDER BY l_dt DESC
-            LIMIT 1;";
+                            post_like.date_add AS like_date,
+                            user_id AS like_user,
+                            avatar,
+                            username
+                        FROM post_like
+                        INNER JOIN user
+                            ON user.id = user_id
+                        WHERE post_id = ?
+                        ORDER BY like_date DESC
+                        LIMIT 1";
 
             $data = [$post['id']];
             $result = fetch_sql_response($con, $sql_like, $data);
@@ -115,20 +115,20 @@ switch ($tab) {
         break;
 
     case 'subscriptions':
-    // Вкладка ПОДПИСКИ
-    // Создаем запрос на получение данных о подписках
+        // Вкладка ПОДПИСКИ
+        // Создаем запрос на получение данных о подписках
         $sql = "SELECT
-            subscription.user_id AS u_id,
-            u_avatar,
-            user.dt_add AS u_dt,
-            u_name,
-            subs_count,
+            subscription.user_id,
+            avatar,
+            user.date_add AS user_date,
+            username,
+            subscriber_count,
             posts_count
         FROM subscription
         INNER JOIN user
             ON user.id = subscription.user_id
         LEFT JOIN
-            (SELECT COUNT(id) AS subs_count, user_id
+            (SELECT COUNT(id) AS subscriber_count, user_id
                 FROM subscription
                 GROUP BY user_id) AS subs
             ON subs.user_id = subscription.user_id
@@ -137,25 +137,26 @@ switch ($tab) {
                 FROM post
                 GROUP BY user_id) AS posts
             ON posts.user_id = subscription.user_id
-        WHERE subscriber_id = ?;";
+        WHERE subscriber_id = ?";
 
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $subscriptions = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Создаем запрос на получение id подписок текущего пользователя
+        // Создаем запрос на получение id подписок залогиненного пользователя
         $sql = "SELECT user_id FROM subscription WHERE subscriber_id = ?;";
         $data = [$user['id']];
         $result = fetch_sql_response($con, $sql, $data);
-        $current_subs = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        $current_subs = array_column($current_subs, 'user_id');
+        $logged_user_subscriptions = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $logged_user_subscriptions = array_column($logged_user_subscriptions, 'user_id');
 
-        // В данные о подписках добавим поле с флагом подписан ли текущий пользователь на этого автора
+        // В данные о подписках добавим поле с флагом подписан ли залогиненный пользователь на этого автора
         foreach ($subscriptions as &$subscription) {
-            $subscription['is_in_subs'] = in_array($subscription['u_id'], $current_subs) ? 1 : 0;
+            $subscription['is_logged_user_subscribed'] = in_array($subscription['user_id'],
+                $logged_user_subscriptions) ? 1 : 0;
         }
         unset($subscription);
         $tab_params = [
-            'current_user_id' => $user['id'],
+            'current_user_id' => (int)$user['id'],
             'users' => $subscriptions
         ];
         $template = 'tab-subscriptions.php';
@@ -163,16 +164,23 @@ switch ($tab) {
 
     // Вкладка ПОСТЫ
     default:
+        $errors = [];
+        // Проверяем был ли отправлен комментарий к посту
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Если нет ошибок, записываем комментарий в базу
+            $errors = process_comment_add($user['id'], $con);
+        }
+
         $sql = 'SELECT
             post.*,
             (SELECT COUNT(id) FROM post_like WHERE post_id = post.id) AS like_count,
             (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
-            t_class AS p_type
+            type_class
         FROM post
         INNER JOIN post_type
         ON type_id = post_type.id
         WHERE post.user_id = ?
-        ORDER BY post.dt_add;';
+        ORDER BY post.date_add;';
 
         $result = fetch_sql_response($con, $sql, [$profile_id]);
         $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -182,93 +190,48 @@ switch ($tab) {
             $post['hashtags'] = fetch_hashtags($con, $post['id']);
 
             // В случае репоста делаем запрос на автора оригинального поста и добавляем поле "author" в массив $post
-            if ($post['p_repost']) {
-                $sql_orig = "SELECT * FROM user
+            if ($post['is_repost']) {
+                $sql = "SELECT * FROM user
                 WHERE user.id = ?;";
-                $author_id = $post['orig_user_id'];
-                $result = fetch_sql_response($con, $sql_orig, [$author_id]);
+                $author_id = $post['original_user_id'];
+                $result = fetch_sql_response($con, $sql, [$author_id]);
                 $author = mysqli_fetch_assoc($result);
                 $post['author'] = $author;
             }
             // В случае, если в параметре запроса есть флаг показа комментариев,
             // Создаем запрос на получение комментариев к посту
             // Добавляем полученные данные в массив $post
-            $q_param = 'post' . $post['id'];
-            if (array_key_exists($q_param, $get_params)) {
-                if ($get_params[$q_param] === 'cmts_all') {
-                    $constraint = ';';
-                } else {
-                    $constraint = ' LIMIT 2;';
-                }
-                $sql_com = "SELECT
+            $query_param = 'post' . $post['id'];
+            if (array_key_exists($query_param, $get_params)) {
+                $constraint = ($get_params[$query_param] === 'comments_all') ? '' : ' LIMIT 2';
+                $sql_comments = "SELECT
                     comment.*,
-                    u_avatar,
-                    u_name
+                    avatar,
+                    username
                 FROM comment
                 INNER JOIN user
                     ON user.id = user_id
                 WHERE post_id = ?"
-                . $constraint;
+                    . $constraint;
 
-                $result = fetch_sql_response($con, $sql_com, [$post['id']]);
+                $result = fetch_sql_response($con, $sql_comments, [$post['id']]);
                 $comments = mysqli_fetch_all($result, MYSQLI_ASSOC);
                 $post['comments'] = $comments;
             }
         }
         unset($post);
 
-        $errors = [];
-    // Проверяем был ли отправлен комментарий к посту
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
-        $c_post = filter_input_array(INPUT_POST, $filters, true);
-        // Проверяем поле с текстом комментария на заполненность и на длину текста
-        $comment = trim($c_post['comment']);
-        $errors['comment'] = validate_filled($comment);
-        if (!$errors['comment']) {
-            $errors['comment'] = validate_min_length($comment, 4);
-            $errors = array_diff($errors, array(''));
-        }
-        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе
-        if (empty($errors)) {
-            $sql = "SELECT user_id FROM post WHERE id = ?;";
-            $post_id = $c_post['post-id'];
-            $result = fetch_sql_response($con, $sql, [$post_id]);
-
-            if (mysqli_num_rows($result)) {
-                // Если пост найден, сохраняем автора поста
-                $author = mysqli_fetch_assoc($result);
-                $author_id = $author['user_id'];
-
-                // Создаем запрос на запись комментария в базу данных
-                $sql_com = "INSERT INTO comment (c_content, user_id, post_id)
-                    VALUES (?,?,?);";
-                $data_com = array($comment, $user['id'], $post_id);
-
-                $stmt = db_get_prepare_stmt($con, $sql_com, $data_com);
-                $result = mysqli_stmt_execute($stmt);
-
-                if (!$result) {
-                    $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
-                } else {
-                    header("Location: http://readme/profile.php?id=" . $author_id);
-                }
-            } else {
-                $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
-            }
-        }
-    }
-
-    $tab_params = [
-        'current_user_avatar' => $user['u_avatar'],
-        'errors' => $errors,
-        'posts' => $posts
-     ];
-    $template = 'tab-posts.php';
-    break;
+        $tab_params = [
+            'current_user_avatar' => $user['avatar'],
+            'errors' => $errors,
+            'posts' => $posts
+        ];
+        $template = 'tab-posts.php';
+        break;
 }
 
-$is_own_profile = $user_profile['id'] == $user['id'];
+$is_own_profile = $user_profile['id'] === (int)$user['id'];
+$tab_params['is_own_profile'] = $is_own_profile;
 
 $tab_content = include_template($template, $tab_params);
 

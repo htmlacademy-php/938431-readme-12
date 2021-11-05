@@ -1,6 +1,6 @@
 <h2>
-    <a href="<?="/post.php?id=" . $post['id']?>">
-        <?= htmlspecialchars($post['p_title']); ?>
+    <a href="<?= "/post.php?id=" . $post['id'] ?>">
+        <?= htmlspecialchars($post['post_title']); ?>
     </a>
 </h2>
-<?php echo text_template($post['p_text']);
+<?php echo text_template($post['post_text']);

@@ -1,27 +1,6 @@
 <?php
 
 error_reporting(E_ALL);
-/**
- * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
- *
- * Примеры использования:
- * is_date_valid('2019-01-01'); // true
- * is_date_valid('2016-02-29'); // true
- * is_date_valid('2019-04-31'); // false
- * is_date_valid('10.10.2010'); // false
- * is_date_valid('10/10/2010'); // false
- *
- * @param string $date Дата в виде строки
- *
- * @return bool true при совпадении с форматом 'ГГГГ-ММ-ДД', иначе false
- */
-function is_date_valid(string $date): bool
-{
-    $format_to_check = 'Y-m-d';
-    $dateTimeObj = date_create_from_format($format_to_check, $date);
-
-    return $dateTimeObj !== false && array_sum(date_get_last_errors()) === 0;
-}
 
 /**
  * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
@@ -226,11 +205,11 @@ function extract_youtube_id($youtube_url)
     $parts = parse_url($youtube_url);
 
     if ($parts) {
-        if ($parts['path'] == '/watch') {
+        if ($parts['path'] === '/watch') {
             parse_str($parts['query'], $vars);
             $id = $vars['v'] ?? null;
         } else {
-            if ($parts['host'] == 'youtu.be') {
+            if ($parts['host'] === 'youtu.be') {
                 $id = substr($parts['path'], 1);
             }
         }
@@ -239,44 +218,19 @@ function extract_youtube_id($youtube_url)
     return $id;
 }
 
-/**
- * @param $index
- * @return false|string
- */
-function generate_random_date($index)
-{
-    $deltas = [['minutes' => 59], ['hours' => 23], ['days' => 6], ['weeks' => 4], ['months' => 11]];
-    $dcnt = count($deltas);
-
-    if ($index < 0) {
-        $index = 0;
-    }
-
-    if ($index >= $dcnt) {
-        $index = $dcnt - 1;
-    }
-
-    $delta = $deltas[$index];
-    $timeval = rand(1, current($delta));
-    $timename = key($delta);
-
-    $ts = strtotime("$timeval $timename ago");
-    $dt = date('Y-m-d H:i:s', $ts);
-
-    return $dt;
-}
-
 //         ******  Мои функции  ******
 
 define('MB', 1048576); // 1Мб в байтах
 define('MAX_FILE_SIZE', 2); // 2Мб
-
+define('MAX_HASHTAG_LENGTH', 50); // Максимальная длина хэштега
+define('MAX_COMMENT_LENGTH', 255); // Максимальная длина строки типа VARCHAR в MySQL
+define('MIN_COMMENT_LENGTH', 4); // Минимальная длина комментария
 /**
  * Обрезает текст до заданной длины, не обрезая слов, добавляя многоточие в конце текста.
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
-*/
+ */
 function cut_excerpt($text, $max_length)
 {
     $new_text = trim($text);
@@ -299,7 +253,7 @@ function cut_excerpt($text, $max_length)
  * @param string $text Исходный текст
  * @param integer $max_length Максимальная длина обрезанного текста
  * @return string
-*/
+ */
 function text_template($text, $max_length = 300)
 {
     if (mb_strlen($text) <= $max_length) {
@@ -310,24 +264,14 @@ function text_template($text, $max_length = 300)
     }
 
     return $result;
-};
-
-/**
- * Добавляет всем элементам массива новое поле с ключом "date" и значением - случайной датой
- * @param array $elements - Исходный массив
-*/
-function add_dates($elements)
-{
-    foreach ($elements as $key => $element) {
-        $elements[$key]['date_add'] = generate_random_date($key);
-    }
-    return $elements;
 }
+
+;
 
 /**
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
-*/
+ */
 function format_date($date)
 {
     $date = date_create($date);
@@ -338,7 +282,7 @@ function format_date($date)
 /**
  * Возвращает интервал времени между текущей датой и заданной
  * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
-*/
+ */
 function calc_time_interval($date_str)
 {
     $target_date = date_create('now');
@@ -350,7 +294,7 @@ function calc_time_interval($date_str)
  * Увеличивает первый параметр на единицу, если второй параметр - истиный
  * @param int $number Исходное число
  * @param bool $condition
-*/
+ */
 function increment_by_condition($number, $condition)
 {
     if ($condition) {
@@ -366,16 +310,16 @@ function increment_by_condition($number, $condition)
  * Пример: если временной интервал равен 1 час 0 минут 45 секунд - результат будет "1 час назад"
  * @param object $interval Экземпляр DateInterval
  * @return string Временной интервал в человекочитаемом виде
-*/
+ */
 function generate_interval_text($interval)
 {
     $week = 7; // 7 суток
-    $passed_seconds = $interval -> s;
-    $passed_minutes = $interval -> i;
-    $passed_hours = $interval -> h;
-    $passed_days = $interval -> d % $week;
-    $passed_weeks = intdiv($interval -> d, $week);
-    $passed_months = $interval -> m;
+    $passed_seconds = $interval->s;
+    $passed_minutes = $interval->i;
+    $passed_hours = $interval->h;
+    $passed_days = $interval->d % $week;
+    $passed_weeks = intdiv($interval->d, $week);
+    $passed_months = $interval->m;
 
     if (!$passed_months and !$passed_weeks and !$passed_days and !$passed_hours) {
         $result = increment_by_condition($passed_minutes, $passed_seconds);
@@ -396,13 +340,15 @@ function generate_interval_text($interval)
     }
 
     return $result;
-};
+}
+
+;
 
 /**
  * Возвращает строку вида "5 минут назад" на основании переданной даты в прошлом
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
  * @return string
-*/
+ */
 function generate_passed_time_text($date)
 {
     $interval = calc_time_interval($date);
@@ -454,17 +400,17 @@ function fetch_sql_response($link, $sql, $data)
 
 /**
  * Отправляет запрос на получение хэштегов к посту с заданным id
- * @param $link mysqli Ресурс соединения
- * @param int $post_id  id поста
+ * @param mysqli $link Ресурс соединения
+ * @param int $post_id id поста
  *
  * @return array $hashtags Массив хэштегов
  */
 function fetch_hashtags($link, $post_id)
 {
-    $sql = "SELECT title
+    $sql = "SELECT hashtag_title
     FROM hashtag
     INNER JOIN post_hashtag
-    ON hashtag.id = hash_id
+    ON hashtag.id = hashtag_id
     AND post_id = ?;";
 
     $result = fetch_sql_response($link, $sql, [$post_id]);
@@ -483,64 +429,27 @@ function include_footer($footer_class = '')
 }
 
 /**
- * Выбирает html шаблон в зависимости от полученного типа поста
- * @param array $post  Массив с данными о посте
- * @return string Итоговый HTML
- */
-function choose_post_template($post)
-{
-    $result = '';
-    switch ($post['p_type']) {
-        case 'link':
-            $result = include_template('details-link.php', ['title' => $post['p_title'], 'url' => $post['p_url']]);
-            break;
-        case 'photo':
-            $result = include_template('details-photo.php', ['img_url' => $post['p_url']]);
-            break;
-        case 'quote':
-            $result = include_template('details-quote.php', ['text' => $post['p_text'], 'author' => $post['quote_author']]);
-            break;
-        case 'text':
-            $result = include_template('details-text.php', ['text' => $post['p_text']]);
-            break;
-        case 'video':
-            $result = include_template('details-video.php', ['youtube_url' => $post['p_url']]);
-            break;
-    };
-
-    return $result;
-};
-
-/**
- * Генерирует html разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
- * @param $post array Массив с данными о посте
+ * Генерирует html-разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * @param array $post Массив с данными о посте
  * @return string Итоговый HTML
  */
 function generate_post_template($post)
 {
-    $type = $post['p_type'];
-    $result = '';
-    switch ($type) {
-        case 'link':
-            $template = 'post-link.php';
-        break;
-        case 'photo':
-            $template = 'post-photo.php';
-        break;
-        case 'text':
-            $template = 'post-text.php';
-        break;
-        case 'quote':
-            $template = 'post-quote.php';
-        break;
-        case 'video':
-            $template = 'post-video.php';
-        break;
+    $markup = '';
+    $templates = [
+        'link' => 'post-link.php',
+        'photo' => 'post-photo.php',
+        'text' => 'post-text.php',
+        'quote' => 'post-quote.php',
+        'video' => 'post-video.php',
+    ];
+    $type = $post['type_class'];
+
+    $template = $templates[$type] ?? null;
+    if (isset($template)) {
+        $markup = include_template($template, ['post' => $post]);
     }
-    if ($template) {
-        $result = include_template($template, ['post' => $post]);
-    }
-    return $result;
+    return $markup;
 }
 
 /**
@@ -561,7 +470,9 @@ function update_query_params($key, $value)
     $query = http_build_query($params);
     $url = "?" . $query;
     return $url;
-};
+}
+
+;
 
 /**
  * Возвращает значение поля формы
@@ -597,17 +508,56 @@ function validate_filled($value)
 }
 
 /**
- * Функция - валидатор длины текста в поле
+ * Функция - валидатор минимальной длины текста в поле
  * @param string $value Значение поля формы
- * @return string|null Текст сообщения об ошибке
+ * @return string|null $message Текст сообщения об ошибке
  */
 function validate_min_length($value, $min)
 {
+    $message = null;
     $length = mb_strlen($value);
     if ($length < $min) {
-        return "Длина текста должна быть не менее $min символов";
+        $message = "Длина должна быть не менее $min символов";
     }
+    return $message;
 }
+
+/**
+ * Функция - валидатор максимальной длины текста в поле
+ * @param string $value Значение поля формы
+ * @return string|null $message Текст сообщения об ошибке
+ */
+function validate_max_length($value, $max)
+{
+    $message = null;
+    $value = trim($value);
+    $length = mb_strlen($value);
+    if ($length > $max) {
+        $message = "Превышена допустимая длина поля: введите не более $max символов";
+    }
+    return $message;
+}
+
+
+/**
+ * Проверяет наличие в Базе данных пользователя с переданным email
+ * @param string $email Email
+ * @param mysqli $link Ресурс соединения
+ * @return string|null $message Текст сообщения о существовании пользователя с таким email
+ */
+function validate_email_unique($email, $link)
+{
+    $message = null;
+    if ($email) {
+        $sql = "SELECT id FROM user WHERE email = '$email';";
+        $result = mysqli_query($link, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            $message = 'Пользователь с этим email уже зарегистрирован';
+        }
+    }
+    return $message;
+}
+
 
 /**
  * Функция - валидатор поля ввода хэштегов
@@ -624,7 +574,97 @@ function validate_hashtag($value)
             break;
         }
     }
+    if (!$message) {
+        foreach ($words as $value) {
+            if (mb_strlen($value) > MAX_HASHTAG_LENGTH) {
+                $message = "Длина хэштега не более " . MAX_HASHTAG_LENGTH . "символов";
+                break;
+            }
+        }
+    }
     return $message;
+}
+
+/**
+ * Функция - валидатор комментария
+ * @param string $comment Текст комментария
+ * @return array $errors Массив с текстом сообщения об ошибке
+ */
+function validate_comment($comment)
+{
+    $errors = [];
+    $errors['comment'] = validate_filled($comment);
+    if (!$errors['comment']) {
+        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length($comment,
+                MAX_COMMENT_LENGTH);
+    }
+    return array_diff($errors, array(''));
+}
+
+/**
+ * Отправляет запрос на запись нового комментария к посту с заданным id, если такой существует
+ * @param mysqli $link Ресурс соединения
+ * @param int $post_id id поста
+ * @param int $user_id id Автора комментария
+ * $param string $comment Текст комментария
+ *
+ * @return array $errors Массив сообщений об ошибках
+ */
+function add_new_comment($comment, $post_id, $user_id, $link)
+{
+    $errors = [];
+    $sql = "SELECT user_id FROM post WHERE id = ?;";
+    $result = fetch_sql_response($link, $sql, [$post_id]);
+    if ($result && mysqli_num_rows($result)) {
+        // Если пост найден, сохраняем автора поста
+        $author = mysqli_fetch_assoc($result);
+        $author_id = $author['user_id'];
+
+        // Создаем запрос на запись комментария в базу данных
+        $sql_comment = "INSERT INTO comment (comment_text, user_id, post_id)
+            VALUES (?,?,?);";
+        $data_com = array($comment, $user_id, $post_id);
+
+        $stmt = db_get_prepare_stmt($link, $sql_comment, $data_com);
+        $result = mysqli_stmt_execute($stmt);
+
+        if (!$result) {
+            $errors['comment'] = 'Не удалось сохранить ваш комментарий.';
+        }
+    } else {
+        $errors['comment'] = 'Пост не найден. Не удалось записать комментарий';
+    }
+    if (empty($errors)) {
+        header("Location: http://readme/profile.php?id=" . $author_id);
+    }
+
+    return $errors;
+}
+
+/**
+ * Проверяет комментарий к посту, в случае успешной проверки сохраняет в базу
+ * и переводит на страницу автора поста
+ * @param int $current_user_id ID залогиненного пользователя - автора нового комментария
+ * @param mysqli $link Ресурс соединения
+ * @return array $errors Массив с сообщениями об ошибках для полей 'email', 'password'
+ */
+function process_comment_add($current_user_id, $link)
+{
+    $errors = [];
+    $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
+    $comment_post = filter_input_array(INPUT_POST, $filters, true);
+
+    $comment_text = trim($comment_post['comment']);
+    $post_id = $comment_post['post-id'];
+
+    // Проверяем поле с текстом комментария на заполненность и на длину текста
+    $errors = validate_comment($comment_text);
+
+    if (empty($errors)) {
+        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе, записываем пост в базу данных и переходим на страницу автора
+        $errors = add_new_comment($comment_text, $post_id, $current_user_id, $link);
+    }
+    return $errors;
 }
 
 /**
@@ -635,8 +675,9 @@ function validate_hashtag($value)
 function get_file_ext($file_type)
 {
     $type_parts = explode('/', $file_type);
-    return  '.' . array_pop($type_parts);
+    return '.' . array_pop($type_parts);
 }
+
 /**
  * Функция - валидатор файла изображения. (Проверяет, что файл является изображением)
  * @param string $path Путь к файлу
@@ -662,7 +703,7 @@ function validate_image_file($path)
 function validate_file($file)
 {
     $message = null;
-    if (isset($file['name'])) {
+    if (!empty($file['name'])) {
         $file_path = $file['tmp_name'];
         $message = validate_image_file($file_path);
         if (!$message) {
@@ -747,15 +788,15 @@ function authorize_user($form, $link)
         $user = $result ? mysqli_fetch_array($result, MYSQLI_ASSOC) : null;
         if ($user) {
             // Проверяем пароль и открываем сессию
-            if (password_verify($form['password'], $user['u_password'])) {
+            if (password_verify($form['password'], $user['password'])) {
                 // Создаем запрос на количество непрочитанных сообщений
                 $user_id = $user['id'];
-                $sql = "SELECT COUNT(id) AS m_count
+                $sql = "SELECT COUNT(id) AS message_count
                         FROM message
                         WHERE receiver_id = '$user_id'
                             AND is_new = TRUE";
                 $result = mysqli_query($link, $sql);
-                $user['m_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
+                $user['message_count'] = $result ? mysqli_fetch_row($result)[0] : 0;
                 $_SESSION['user'] = $user;
             } else {
                 $errors['password'] = 'Неверный пароль';
@@ -807,7 +848,7 @@ function validate_video_url($value)
     $message = validate_url($value);
     if (!$message) {
         $result = check_youtube_url($value);
-        if (gettype($result) == 'string') {
+        if (gettype($result) === 'string') {
             $message = $result;
         }
     }

@@ -22,14 +22,9 @@ $sort_types = [
 ];
 
 // Создаем запрос на получение типов постов
-$sql = "SELECT
-    id,
-    t_class AS p_type,
-    t_title,
-    width,
-    height
-FROM post_type
-ORDER BY id ASC";
+$sql = "SELECT *
+        FROM post_type
+        ORDER BY id ASC";
 
 $result = mysqli_query($con, $sql);
 
@@ -56,7 +51,7 @@ $order_param = 'watch_count';
 if ($sort === 'likes') {
     $order_param = 'like_count';
 } elseif ($sort === 'date') {
-    $order_param = 'p_date';
+    $order_param = 'post_date';
 }
 
 // Создаем запрос на получение числа постов
@@ -72,16 +67,16 @@ $pages_count = ceil($posts_count / POSTS_PER_PAGE);
 // количеством лайков и комментариев, отсортированных по популярности
 $sql = "SELECT
     post.id,
-    p_title,
-    post.dt_add AS p_date,
-    p_url,
-    p_text,
+    post_title,
+    post.date_add AS post_date,
+    post_url,
+    post_text,
     quote_author,
     user_id,
-    u_name,
-    u_avatar,
-    user.dt_add AS u_dt_add,
-    t_class AS p_type,
+    username,
+    avatar,
+    user.date_add AS user_date,
+    type_class,
     type_id,
     watch_count,
     (SELECT COUNT(id) FROM comment WHERE post_id = post.id) AS comment_count,
@@ -91,8 +86,8 @@ FROM post
         ON user_id = user.id
     INNER JOIN post_type
         ON type_id = post_type.id"
-. $where_condition
-. " ORDER BY " . $order_param . " DESC
+    . $where_condition
+    . " ORDER BY " . $order_param . " DESC
 LIMIT ? OFFSET ?";
 
 // Получаем результат
@@ -104,6 +99,7 @@ $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $title = 'readme: популярное';
 
 $content = include_template('user-popular.php', [
+    'current_user_id' => (int)$user['id'],
     'page' => $page,
     'posts' => $posts,
     'types' => $types,

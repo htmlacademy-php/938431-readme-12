@@ -10,14 +10,31 @@ if ($user) {
 
 require_once('helpers.php');
 
+define('LOGIN_MAX_LENGTH', 50);
+define('PASSWORD_MAX_LENGTH', 100);
+define('PASSWORD_MIN_LENGTH', 8);
+
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form = $_POST;
     $required = ['email', 'login', 'password', 'password-repeat'];
+    $rules = [
+        'login' => function ($login) {
+            return validate_max_length($login, LOGIN_MAX_LENGTH);
+        },
+        'password' => function ($password) {
+            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length(
+                    $password,
+                    PASSWORD_MAX_LENGTH
+                );
+            return $message;
+        },
+    ];
+
 
     // Проверяем заполненность обязательных полей
     foreach ($required as $field) {
@@ -25,25 +42,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors[$field] = 'Это поле должно быть заполнено';
         }
     }
+
+    // Проверяем корректность email
+    $email = filter_var($form['email'], FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        $errors['email'] = 'Введен некорректный email';
+    }
+
     // Проверяем, что в базе нет пользователя с введенным email
-    if (empty($errors)) {
-        $email = filter_var($form['email'], FILTER_VALIDATE_EMAIL);
-        if ($email) {
-            $sql = "SELECT id FROM user WHERE email = '$email';";
-            $result = mysqli_query($con, $sql);
-            if (mysqli_num_rows($result) > 0) {
-                $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
-            }
-        } else {
-            $errors['email'] = 'Введен некорректный email';
+    if (empty($errors['email'])) {
+        $error = validate_email_unique($email, $con);
+        if ($error) {
+            $errors['email'] = $error;
         }
+    }
+    // Проверяем длину полей
+    if (empty($errors)) {
+        foreach ($rules as $key => $rule) {
+            $errors[$key] = $rule($form[$key]);
+        }
+        $errors = array_diff($errors, array(''));
     }
 
     // Проверяем, что пароль и его повтор совпадают
     if (empty($errors)) {
         if ($form['password'] != $form['password-repeat']) {
-            $errors['password'] = 'Введенные пароли не совпадают';
+            $errors['password-repeat'] = 'Введенные пароли не совпадают';
         }
+        $errors = array_diff($errors, array(''));
     }
     // Проверяем тип и размер загруженного файла
     if (empty($errors) and !empty($_FILES['file']['name'])) {
@@ -54,38 +80,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    if (empty($errors)) {
+    if (empty($errors) and !empty($_FILES['file']['name'])) {
         // Если загружен файл перемещаем его в папку uploads
-        if (!empty($_FILES['file']['name'])) {
-            $path = replace_file_to_uploads($_FILES['file']);
-        }
+        $path = replace_file_to_uploads($_FILES['file']);
         // Создаем запрос на запись нового пользователя
         $login = filter_var($form['login'], FILTER_DEFAULT);
         $password = password_hash($form['password'], PASSWORD_DEFAULT);
         $avatar = $path ?? null;
         $sql = "INSERT INTO user (
             email,
-            u_password,
-            u_avatar,
-            u_name
+            password,
+            avatar,
+            username
         )
         VALUES (?, ?, ?, ?);";
         $stmt = db_get_prepare_stmt($con, $sql, [$email, $password, $avatar, $login]);
         $result = mysqli_stmt_execute($stmt);
 
         if ($result) {
-            header("Location: /");
+            // Записываем данные нового пользователя в сессию
+            $new_user_id = mysqli_insert_id($con);
+            $sql = "SELECT * FROM user WHERE id = ?";
+            $result = fetch_sql_response($con, $sql, [$new_user_id]);
+            if ($result && mysqli_num_rows($result)) {
+                $new_user = mysqli_fetch_assoc($result);
+                $new_user['message_count'] = 0;
+                $_SESSION['user'] = $new_user;
+                header("Location: /");
+            }
         } else {
             $errors['mysql'] = 'Не удалось зарегистрировать аккаунт';
         }
     }
 }
+
+$errors = array_diff($errors, array(''));
+
 $label = [
     'email' => 'Электронная почта',
     'login' => 'Логин',
     'password' => 'Пароль',
     'password-repeat' => 'Повтор пароля',
     'file' => 'Загрузка фото',
+    'mysql' => 'Ошибка сохранения на сервер'
 ];
 $invalid_block = '';
 

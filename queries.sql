@@ -1,5 +1,5 @@
 -- Заполняем таблицу post_type (Тип контента постов с размерами соответствующих иконок)
-INSERT INTO post_type (t_title, t_class, width, height)
+INSERT INTO post_type (type_title, type_class, width, height)
 VALUES
   ('Фото', 'photo', 22, 18), #1
   ('Видео', 'video', 24, 16), #2
@@ -8,7 +8,7 @@ VALUES
   ('Ссылка', 'link', 21, 18); #5
 
 -- Заполняем таблицу user (Пользователи)
-INSERT INTO user (email, u_password, u_name, u_avatar)
+INSERT INTO user (email, password, username, avatar)
 VALUES
   ('vladik@gmail.com', 'oiuy45', 'Владик', 'img/userpic-medium.jpg'), #1
   ('larisa@gmail.com', 'shj4-sk', 'Лариса', 'img/userpic-larisa.jpg'), #2
@@ -19,9 +19,9 @@ VALUES
 
 -- Заполняем таблицу post (Посты)
 INSERT INTO post (
-  p_title,
-  p_url,
-  p_text,
+  post_title,
+  post_url,
+  post_text,
   quote_author,
   watch_count,
   user_id,
@@ -34,7 +34,7 @@ VALUES
   ('Делюсь ссылкой', 'https://www.htmlacademy.ru', 'Лучшие курсы', NULL, 3, 1, 5), #5
   ('Мачу Пикчу. Древние строения', 'https://youtu.be/RsVq66yJ8HI', NULL, NULL, 5, 1, 2); #6
 -- Заполняем таблицу comment (Комментарии)
-INSERT INTO comment (c_content, user_id, post_id)
+INSERT INTO comment (comment_text, user_id, post_id)
 VALUES
 ('Автор цитаты был оптимист и романтик. Любить один раз способны очень немногие, большинство не любит вообще ни разу...', 6, 1),
 ('Спорное утверждение', 4, 1),
@@ -47,7 +47,7 @@ VALUES
 ('Согласен, хорошие курсы. Сам учился там', 4, 5);
 
 -- Получаем список постов с сортировкой по популярности с именами авторов и типом контента
-SELECT p_title, u_name, t_class, watch_count FROM post
+SELECT post_title, username, type_class, watch_count FROM post
 INNER JOIN user
   ON user_id = user.id
 INNER JOIN post_type
@@ -59,7 +59,7 @@ SELECT * FROM post
 WHERE user_id = 1;
 
 -- Получаем список комментариев для поста с id=2
-SELECT c_content, u_name, comment.dt_add FROM comment
+SELECT comment_text, username, comment.date_add FROM comment
 INNER JOIN user
   ON user_id = user.id
 WHERE post_id = 2;
