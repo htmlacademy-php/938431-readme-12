@@ -64,8 +64,8 @@ WHERE post.user_id IN
     . $constraint
     . " ORDER BY post.date_add ASC;";
 
-$data = array($user['id']);
-$result = fetch_sql_response($con, $sql, $data);
+$user_id = (int)$user['id'];
+$result = fetch_sql_response($con, $sql, [$user_id]);
 $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Для каждого поста получим набор хэштегов
@@ -77,6 +77,7 @@ unset($post);
 $title = 'readme: моя лента';
 
 $content = include_template('user-feed.php', [
+    'current_user_id' => $user_id,
     'filter' => $filter,
     'posts' => $posts,
     'types' => $types,

@@ -26,40 +26,46 @@ $sql = "SELECT * FROM post
 $result = fetch_sql_response($con, $sql, [$post_id]);
 $post = mysqli_fetch_assoc($result);
 
+if (empty($post)) {
+    http_response_code(404);
+    exit;
+}
+
 // Если пост существует, создаем или удаляем запись в таблице связей post_like
-if (!empty($post)) {
-    // Если залогиненный пользователь пытается поставить лайк собственному посту, не делаем записей, возвращаемся на страницу
-    $user_id = (int)$user['id'];
+// Если залогиненный пользователь пытается поставить лайк собственному посту, не делаем записей, возвращаемся на страницу
+$user_id = (int)$user['id'];
 
-    if ($user_id === $post['user_id']) {
-        header("Location: {$_SERVER['HTTP_REFERER']}");
-    }
+if ($user_id === $post['user_id']) {
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+}
 
-    // Проверяем в таблице связей post_like существование записи о лайке текущего пользователя данному посту
-    $sql = "SELECT COUNT(*) AS like_count
-            FROM post_like
+// Проверяем в таблице связей post_like существование записи о лайке текущего пользователя данному посту
+$sql = "SELECT COUNT(*) AS like_count
+        FROM post_like
+        WHERE post_id = ?
+            AND user_id = ?";
+
+$data = [$post_id, $user_id];
+$result = fetch_sql_response($con, $sql, $data);
+$likes = mysqli_fetch_assoc($result);
+$is_like = (bool)$likes['like_count'];
+
+if ($is_like) {
+    // Если есть записи - удаляем их, снимаем лайк
+    $sql = "DELETE FROM post_like
             WHERE post_id = ?
                 AND user_id = ?";
 
-    $data = [$post_id, $user_id];
-    $result = fetch_sql_response($con, $sql, $data);
-    $likes = mysqli_fetch_assoc($result);
-    $is_like = (bool)$likes['like_count'];
-
-    if ($is_like) {
-        // Если есть записи - удаляем их, снимаем лайк
-        $sql = "DELETE FROM post_like
-                WHERE post_id = ?
-                    AND user_id = ?";
-
-        $stmt = db_get_prepare_stmt($con, $sql, $data);
-        $result = mysqli_stmt_execute($stmt);
-    } else {
-        // Если нет такого лайка - добавляем запись о нем
-        $sql = "INSERT INTO post_like (post_id, user_id) VALUES (?, ?)";
-        $stmt = db_get_prepare_stmt($con, $sql, $data);
-        $result = mysqli_stmt_execute($stmt);
-    }
+    $stmt = db_get_prepare_stmt($con, $sql, $data);
+    $result = mysqli_stmt_execute($stmt);
+} else {
+    // Если нет такого лайка - добавляем запись о нем
+    $sql = "INSERT INTO post_like (post_id, user_id) VALUES (?, ?)";
+    $stmt = db_get_prepare_stmt($con, $sql, $data);
+    $result = mysqli_stmt_execute($stmt);
+}
+if (empty($_SERVER['HTTP_REFERER'])) {
+    header("Location: http://readme/post.php?id=" . $post_id);
 }
 
 header("Location: {$_SERVER['HTTP_REFERER']}");

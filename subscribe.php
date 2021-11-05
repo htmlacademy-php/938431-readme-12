@@ -81,4 +81,8 @@ if (empty($bind)) {
     $result = mysqli_stmt_execute($stmt);
 }
 
+if (empty($_SERVER['HTTP_REFERER'])) {
+    header("Location: http://readme/profile.php?id=" . $profile_id);
+}
+
 header("Location: {$_SERVER['HTTP_REFERER']}");

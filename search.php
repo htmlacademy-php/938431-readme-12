@@ -93,6 +93,9 @@ if ($search) {
         'user' => $user,
     ]);
     print($layout);
+} elseif (empty($_SERVER['HTTP_REFERER'])) {
+    http_response_code(404);
+    exit;
 } else {
     header("Location: {$_SERVER['HTTP_REFERER']}");
     exit;
