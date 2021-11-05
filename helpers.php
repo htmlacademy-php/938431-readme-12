@@ -540,14 +540,13 @@ function validate_max_length($value, $max)
 
 
 /**
- * Проверяет корректность email и наличие в Базе данных пользователя с переданным email
+ * Проверяет наличие в Базе данных пользователя с переданным email
  * @param string $email Email
  * @param mysqli $link Ресурс соединения
  * @return string|null $message Текст сообщения о существовании пользователя с таким email
  */
-function validate_email_unique($email_value, $link)
+function validate_email_unique($email, $link)
 {
-    $email = filter_var($email_value, FILTER_VALIDATE_EMAIL);
     $message = null;
     if ($email) {
         $sql = "SELECT id FROM user WHERE email = '$email';";
@@ -555,8 +554,6 @@ function validate_email_unique($email_value, $link)
         if (mysqli_num_rows($result) > 0) {
             $message = 'Пользователь с этим email уже зарегистрирован';
         }
-    } else {
-        $message = 'Введен некорректный email';
     }
     return $message;
 }
@@ -888,21 +885,4 @@ function rename_key($old_keys, $new_key, $arr)
         }
     }
     return $arr;
-}
-
-/**
- * Отображает массив
- *
- * @param $var
- */
-function array_view($var)
-{
-    ?>
-
-    <div
-        style="max-width: 60em; word-break: break-all; padding: 1em; background-color: lightcyan; border: 2px solid red; color: black;">
-        <pre style="white-space: pre-wrap; word-wrap: break-word;"><?php echo print_r($var, true) ?></pre>
-    </div>
-
-    <?php
 }

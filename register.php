@@ -27,8 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return validate_max_length($login, LOGIN_MAX_LENGTH);
         },
         'password' => function ($password) {
-            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length($password,
-                    PASSWORD_MAX_LENGTH);
+            $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length(
+                    $password,
+                    PASSWORD_MAX_LENGTH
+                );
             return $message;
         },
     ];
@@ -40,9 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[$field] = 'Это поле должно быть заполнено';
         }
     }
+
+    // Проверяем корректность email
+    $email = filter_var($form['email'], FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        $errors['email'] = 'Введен некорректный email';
+    }
+
     // Проверяем, что в базе нет пользователя с введенным email
     if (empty($errors['email'])) {
-        $error = validate_email_unique($form['email'], $con);
+        $error = validate_email_unique($email, $con);
         if ($error) {
             $errors['email'] = $error;
         }
