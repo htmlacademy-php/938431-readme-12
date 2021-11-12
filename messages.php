@@ -10,7 +10,7 @@ if (!$user) {
 
 require_once('helpers.php');
 require_once('mail-init.php');
-define('MAX_TEXT_LENGTH', 65535);
+require_once('const.php');
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -26,7 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = array_diff($errors, array(''));
     $receiver_id = $message_post['active-user-id'];
 
-    // Если нет ошибок валидации, проверяем, что пользователь, которому адресовано сообщение есть в базе и не равен автору сообщения
+    // Если нет ошибок валидации, проверяем, что пользователь,
+    // которому адресовано сообщение есть в базе и не равен автору сообщения
     if (empty($errors) and $message_post['active-user-id'] === $user['id']) {
         $errors['message'] = 'Невозможно отправить сообщение самому себе.';
     }
@@ -128,16 +129,6 @@ foreach ($recipients as &$recipient) {
 unset($recipient);
 
 // Отсортируем полученный массив по полю с датой последнего сообщения
-function compare_date($left, $right)
-{
-    if ($left['date_add'] === $right['date_add']) {
-        return 0;
-    }
-    return ($left['date_add'] > $right['date_add']) ? -1 : 1;
-}
-
-;
-
 usort($recipients, 'compare_date');
 
 if (!empty($recipients)) {
@@ -157,7 +148,8 @@ if (!empty($recipients)) {
 
 $messages = [];
 
-// Если выбранного пользователя нет в массиве $recipients, создаем запрос и добавляем данные пользователя в начало массива
+// Если выбранного пользователя нет в массиве $recipients,
+// создаем запрос и добавляем данные пользователя в начало массива
 if (empty($recipients) or !in_array($active_user_id, array_column($recipients, 'id'))) {
     $sql = "SELECT
         id,

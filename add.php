@@ -10,13 +10,7 @@ if (!$user) {
 
 require_once('helpers.php');
 require_once('mail-init.php');
-
-define('MAX_TITLE_LENGTH', 100);
-define('MAX_QUOTE_LENGTH', 100);
-define('MAX_NAME_LENGTH', 100);
-define('MAX_TEXT_LENGTH', 65535);
-define('MAX_URL_LENGTH', 255);
-
+require_once('const.php');
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -41,7 +35,7 @@ $active_type = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING) ?? 'text'
 // Добавляем каждому типу поста ключ "url" для атрибута href ссылки
 foreach ($types as &$type) {
     $type['url'] = update_query_params('type', $type['type_class']);
-};
+}
 unset($type);
 
 $errors = [];
@@ -241,8 +235,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($result && mysqli_num_rows($result)) {
                     $subscribers = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-                    $text_message = 'Пользователь ' . $user['username'] . 'только что опубликовал новую запись „' . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
-                    $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
+                    $text_message = 'Пользователь ' . $user['username'] . 'только что опубликовал новую запись „'
+                    . $data_post['title'] . '“. Посмотрите её на странице пользователя:';
+                    $author_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST']
+                    . '/profile.php?id=' . $user['id'];
 
                     foreach ($subscribers as $subscriber) {
                         $recipient = [];
@@ -262,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result = $mailer->send($message);
                     }
                 }
-            } catch (\Swift_TransportException $ex) {
+            } catch (Swift_TransportException $ex) {
                 $_SESSION['email_error'] = $ex->getMessage();
             }
             // Перенаправляем на страницу просмотра поста

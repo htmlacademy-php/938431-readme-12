@@ -151,8 +151,7 @@ switch ($tab) {
 
         // В данные о подписках добавим поле с флагом подписан ли залогиненный пользователь на этого автора
         foreach ($subscriptions as &$subscription) {
-            $subscription['is_logged_user_subscribed'] = in_array($subscription['user_id'],
-                $logged_user_subscriptions) ? 1 : 0;
+            $subscription['is_logged_user_subscribed'] = in_array($subscription['user_id'], $logged_user_subscriptions);
         }
         unset($subscription);
         $tab_params = [
