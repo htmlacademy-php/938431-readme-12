@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-
 /**
  * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
  *
@@ -266,8 +264,6 @@ function text_template($text, $max_length = 300)
     return $result;
 }
 
-;
-
 /**
  * Возвращает дату в отформатированном строковом представлении "ДД-MM-ГГГГ ЧЧ:ММ"
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
@@ -281,7 +277,7 @@ function format_date($date)
 
 /**
  * Возвращает интервал времени между текущей датой и заданной
- * @param string $date Дата в прошлом, от которой отсчитывается интервал до текущего момента
+ * @param string $date_str Дата в прошлом, от которой отсчитывается интервал до текущего момента
  */
 function calc_time_interval($date_str)
 {
@@ -342,8 +338,6 @@ function generate_interval_text($interval)
     return $result;
 }
 
-;
-
 /**
  * Возвращает строку вида "5 минут назад" на основании переданной даты в прошлом
  * @param string $date Дата в формате «ГГГГ-ММ-ДД ЧЧ:ММ:СС»
@@ -367,7 +361,7 @@ function set_connection()
     if (!$link) {
         print('Ошибка подключения: ' . mysqli_connect_error());
         exit;
-    };
+    }
 
     // Устанавливаем кодировку
     mysqli_set_charset($link, 'utf8');
@@ -381,7 +375,7 @@ function set_connection()
  * @param $sql string SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
- * @return mysqli Объект результата
+ * @return mysqli_result Объект результата
  */
 function fetch_sql_response($link, $sql, $data)
 {
@@ -414,8 +408,7 @@ function fetch_hashtags($link, $post_id)
     AND post_id = ?;";
 
     $result = fetch_sql_response($link, $sql, [$post_id]);
-    $hashtags = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    return $hashtags;
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 
 /**
@@ -429,7 +422,8 @@ function include_footer($footer_class = '')
 }
 
 /**
- * Генерирует html-разметку для карточки поста с учетом его типа (для страниц Моя лента, Результаты поиска, Профиль пользователя)
+ * Генерирует html-разметку для карточки поста с учетом его типа
+ * (для страниц Моя лента, Результаты поиска, Профиль пользователя)
  * @param array $post Массив с данными о посте
  * @return string Итоговый HTML
  */
@@ -468,11 +462,8 @@ function update_query_params($key, $value)
         unset($params[$key]);
     }
     $query = http_build_query($params);
-    $url = "?" . $query;
-    return $url;
+    return "?" . $query;
 }
-
-;
 
 /**
  * Возвращает значение поля формы
@@ -502,9 +493,11 @@ function get_text_value($name)
  */
 function validate_filled($value)
 {
+    $message = null;
     if (empty($value)) {
-        return "Это поле должно быть заполнено";
+        $message = "Это поле должно быть заполнено";
     }
+    return $message;
 }
 
 /**
@@ -570,7 +563,8 @@ function validate_hashtag($value)
     $words = explode(" ", $value);
     foreach ($words as $value) {
         if (!preg_match("/^#\w+$/ui", $value)) {
-            $message = "Теги должны быть разделены пробелами и начинаться с #. Теги могут состоять из букв, цифр и символа подчеркивания.";
+            $message = "Теги должны быть разделены пробелами и начинаться с #.
+            Теги могут состоять из букв, цифр и символа подчеркивания.";
             break;
         }
     }
@@ -595,8 +589,10 @@ function validate_comment($comment)
     $errors = [];
     $errors['comment'] = validate_filled($comment);
     if (!$errors['comment']) {
-        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length($comment,
-                MAX_COMMENT_LENGTH);
+        $errors['comment'] = validate_min_length($comment, MIN_COMMENT_LENGTH) ?? validate_max_length(
+            $comment,
+            MAX_COMMENT_LENGTH
+        );
     }
     return array_diff($errors, array(''));
 }
@@ -650,7 +646,6 @@ function add_new_comment($comment, $post_id, $user_id, $link)
  */
 function process_comment_add($current_user_id, $link)
 {
-    $errors = [];
     $filters = ['post-id' => FILTER_DEFAULT, 'comment' => FILTER_DEFAULT];
     $comment_post = filter_input_array(INPUT_POST, $filters, true);
 
@@ -661,7 +656,8 @@ function process_comment_add($current_user_id, $link)
     $errors = validate_comment($comment_text);
 
     if (empty($errors)) {
-        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе, записываем пост в базу данных и переходим на страницу автора
+        // Если нет ошибок валидации, проверяем, что пост с заданным id есть в базе,
+        // записываем пост в базу данных и переходим на страницу автора
         $errors = add_new_comment($comment_text, $post_id, $current_user_id, $link);
     }
     return $errors;
@@ -669,7 +665,7 @@ function process_comment_add($current_user_id, $link)
 
 /**
  * Возвращает раcширение файла
- * @param array $file_type MIME-тип файла
+ * @param string $file_type MIME-тип файла
  * @return string Расширение файла (с точкой)
  */
 function get_file_ext($file_type)
@@ -738,24 +734,26 @@ function validate_url($value)
 function validate_photo_url($value)
 {
     $message = null;
+    // Если загружен файл - игнорируем поле для ввода ссылки, не валидируем его
+    if (!empty($_FILES['file']['name'])) {
+        return null;
+    }
     // Если не загружен файл - проверяем наличие ссылки
-    if (empty($_FILES['file']['name'])) {
-        if ($value) {
-            // Если нет файла, но есть ссылка, проверяем url
-            $message = validate_url($value);
-            // Если url корректный, пробуем скачать файл по ссылке
-            if (!$message) {
-                $loaded_img = file_get_contents($value);
-                if (!$loaded_img) {
-                    $message = "Не удалось загрузить файл по указанной ссылке";
-                } else {
-                    $tmp_path = save_file_to_uploads($value);
-                    $message = validate_image_file($tmp_path);
-                }
-            }
+    if (!$value) {
+        // Если нет ни файла ни ссылки
+        $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
+    } else {
+        // Если нет файла, но есть ссылка, проверяем url
+        $message = validate_url($value);
+    }
+    // Если url корректный, пробуем скачать файл по ссылке
+    if (!$message) {
+        $loaded_img = file_get_contents($value);
+        if (!$loaded_img) {
+            $message = "Не удалось загрузить файл по указанной ссылке";
         } else {
-            // Если нет файла и нет ссылки
-            $message = "Одно из полей должно быть заполнено: загрузите файл или введите ссылку на изображение";
+            $tmp_path = save_file_to_uploads($value);
+            $message = validate_image_file($tmp_path);
         }
     }
     return $message;
@@ -772,7 +770,7 @@ function authorize_user($form, $link)
     $errors = [];
     // Проверяем заполненность обязательных полей
     foreach ($form as $key => $value) {
-        if (empty($form[$key])) {
+        if (empty($value)) {
             $errors[$key] = 'Это поле должно быть заполнено';
         }
     }
@@ -885,4 +883,19 @@ function rename_key($old_keys, $new_key, $arr)
         }
     }
     return $arr;
+}
+
+/**
+ *Функция - колбэк для сортировки двумерного массива по значению поля 'date_add'
+ * @param array $left Элемент сортируемого массива
+ * @param array $right Элемент сортируемого массива, следующий за элементом $left
+ * @return int Значение -1 или 0 или 1
+ */
+
+function compare_date($left, $right)
+{
+    if ($left['date_add'] === $right['date_add']) {
+        return 0;
+    }
+    return ($left['date_add'] > $right['date_add']) ? -1 : 1;
 }
