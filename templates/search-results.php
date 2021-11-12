@@ -11,13 +11,13 @@
         <div class="search__results-wrapper">
             <div class="container">
                 <div class="search__content">
-                    <?php foreach ($posts as $post): ?>
+                    <?php foreach ($posts as $post) : ?>
                         <article class="search__post post post-<?= $post['type_class'] ?>">
                             <header class="post__header post__author">
                                 <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>"
                                    title="Автор">
                                     <div class="post__avatar-wrapper">
-                                        <?php if ($post['avatar']): ?>
+                                        <?php if ($post['avatar']) : ?>
                                             <img class="post__author-avatar" src="<?= $post['avatar'] ?>"
                                                  alt="Аватар пользователя" width="60" height="60">
                                         <?php endif; ?>

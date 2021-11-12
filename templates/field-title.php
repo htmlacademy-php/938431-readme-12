@@ -2,7 +2,7 @@
     <label class="adding-post__label form__label" for="title"><?= $label; ?><span class="form__input-required"> *</span></label>
     <div class="form__input-section <?php if ($error) {
         echo 'form__input-section--error';
-    } ?>">
+                                    } ?>">
         <input class="adding-post__input form__input" id="title" type="text" name="title"
                placeholder="Введите заголовок" value="<?= get_post_value('title'); ?>">
         <button class="form__error-button button" type="button">!<span

@@ -5,7 +5,7 @@
             <div class="profile__user user container">
                 <div class="profile__user-info user__info">
                     <div class="profile__avatar user__avatar">
-                        <?php if ($user['avatar']): ?>
+                        <?php if ($user['avatar']) : ?>
                             <img class="profile__picture user__picture" src="<?= $user['avatar']; ?>" width="100"
                                  height="auto" alt="Аватар пользователя">
                         <?php endif; ?>
@@ -29,11 +29,11 @@
                     </p>
                 </div>
                 <div class="profile__user-buttons user__buttons">
-                    <?php if (!$is_own_profile): ?>
+                    <?php if (!$is_own_profile) : ?>
                         <a class="profile__user-button user__button user__button--subscription button button--main"
                            href="/subscribe.php?id=<?= $user['id'] ?>"><?= $is_subscribed ? 'Отписаться' : 'Подписаться' ?></a>
                     <?php endif; ?>
-                    <?php if ($is_subscribed): ?>
+                    <?php if ($is_subscribed) : ?>
                         <a class="profile__user-button user__button user__button--writing button button--green"
                            href="/messages.php?id=<?= $user['id'] ?>">Отправить сообщение</a>
                     <?php endif; ?>
@@ -50,7 +50,7 @@
                     $link_class = 'profile__tabs-link filters__button tabs__item button';
                     $class_active = $link_class . ' filters__button--active tabs__item--active';
 
-                    foreach ($tab_types as $key => $value): ?>
+                    foreach ($tab_types as $key => $value) : ?>
                         <li class="profile__tabs-item filters__item">
                             <?php if ($key === $active_tab) {
                                 $class = $class_active;
