@@ -1,0 +1,11 @@
+<?php
+define('MAX_TITLE_LENGTH', 100);
+define('MAX_QUOTE_LENGTH', 100);
+define('MAX_NAME_LENGTH', 100);
+define('MAX_TEXT_LENGTH', 65535);
+define('MAX_URL_LENGTH', 255);
+define('POSTS_PER_PAGE', 6);
+define('SHOWED_COMMENTS_ON_START', 2);
+define('LOGIN_MAX_LENGTH', 50);
+define('PASSWORD_MAX_LENGTH', 100);
+define('PASSWORD_MIN_LENGTH', 8);

@@ -9,10 +9,7 @@ if ($user) {
 }
 
 require_once('helpers.php');
-
-define('LOGIN_MAX_LENGTH', 50);
-define('PASSWORD_MAX_LENGTH', 100);
-define('PASSWORD_MIN_LENGTH', 8);
+require_once('const.php');
 
 // Устанавливаем соединение с базой readme
 $con = set_connection();
@@ -28,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         },
         'password' => function ($password) {
             $message = validate_min_length($password, PASSWORD_MIN_LENGTH) ?? validate_max_length(
-                    $password,
-                    PASSWORD_MAX_LENGTH
-                );
+                $password,
+                PASSWORD_MAX_LENGTH
+            );
             return $message;
         },
     ];
@@ -66,27 +63,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Проверяем, что пароль и его повтор совпадают
     if (empty($errors)) {
-        if ($form['password'] != $form['password-repeat']) {
+        if ($form['password'] !== $form['password-repeat']) {
             $errors['password-repeat'] = 'Введенные пароли не совпадают';
         }
         $errors = array_diff($errors, array(''));
     }
+
+    $path = null;
     // Проверяем тип и размер загруженного файла
     if (empty($errors) and !empty($_FILES['file']['name'])) {
         $file = $_FILES['file'];
         $error = validate_file($file);
         if ($error) {
             $errors['file'] = $error;
+        } else {
+            // Перемещаем файл в папку uploads
+            $path = replace_file_to_uploads($_FILES['file']);
         }
     }
 
-    if (empty($errors) and !empty($_FILES['file']['name'])) {
-        // Если загружен файл перемещаем его в папку uploads
-        $path = replace_file_to_uploads($_FILES['file']);
+    if (empty($errors)) {
         // Создаем запрос на запись нового пользователя
         $login = filter_var($form['login'], FILTER_DEFAULT);
         $password = password_hash($form['password'], PASSWORD_DEFAULT);
-        $avatar = $path ?? null;
+        $avatar = $path;
         $sql = "INSERT INTO user (
             email,
             password,
@@ -97,19 +97,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = db_get_prepare_stmt($con, $sql, [$email, $password, $avatar, $login]);
         $result = mysqli_stmt_execute($stmt);
 
-        if ($result) {
-            // Записываем данные нового пользователя в сессию
-            $new_user_id = mysqli_insert_id($con);
-            $sql = "SELECT * FROM user WHERE id = ?";
-            $result = fetch_sql_response($con, $sql, [$new_user_id]);
-            if ($result && mysqli_num_rows($result)) {
-                $new_user = mysqli_fetch_assoc($result);
-                $new_user['message_count'] = 0;
-                $_SESSION['user'] = $new_user;
-                header("Location: /");
-            }
-        } else {
+        if (!$result) {
             $errors['mysql'] = 'Не удалось зарегистрировать аккаунт';
+        }
+    }
+
+    if (empty($errors)) {
+        // Записываем данные нового пользователя в сессию
+        $new_user_id = mysqli_insert_id($con);
+        $sql = "SELECT * FROM user WHERE id = ?";
+        $result = fetch_sql_response($con, $sql, [$new_user_id]);
+        if ($result && mysqli_num_rows($result)) {
+            $new_user = mysqli_fetch_assoc($result);
+            $new_user['message_count'] = 0;
+            $_SESSION['user'] = $new_user;
+            header("Location: /");
         }
     }
 }

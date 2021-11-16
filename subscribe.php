@@ -49,7 +49,8 @@ if (empty($bind)) {
             try {
                 $transport->start();
                 // Отправляем сообщение пользователю о новом подписчике
-                $subscriber_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php?id=' . $user['id'];
+                $subscriber_url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST']
+                . '/profile.php?id=' . $user['id'];
                 $recipient = [];
                 $recipient[$profile_user['email']] = $profile_user['username'];
 
@@ -57,7 +58,8 @@ if (empty($bind)) {
                 $message->setFrom(['keks@phpdemo.ru' => 'keks@phpdemo.ru']);
                 $message->setTo($recipient);
                 $message->setSubject('У вас новый подписчик');
-                $text_message = 'На вас подписался новый пользователь ' . $user['username'] . '. Вот ссылка на его профиль: ';
+                $text_message = 'На вас подписался новый пользователь ' . $user['username']
+                . '. Вот ссылка на его профиль: ';
 
                 $message_content = include_template('subscriber-email.php', [
                     'recipient_name' => $profile_user['username'],
@@ -67,7 +69,7 @@ if (empty($bind)) {
 
                 $message->setBody($message_content, 'text/html');
                 $result = $mailer->send($message);
-            } catch (\Swift_TransportException $ex) {
+            } catch (Swift_TransportException $ex) {
                 $_SESSION['email_error'] = $ex->getMessage();
             }
         }

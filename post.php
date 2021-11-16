@@ -9,7 +9,7 @@ if (!$user) {
 }
 
 require_once('helpers.php');
-
+require_once('const.php');
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
@@ -18,9 +18,6 @@ if (!$post_id) {
     http_response_code(404);
     exit;
 }
-
-define('SHOWED_COMMENTS_ON_START', 2);
-define('MAX_TEXT_LENGTH', 255);
 
 $errors = [];
 // Проверяем был ли отправлен комментарий к посту

@@ -7,7 +7,7 @@
             <div class="popular__sorting sorting">
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
-                    <?php foreach ($sort_types as $key => $value): ?>
+                    <?php foreach ($sort_types as $key => $value) : ?>
                         <li class="sorting__item sorting__item--popular">
                             <a class="sorting__link <?= ($sort === $key) ? "sorting__link--active" : ""; ?>"
                                href="/popular.php?filter=<?= $filter; ?>&sort=<?= $key; ?>">
@@ -31,11 +31,11 @@
                             <span>Все</span>
                         </a>
                     </li>
-                    <?php foreach ($types as $type): ?>
+                    <?php foreach ($types as $type) : ?>
                         <li class="popular__filters-item filters__item">
                             <a class="filters__button filters__button--<?= $type['type_class'] ?> <?php if ($filter === $type['id']) {
                                 echo 'filters__button--active';
-                            } ?>
+                                                                       } ?>
                          button" href="/popular.php?filter=<?= $type['id'] ?>">
                                 <span class="visually-hidden"><?= $type['type_title'] ?></span>
                                 <svg class="filters__icon"
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="popular__posts">
-            <?php foreach ($posts as $post): ?>
+            <?php foreach ($posts as $post) : ?>
                 <article class="popular__post post post-<?= $post['type_class'] ?>">
                     <header class="post__header">
                         <a href="<?= "/post.php?id=" . $post['id'] ?>">
@@ -58,29 +58,34 @@
                     </header>
                     <div class="post__main">
                         <!-- Разные типы постов -->
-                        <?php switch ($post['type_class']):
-                            case 'quote': ?>
+                        <?php switch ($post['type_class']) :
+                            case 'quote':
+                                ?>
                                 <!-- Цитата -->
                                 <blockquote>
                                     <p><?= htmlspecialchars($post['post_text']); ?></p>
                                     <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                                 </blockquote>
-                                <?php break; ?>
+                                <?php
+                                break; ?>
                             <?php case 'text':
                                 // Текст
                                 echo text_template($post['post_text']);
-                                break;
-                                ?>
+                                      break;
+                            ?>
 
-                            <?php case 'photo': ?>
+                            <?php case 'photo':
+                                ?>
                                 <!-- Фото -->
                                 <div class="post-photo__image-wrapper">
                                     <img src="<?= $post['post_url'] ?>" alt="Фото от пользователя" width="360"
                                          height="240">
                                 </div>
-                                <?php break; ?>
+                                <?php
+                                      break; ?>
 
-                            <?php case 'link': ?>
+                            <?php case 'link':
+                                ?>
                                 <!-- Ссылка -->
                                 <div class="post-link__wrapper">
                                     <a class="post-link__external" href="<?= $post['post_url'] ?>"
@@ -97,9 +102,11 @@
                                         <span><?= parse_url($post['post_url'], PHP_URL_HOST); ?></span>
                                     </a>
                                 </div>
-                                <?php break; ?>
+                                <?php
+                                      break; ?>
 
-                            <?php case 'video': ?>
+                            <?php case 'video':
+                                ?>
                                 <!-- Видео -->
                                 <div class="post-video__block">
                                     <div class="post-video__preview">
@@ -112,14 +119,15 @@
                                         <span class="visually-hidden">Запустить проигрыватель</span>
                                     </a>
                                 </div>
-                                <?php break; ?>
-                            <?php endswitch; ?>
+                                <?php
+                                      break; ?>
+                        <?php endswitch; ?>
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
                             <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>" title="Автор">
                                 <div class="post__avatar-wrapper">
-                                    <?php if ($post['avatar']): ?>
+                                    <?php if ($post['avatar']) : ?>
                                         <img class="post__author-avatar" src="<?= $post['avatar'] ?>" width="40"
                                              height="auto" alt="Аватар пользователя">
                                     <?php endif; ?>
@@ -164,11 +172,11 @@
             <?php endforeach; ?>
         </div>
         <div class="popular__page-links">
-            <?php if ($page > 1): ?>
+            <?php if ($page > 1) : ?>
                 <a class="popular__page-link popular__page-link--prev button button--gray"
                    href="<?= update_query_params('page', $page - 1) ?>">Предыдущая страница</a>
             <?php endif;
-            if ($total_count > $page): ?>
+            if ($total_count > $page) : ?>
                 <a class="popular__page-link popular__page-link--next button button--gray"
                    href="<?= update_query_params('page', $page + 1) ?>">Следующая страница</a>
             <?php endif; ?>

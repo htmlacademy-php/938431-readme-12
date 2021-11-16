@@ -9,11 +9,10 @@ if (!$user) {
 }
 
 require_once('helpers.php');
-
+require_once('const.php');
 // Устанавливаем соединение с базой readme
 $con = set_connection();
 
-define('POSTS_PER_PAGE', 6);
 
 $sort_types = [
     'popular' => 'Популярность',
@@ -45,7 +44,7 @@ $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT) ?? 1;
 $where_condition = '';
 if ($filter) {
     $where_condition = " WHERE type_id = " . $filter;
-};
+}
 
 $order_param = 'watch_count';
 if ($sort === 'likes') {

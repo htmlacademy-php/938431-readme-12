@@ -4,10 +4,10 @@
         <h2 class="visually-hidden">Сообщения</h2>
         <div class="messages__contacts">
             <ul class="messages__contacts-list tabs__list">
-                <?php foreach ($recipients as $user): ?>
+                <?php foreach ($recipients as $user) : ?>
                     <li class="messages__contacts-item <?php if ($user['new_count']) {
                         echo ' messages__contacts-item--new';
-                    } ?>">
+                                                       } ?>">
                         <?php
                         $class = 'messages__contacts-tab tabs__item';
                         $href_attribute = 'href="' . update_query_params('id', $user['id']) . '"';
@@ -18,17 +18,17 @@
                         ?>
                         <a class="<?= $class; ?>" <?= $href_attribute; ?>>
                             <div class="messages__avatar-wrapper">
-                                <?php if ($user['avatar']): ?>
+                                <?php if ($user['avatar']) : ?>
                                     <img class="messages__avatar" src="<?= $user['avatar']; ?>" width="60" height="60"
                                          alt="Аватар пользователя">
                                 <?php endif;
-                                if ($user['new_count']): ?>
+                                if ($user['new_count']) : ?>
                                     <i class="messages__indicator"><?= $user['new_count']; ?></i>
                                 <?php endif; ?>
                             </div>
                             <div class="messages__info">
                 <span class="messages__contact-name">
-                <?= htmlspecialchars($user['username']); ?>
+                    <?= htmlspecialchars($user['username']); ?>
                 </span>
                                 <div class="messages__preview">
                                     <p class="messages__preview-text">
@@ -50,14 +50,14 @@
         <div class="messages__chat">
             <div class="messages__chat-wrapper">
                 <ul class="messages__list tabs__content tabs__content--active">
-                    <?php foreach ($messages as $message): ?>
+                    <?php foreach ($messages as $message) : ?>
                         <li class="messages__item <?php if ((int)$logged_user['id'] === $message['user_id']) {
                             echo ' messages__item--my';
-                        } ?>">
+                                                  } ?>">
                             <div class="messages__info-wrapper">
                                 <div class="messages__item-avatar">
                                     <a class="messages__author-link" href="/profile.php?id=<?= $message['user_id']; ?>">
-                                        <?php if ($message['avatar']): ?>
+                                        <?php if ($message['avatar']) : ?>
                                             <img class="messages__avatar" src="<?= $message['avatar']; ?>" width="40"
                                                  height="40" alt="Аватар пользователя">
                                         <?php endif; ?>
@@ -68,7 +68,7 @@
                                         <?= htmlspecialchars($message['username']); ?>
                                     </a>
                                     <time class="messages__time" datetime="
-                <?= $message['date_add']; ?>">
+                        <?= $message['date_add']; ?>">
                                         <?= generate_passed_time_text($message['date_add']); ?> назад
                                     </time>
                                 </div>
@@ -81,18 +81,18 @@
                 </ul>
             </div>
             <div class="comments">
-                <?php if ($active_user_id): ?>
+                <?php if ($active_user_id) : ?>
                     <form class="comments__form form" action="/messages.php?id=<?= $active_user_id; ?>" method="post">
                         <input type="hidden" name="active-user-id" value="<?= $active_user_id; ?>">
                         <div class="comments__my-avatar">
-                            <?php if ($logged_user['avatar']): ?>
+                            <?php if ($logged_user['avatar']) : ?>
                                 <img class="comments__picture" src="<?= $logged_user['avatar']; ?>" width="40"
                                      height="40" alt="Аватар пользователя">
                             <?php endif; ?>
                         </div>
                         <div class="form__input-section <?php if (isset($errors['message'])) {
                             echo 'form__input-section--error';
-                        } ?>">
+                                                        } ?>">
                             <textarea class="comments__textarea form__textarea form__input" name="message"
                                       placeholder="Ваше сообщение"><?= get_post_value('message'); ?></textarea>
                             <label class="visually-hidden">Ваше сообщение</label>

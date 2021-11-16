@@ -1,12 +1,12 @@
 <section class="profile__subscriptions tabs__content tabs__content--active">
     <h2 class="visually-hidden">Подписки</h2>
     <ul class="profile__subscriptions-list">
-        <?php foreach ($users as $user): ?>
+        <?php foreach ($users as $user) : ?>
             <li class="post-mini post-mini--photo post user">
                 <div class="post-mini__user-info user__info">
                     <div class="post-mini__avatar user__avatar">
                         <a class="user__avatar-link" href="/profile.php?id=<?= $user['user_id'] ?>">
-                            <?php if ($user['avatar']): ?>
+                            <?php if ($user['avatar']) : ?>
                                 <img class="post-mini__picture user__picture" src="<?= $user['avatar'] ?>" width="60"
                                      height="60" alt="Аватар пользователя">
                             <?php endif; ?>
@@ -35,10 +35,10 @@
                     </p>
                 </div>
                 <div class="post-mini__user-buttons user__buttons">
-                    <?php if ($current_user_id === $user['user_id']): ?>
+                    <?php if ($current_user_id === $user['user_id']) : ?>
                         <a class="post-mini__user-button user__button user__button--subscription button button--quartz">.
                             . .</a>
-                    <?php else: ?>
+                    <?php else : ?>
                         <a class="post-mini__user-button user__button user__button--subscription button <?= $user['is_logged_user_subscribed'] ? 'button--quartz' : 'button--main'; ?>"
                            href="/subscribe.php?id=<?= $user['user_id'] ?>">
                             <?= $user['is_logged_user_subscribed'] ? 'Отписаться' : 'Подписаться'; ?>

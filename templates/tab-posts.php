@@ -1,16 +1,16 @@
 <section class="profile__posts tabs__content tabs__content--active">
     <h2 class="visually-hidden">Публикации</h2>
-    <?php foreach ($posts as $post): ?>
+    <?php foreach ($posts as $post) : ?>
         <article class="profile__post post post-<?= $post['type_class']; ?>">
             <header class="post__header">
-                <?php if ($post['is_repost']): ?>
+                <?php if ($post['is_repost']) : ?>
                     <div class="post__author">
                         <?php
                         $author = $post['author'];
                         ?>
                         <a class="post__author-link" href="/profile.php?id=<?= $author['id']; ?>" title="Автор">
                             <div class="post__avatar-wrapper post__avatar-wrapper--repost">
-                                <?php if ($author['avatar']): ?>
+                                <?php if ($author['avatar']) : ?>
                                     <img class="post__author-avatar" src="<?= $author['avatar']; ?>"
                                          alt="Аватар пользователя">
                                 <?php endif; ?>
@@ -62,21 +62,21 @@
                     </time>
                 </div>
                 <ul class="post__tags">
-                    <?php foreach ($post['hashtags'] as $hash): ?>
+                    <?php foreach ($post['hashtags'] as $hash) : ?>
                         <li><a href="search.php?q=%23<?= $hash['hashtag_title'] ?>">#<?= $hash['hashtag_title'] ?></a>
                         </li>
                     <?php endforeach; ?>
                 </ul>
             </footer>
-            <?php if (array_key_exists('comments', $post)): ?>
+            <?php if (array_key_exists('comments', $post)) : ?>
                 <div class="comments">
                     <div class="comments__list-wrapper">
                         <ul class="comments__list">
-                            <?php foreach ($post['comments'] as $comment): ?>
+                            <?php foreach ($post['comments'] as $comment) : ?>
                                 <li class="comments__item user">
                                     <div class="comments__avatar">
                                         <a class="user__avatar-link" href="/profile.php?id=<?= $comment['user_id']; ?>">
-                                            <?php if ($comment['avatar']): ?>
+                                            <?php if ($comment['avatar']) : ?>
                                                 <img class="comments__picture" src="<?= $comment['avatar']; ?>"
                                                      alt="Аватар пользователя">
                                             <?php endif; ?>
@@ -99,7 +99,7 @@
                                     </div>
                                 </li>
                             <?php endforeach;
-                            if ($post['comment_count'] > count($post['comments'])): ?>
+                            if ($post['comment_count'] > count($post['comments'])) : ?>
                                 <a class="comments__more-link"
                                    href="<?= update_query_params('post' . $post['id'], 'comments_all') ?>">
                                     <span>Показать все комментарии</span>
@@ -108,18 +108,18 @@
                             <?php endif; ?>
                     </div>
                 </div>
-                <?php if (!$is_own_profile): ?>
+                <?php if (!$is_own_profile) : ?>
                     <form class="comments__form form" action="" method="post">
                         <input type="hidden" name="post-id" value="<?= $post['id']; ?>">
                         <div class="comments__my-avatar">
-                            <?php if ($current_user_avatar): ?>
+                            <?php if ($current_user_avatar) : ?>
                                 <img class="comments__picture" src="<?= $current_user_avatar; ?>"
                                      alt="Аватар пользователя">
                             <?php endif; ?>
                         </div>
                         <div class="form__input-section <?php if (!empty($errors['comment'])) {
                             echo 'form__input-section--error';
-                        } ?>">
+                                                        } ?>">
         <textarea class="comments__textarea form__textarea form__input"
                   id="comment" name="comment" placeholder="Ваш комментарий"><?= get_post_value('comment'); ?></textarea>
                             <label class="visually-hidden" for="comment">Ваш комментарий</label>
@@ -134,7 +134,7 @@
                 <?php endif; ?>
                 <a class="comments__button button" href="<?= update_query_params('post' . $post['id'], '') ?>">Скрыть
                     комментарии</a>
-            <?php elseif ($post['comment_count'] || !$is_own_profile): ?>
+            <?php elseif ($post['comment_count'] || !$is_own_profile) : ?>
                 <div class="comments">
                     <a class="comments__button button"
                        href="<?= update_query_params('post' . $post['id'], 'comments') ?>">Показать комментарии</a>

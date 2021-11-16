@@ -11,7 +11,7 @@
                         <label class="login__label form__label" for="login-email">Электронная почта</label>
                         <div class="form__input-section <?php if (isset($errors['login'])) {
                             echo 'form__input-section--error';
-                        } ?>">
+                                                        } ?>">
                             <input class="login__input form__input" id="login-email" type="email" name="login"
                                    placeholder="Укажите эл.почту" value="<?= get_post_value('login') ?>">
                             <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span>
@@ -26,7 +26,7 @@
                         <label class="login__label form__label" for="login-password">Пароль</label>
                         <div class="form__input-section <?php if (isset($errors['password'])) {
                             echo 'form__input-section--error';
-                        } ?>">
+                                                        } ?>">
                             <input class="login__input form__input" id="login-password" type="password" name="password"
                                    placeholder="Введите пароль" value="<?= get_post_value('password') ?>">
                             <button class="form__error-button button button--main" type="button">!<span

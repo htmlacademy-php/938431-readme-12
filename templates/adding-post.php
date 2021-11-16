@@ -7,11 +7,11 @@
             <div class="adding-post__tabs-wrapper tabs">
                 <div class="adding-post__tabs filters">
                     <ul class="adding-post__tabs-list filters__list tabs__list">
-                        <?php foreach ($types as $type): ?>
+                        <?php foreach ($types as $type) : ?>
                             <li class="adding-post__tabs-item filters__item">
                                 <a class="adding-post__tabs-link filters__button filters__button--<?= $type['type_class'] ?> tabs__item button <?php if ($active_type === $type['type_class']) {
                                     echo 'filters__button--active tabs__item--active';
-                                } ?>"
+                                                                                                  } ?>"
                                     <?php if ($active_type !== $type['type_class']) {
                                         echo('href="' . $type['url'] . '"');
                                     } ?>
@@ -29,7 +29,7 @@
                 <div class="adding-post__tab-content">
                     <section class="adding-post__photo tabs__content <?php if ($active_type === 'photo') {
                         echo ' tabs__content--active';
-                    } ?>">
+                                                                     } ?>">
                         <h2 class="visually-hidden">Форма добавления фото</h2>
                         <form class="adding-post__form form" action="add.php" method="post"
                               enctype="multipart/form-data" id="form-photo">
@@ -42,7 +42,7 @@
                                                for="photo-url"><?= $label['photo-url']; ?></label>
                                         <div class="form__input-section  <?php if (isset($errors['photo-url'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <input class="adding-post__input form__input" id="photo-url" type="text"
                                                    name="photo-url" placeholder="Введите ссылку"
                                                    value="<?= get_post_value('photo-url') ?>">
@@ -81,7 +81,7 @@
 
                     <section class="adding-post__video tabs__content <?php if ($active_type === 'video') {
                         echo ' tabs__content--active';
-                    } ?>">
+                                                                     } ?>">
                         <h2 class="visually-hidden">Форма добавления видео</h2>
                         <form class="adding-post__form form" action="add.php" method="post"
                               enctype="multipart/form-data">
@@ -95,7 +95,7 @@
                                                 class="form__input-required">*</span></label>
                                         <div class="form__input-section  <?php if (isset($errors['video-url'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <input class="adding-post__input form__input" id="video-url" type="text"
                                                    name="video-url" placeholder="Введите ссылку"
                                                    value="<?= get_post_value('video-url'); ?>">
@@ -122,7 +122,7 @@
 
                     <section class="adding-post__text tabs__content <?php if ($active_type === 'text') {
                         echo ' tabs__content--active';
-                    } ?>">
+                                                                    } ?>">
                         <h2 class="visually-hidden">Форма добавления текста</h2>
                         <form class="adding-post__form form" action="add.php" method="post">
                             <div class="form__text-inputs-wrapper">
@@ -135,7 +135,7 @@
                                                 class="form__input-required">*</span></label>
                                         <div class="form__input-section  <?php if (isset($errors['post-text'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <textarea class="adding-post__textarea form__textarea form__input"
                                                       id="post-text" name="post-text"
                                                       placeholder="Введите текст публикации"><?= get_post_value('post-text'); ?></textarea>
@@ -161,7 +161,7 @@
 
                     <section class="adding-post__quote tabs__content <?php if ($active_type === 'quote') {
                         echo ' tabs__content--active';
-                    } ?>">
+                                                                     } ?>">
                         <h2 class="visually-hidden">Форма добавления цитаты</h2>
                         <form class="adding-post__form form" action="add.php" method="post">
                             <div class="form__text-inputs-wrapper">
@@ -174,7 +174,7 @@
                                                 class="form__input-required">*</span></label>
                                         <div class="form__input-section  <?php if (isset($errors['quote-text'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <textarea
                                                 class="adding-post__textarea adding-post__textarea--quote form__textarea form__input"
                                                 id="quote-text" name="quote-text"
@@ -193,7 +193,7 @@
                                                 class="form__input-required">*</span></label>
                                         <div class="form__input-section  <?php if (isset($errors['quote-author'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <input class="adding-post__input form__input" id="quote-author" type="text"
                                                    name="quote-author" value="<?= get_post_value('quote-author'); ?>">
                                             <button class="form__error-button button" type="button">!<span
@@ -218,7 +218,7 @@
 
                     <section class="adding-post__link tabs__content <?php if ($active_type === 'link') {
                         echo ' tabs__content--active';
-                    } ?>">
+                                                                    } ?>">
                         <h2 class="visually-hidden">Форма добавления ссылки</h2>
                         <form class="adding-post__form form" action="add.php" method="post">
                             <div class="form__text-inputs-wrapper">
@@ -231,7 +231,7 @@
                                                 class="form__input-required">*</span></label>
                                         <div class="form__input-section  <?php if (isset($errors['post-link'])) {
                                             echo 'form__input-section--error';
-                                        } ?>">
+                                                                         } ?>">
                                             <input class="adding-post__input form__input" id="post-link" type="text"
                                                    name="post-link" value="<?= get_post_value('post-link'); ?>">
                                             <button class="form__error-button button" type="button">!<span

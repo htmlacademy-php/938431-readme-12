@@ -7,13 +7,13 @@
             <h2 class="visually-hidden">Лента</h2>
             <div class="feed__main-wrapper">
                 <div class="feed__wrapper">
-                    <?php foreach ($posts as $post): ?>
+                    <?php foreach ($posts as $post) : ?>
                         <article class="feed__post post post-<?= $post['type_class'] ?>">
                             <header class="post__header post__author">
                                 <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>"
                                    title="Автор">
                                     <div class="post__avatar-wrapper">
-                                        <?php if ($post['avatar']): ?>
+                                        <?php if ($post['avatar']) : ?>
                                             <img class="post__author-avatar" src="<?= $post['avatar'] ?>"
                                                  alt="Аватар пользователя" width="60" height="60">
                                         <?php endif; ?>
@@ -63,7 +63,7 @@
                                     </a>
                                 </div>
                                 <ul class="post__tags">
-                                    <?php foreach ($post['hashtags'] as $hash): ?>
+                                    <?php foreach ($post['hashtags'] as $hash) : ?>
                                         <li>
                                             <a href="/search.php?q=%23<?= $hash['hashtag_title'] ?>">#<?= $hash['hashtag_title'] ?></a>
                                         </li>
@@ -78,15 +78,15 @@
                 <li class="feed__filters-item filters__item">
                     <a class="filters__button <?php if (!$filter) {
                         echo ' filters__button--active';
-                    } ?>" href="/feed.php?filter=0">
+                                              } ?>" href="/feed.php?filter=0">
                         <span>Все</span>
                     </a>
                 </li>
-                <?php foreach ($types as $type): ?>
+                <?php foreach ($types as $type) : ?>
                     <li class="feed__filters-item filters__item">
                         <a class="filters__button filters__button--<?= $type['type_class'] ?> <?php if ((int)$filter === $type['id']) {
                             echo 'filters__button--active';
-                        } ?> button" href="/feed.php?filter=<?= $type['id'] ?>">
+                                                                   } ?> button" href="/feed.php?filter=<?= $type['id'] ?>">
                             <span class="visually-hidden"><?= $type['type_title'] ?></span>
                             <svg class="filters__icon" width="22" height="18">
                                 <use xlink:href="#icon-filter-<?= $type['type_class'] ?>"></use>

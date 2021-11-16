@@ -15,9 +15,9 @@
                         </div>
                         <span class="post__view"><?= $post['watch_count'] ?? 0; ?> просмотров</span>
                     </div>
-                    <?php if ($hashtags): ?>
+                    <?php if ($hashtags) : ?>
                         <ul class="post__tags">
-                            <?php foreach ($hashtags as $hash): ?>
+                            <?php foreach ($hashtags as $hash) : ?>
                                 <li>
                                     <a href="search.php?q=%23<?= $hash['hashtag_title'] ?>">#<?= $hash['hashtag_title']; ?></a>
                                 </li>
@@ -60,18 +60,18 @@
                         </div>
                     </div>
                     <div class="comments">
-                        <?php if (!$is_current_user): ?>
+                        <?php if (!$is_current_user) : ?>
                             <form class="comments__form form" action="/post.php?id=<?= $post['id']; ?>" method="post">
                                 <input type="hidden" name="post-id" value="<?= $post['id']; ?>">
                                 <div class="comments__my-avatar">
-                                    <?php if ($current_user_avatar): ?>
+                                    <?php if ($current_user_avatar) : ?>
                                         <img class="comments__picture" src="<?= $current_user_avatar; ?>" width="40"
                                              height="40" alt="Аватар пользователя">
                                     <?php endif; ?>
                                 </div>
                                 <div class="form__input-section <?php if (!empty($errors['comment'])) {
                                     echo 'form__input-section--error';
-                                } ?>">
+                                                                } ?>">
                 <textarea class="comments__textarea form__textarea form__input"
                           id="comment" name="comment"
                           placeholder="Ваш комментарий"><?= get_post_value('comment'); ?></textarea>
@@ -87,12 +87,12 @@
                         <?php endif; ?>
                         <div class="comments__list-wrapper">
                             <ul class="comments__list" id="comments">
-                                <?php foreach ($comments as $comment): ?>
+                                <?php foreach ($comments as $comment) : ?>
                                     <li class="comments__item user">
                                         <div class="comments__avatar">
                                             <a class="user__avatar-link"
                                                href="/profile.php?id=<?= $comment['user_id'] ?>">
-                                                <?php if ($comment['avatar']): ?>
+                                                <?php if ($comment['avatar']) : ?>
                                                     <img class="comments__picture" src="<?= $comment['avatar']; ?>"
                                                          alt="Аватар пользователя">
                                                 <?php endif; ?>
@@ -116,7 +116,7 @@
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
-                            <?php if ($post['comment_count'] > count($comments)): ?>
+                            <?php if ($post['comment_count'] > count($comments)) : ?>
                                 <a class="comments__more-link" href="<?= update_query_params('comments', 'all') ?>">
                                     <span>Показать все комментарии</span>
                                     <sup class="comments__amount"><?= $post['comment_count'] ?? 0; ?></sup>
@@ -130,7 +130,7 @@
                         <div class="post-details__avatar user__avatar">
                             <a class="post-details__avatar-link user__avatar-link"
                                href="/profile.php?id=<?= $user['id']; ?>">
-                                <?php if ($user['avatar']): ?>
+                                <?php if ($user['avatar']) : ?>
                                     <img class="post-details__picture user__picture" src="<?= $user['avatar']; ?>"
                                          width="60" height="60" alt="Аватар пользователя">
                                 <?php endif; ?>
@@ -149,21 +149,21 @@
                     <div class="post-details__rating user__rating">
                         <p class="post-details__rating-item user__rating-item user__rating-item--subscribers">
                             <span
-                                class="post-details__rating-amount user__rating-amount"><?= $user['subscriber_count']; ?></span>
+                                    class="post-details__rating-amount user__rating-amount"><?= $user['subscriber_count']; ?></span>
                             <span class="post-details__rating-text user__rating-text">подписчиков</span>
                         </p>
                         <p class="post-details__rating-item user__rating-item user__rating-item--publications">
                             <span
-                                class="post-details__rating-amount user__rating-amount"><?= $user['posts_count']; ?></span>
+                                    class="post-details__rating-amount user__rating-amount"><?= $user['posts_count']; ?></span>
                             <span class="post-details__rating-text user__rating-text">публикаций</span>
                         </p>
                     </div>
                     <div class="post-details__user-buttons user__buttons">
-                        <?php if (!$is_current_user): ?>
+                        <?php if (!$is_current_user) : ?>
                             <a class="user__button user__button--subscription button button--main"
                                href="/subscribe.php?id=<?= $user['id'] ?>"><?= ($is_subscribed) ? 'Отписаться' : 'Подписаться' ?></a>
                         <?php endif; ?>
-                        <?php if ($is_subscribed): ?>
+                        <?php if ($is_subscribed) : ?>
                             <a class="user__button user__button--writing button button--green"
                                href="/messages.php?id=<?= $user['id']; ?>">Отправить сообщение</a>
                         <?php endif; ?>

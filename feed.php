@@ -36,7 +36,7 @@ $types = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $constraint = '';
 if ($filter) {
     $constraint = " AND type_id = " . $filter;
-};
+}
 
 $sql = "SELECT
     post.id,
